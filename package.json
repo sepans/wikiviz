@@ -1,0 +1,31 @@
+{
+  "name": "wikimap",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "axios": "^0.16.2",
+    "d3-scale": "^1.0.6",
+    "prop-types": "^15.5.10",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
+    "react-redux": "^5.0.5",
+    "react-router-dom": "^4.1.1",
+    "react-router-redux": "next",
+    "redux": "^3.6.0",
+    "redux-logger": "^3.0.6",
+    "redux-promise-middleware": "^4.3.0",
+    "redux-thunk": "^2.2.0",
+    "three-orbitcontrols": "^1.2.0",
+    "three-text2d": "^0.3.4",
+    "three.js": "^0.77.1"
+  },
+  "devDependencies": {
+    "react-scripts": "1.0.7"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
