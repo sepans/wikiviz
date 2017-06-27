@@ -79,36 +79,45 @@ export default class Map extends Component {
 		light = new THREE.AmbientLight( 0x666666 );
 		scene.add( light );
 
-		const geometry = new THREE.BoxBufferGeometry( 4, 4, 4 );
-		for ( var i = 0; i < MAX_NODES_DISPLAY; i ++ ) {
-			const color = this.colorScale(tsneData[i].c)
-			const object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: color, opacity: 0.8, transparent: true  } ) );
-			// object.position.x = Math.random() * 800 - 400;
-			// object.position.y = Math.random() * 800 - 400;
-			// object.position.z = Math.random() * 800 - 400;
-			// object.rotation.x = Math.random() * 2 * Math.PI;
-			// object.rotation.y = Math.random() * 2 * Math.PI;
-			// object.rotation.z = Math.random() * 2 * Math.PI;
-			// object.scale.x = Math.random() + 0.5;
-			// object.scale.y = Math.random() + 0.5;
-			// object.scale.z = Math.random() + 0.5;
+		//const geometry = new THREE.BoxBufferGeometry( 4, 4, 4 );
+		//points
+		const PARTICLE_SIZE = 4
+		const geometry = new THREE.Geometry()
+		const material = new THREE.PointsMaterial( { 
+			size: PARTICLE_SIZE, 
+			/*map: sprite,*/ 
+			vertexColors: THREE.VertexColors, 
+			depthTest: false,
+			/*sizeAttenuation: false,*/ 
+			opacity: 1,  
+			transparent: true 
+		})
+		const points = new THREE.Points(geometry, material)
 
-			//const node = tsneData[i]
-			object.position.x = this.x(tsneData[i].x)//Math.random() * 10000 - 5000;
-			object.position.y = this.y(tsneData[i].y)//Math.random() * 6000 - 3000;
-			object.position.z = NODES_Z//Math.random() * -9000 ;
-			object.rotation.x = 0//Math.random() * 2 * Math.PI;
-			object.rotation.y = 0//Math.random() * 2 * Math.PI;
-			object.rotation.z = 0//Math.random() * 2 * Math.PI;
-			object.scale.x = .3//Math.random() * 200 + 100;
-			object.scale.y = .3//Math.random() * 200 + 100;
-			object.scale.z = Math.random() ;
-			//console.log(object.position.z)
-			if(i===0) {
-				this.articleStartingId = object.id
-			}
-			scene.add( object );
+		for ( var i = 0; i < 100/*MAX_NODES_DISPLAY*/; i ++ ) {
+			const color = this.colorScale(tsneData[i].c)
+			
+			// const object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: color, opacity: 0.8, transparent: true  } ) );
+			// object.position.x = this.x(tsneData[i].x)//Math.random() * 10000 - 5000;
+			// object.position.y = this.y(tsneData[i].y)//Math.random() * 6000 - 3000;
+			// object.position.z = NODES_Z//Math.random() * -9000 ;
+			// object.rotation.x = 0//Math.random() * 2 * Math.PI;
+			// object.rotation.y = 0//Math.random() * 2 * Math.PI;
+			// object.rotation.z = 0//Math.random() * 2 * Math.PI;
+			// object.scale.x = .3//Math.random() * 200 + 100;
+			// object.scale.y = .3//Math.random() * 200 + 100;
+			// object.scale.z = Math.random() ;
+
+			geometry.vertices.push(new THREE.Vector3(tsneData[i].x, tsneData[i].y, NODES_Z))
+			geometry.colors.push(new THREE.Color().setRGB(0.2, 0.2, 0.2))
+			// if(i===0) {
+			// 	this.articleStartingId = object.id
+			// }
+			//scene.add( object );
 		}
+		console.log(points, geometry)
+
+		scene.add(points)
 
 		console.log('MAP props', this.props)
 	
@@ -183,6 +192,9 @@ export default class Map extends Component {
 	addNeighbors(location, neighbors, pageTitle) {
 		console.log('ADD/UPDATE NEIG...', location, pageTitle, this.youarehere)
 		const numberOfNeighbors = 20
+		if(!this.youarehere ) {
+			return
+		}
 		if(this.youarehere.length===0) {
 			for ( var i = 0; i < numberOfNeighbors + 1; i ++ ) {
 				const fill = i===0 ? '#000000' : '#888888'
@@ -193,7 +205,7 @@ export default class Map extends Component {
 						Math.cos(i * 2 * Math.PI / numberOfNeighbors) > 0 ? textAlign.left : textAlign.right
 				const marginLeft =  i===0 ? 0 : 
 						Math.cos(i * 2 * Math.PI / numberOfNeighbors) > 0 ? 5 : 5//-5
-				const font = i===0 ? '16px Arial' : '1px Arial'
+				const font = i===0 ? '16px Arial' : '8px Arial'
 				const sprite = new SpriteText2D(title, { 
 					align: align,  font: font, fillStyle: fill , antialias: false ,
 				    //shadowColor: 'rgba(0, 0, 0, 0.2)',
@@ -210,9 +222,10 @@ export default class Map extends Component {
 				sprite.material.alphaTest = 0.1
 				//sprite.scale.set(1.5, 1.5, 1.5)
 				//console.log('FILL', sprite.fillStyle)
-
-				this.sprites.push(sprite)
-				this.scene.add(sprite)
+				if(i===0) {
+					this.sprites.push(sprite)
+					this.scene.add(sprite)
+				}
 
 				
 				//const node = tsneData[i]
