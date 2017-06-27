@@ -30,7 +30,7 @@ class Root extends Component {
 
 
     	return (<div> 
-          <div style={{padding: 10, maxWidth: '700px', width: '50%', display: 'inline-block'}}>
+          <div style={{padding: 10, maxWidth: '700px', width: '45%', display: 'inline-block'}}>
           	<WikiPage {...this.props}/>
           </div>
           <div style={{border: '1px solid #e5e55', float: 'right'}}>

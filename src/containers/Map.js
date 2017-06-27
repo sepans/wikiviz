@@ -14,8 +14,8 @@ import OrbitControls  from 'three-orbitcontrols'
 import { SpriteText2D, MeshText2D, textAlign } from 'three-text2d'
 
 //const OrbitControls = require('three-orbit-controls')(THREE)
-const ANIMATION_DURATION = 7 //ms?!
-const r = 8
+const ANIMATION_DURATION = 20 //ms?!
+const r = 20
 const HIGHLIGHT_Z = -1499
 const NODES_Z = -1500
 const CAMERA_Z = 500
@@ -79,22 +79,13 @@ export default class Map extends Component {
 		light = new THREE.AmbientLight( 0x666666 );
 		scene.add( light );
 
-		//const geometry = new THREE.BoxBufferGeometry( 4, 4, 4 );
+		const geometry = new THREE.BoxBufferGeometry( 4, 4, 4 );
 		//points
-		const PARTICLE_SIZE = 4
-		const geometry = new THREE.Geometry()
-		const material = new THREE.PointsMaterial( { 
-			size: PARTICLE_SIZE, 
-			/*map: sprite,*/ 
-			vertexColors: THREE.VertexColors, 
-			depthTest: false,
-			/*sizeAttenuation: false,*/ 
-			opacity: 1,  
-			transparent: true 
-		})
-		const points = new THREE.Points(geometry, material)
+		const PARTICLE_SIZE = 2
+		const pointsGeometry = new THREE.Geometry()
+		const pointsContainer = new THREE.Object3D()
 
-		for ( var i = 0; i < 100/*MAX_NODES_DISPLAY*/; i ++ ) {
+		for ( var i = 0; i < tsneData.length; i ++ ) {
 			const color = this.colorScale(tsneData[i].c)
 			
 			// const object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: color, opacity: 0.8, transparent: true  } ) );
@@ -108,16 +99,36 @@ export default class Map extends Component {
 			// object.scale.y = .3//Math.random() * 200 + 100;
 			// object.scale.z = Math.random() ;
 
-			geometry.vertices.push(new THREE.Vector3(tsneData[i].x, tsneData[i].y, NODES_Z))
-			geometry.colors.push(new THREE.Color().setRGB(0.2, 0.2, 0.2))
+			var vertex = new THREE.Vector3();
+			vertex.x = this.x(tsneData[i].x)
+			vertex.y = this.y(tsneData[i].y)
+			vertex.z = NODES_Z
+			//console.log(vertex)
+			pointsGeometry.vertices.push(vertex)
+			pointsGeometry.colors.push(new THREE.Color().setRGB(Math.random(), 0.2, 0.2))
 			// if(i===0) {
 			// 	this.articleStartingId = object.id
 			// }
 			//scene.add( object );
 		}
-		console.log(points, geometry)
 
-		scene.add(points)
+		const material = new THREE.PointsMaterial( { 
+			size: PARTICLE_SIZE, 
+			/*map: sprite,*/ 
+			vertexColors: THREE.VertexColors, 
+			depthTest: false,
+			/*sizeAttenuation: false,*/ 
+			opacity: 1,  
+			transparent: true 
+		})
+
+		//material.color.setRGB(.5, .5, .5)
+
+		const points = new THREE.Points(pointsGeometry, material) //points ~ particles
+		console.log(points, pointsGeometry)
+
+		pointsContainer.add(points)
+		scene.add(pointsContainer)
 
 		console.log('MAP props', this.props)
 	
@@ -195,6 +206,7 @@ export default class Map extends Component {
 		if(!this.youarehere ) {
 			return
 		}
+		//this.neighborsContainer = new THREE.Object3D()
 		if(this.youarehere.length===0) {
 			for ( var i = 0; i < numberOfNeighbors + 1; i ++ ) {
 				const fill = i===0 ? '#000000' : '#888888'
@@ -371,6 +383,7 @@ export default class Map extends Component {
 	 	//console.log('.')
 		//this.controls.update(  );
 		this.time++;
+		//this.camera.lookAt( this.scene.position )
 		if(this.nextCameraPosition && !this.dictEqual(this.camera.position, this.nextCameraPosition, d => Math.round(d))) { 
 			const newPosition = this.dictOps(this.camera.position, this.positionStep, (a, b) => a + b)
 			const newRotation = this.dictOps(this.camera.rotation, this.rotationStep, (a, b) => a + b)
@@ -385,24 +398,54 @@ export default class Map extends Component {
 		
 		if(this.props.map.raycast) {
 			this.raycaster.setFromCamera( this.mouse, this.camera );
-			var intersects = this.raycaster.intersectObjects( this.scene.children );
+			var intersects = this.raycaster.intersectObjects( this.scene.children, true );
 			if ( intersects.length > 0 ) {
-				const intersectId = intersects[0].object.material.emissive ? 0 : 1
-				if (intersects[intersectId] && this.intersected != intersects[intersectId].object && intersects[intersectId].object.material.emissive) {
-					if ( this.intersected ) {
-						this.intersected.material.emissive.setHex( this.intersected.currentHex );	
-					} 
-					this.intersected = intersects[intersectId].object;
-					this.intersected.currentHex = this.intersected.material.emissive.getHex();
-					this.intersected.material.emissive.setHex( 0xff0000 );
-					const tsneIndex = intersects[intersectId].object.id - this.articleStartingId
-					const hoveredItem = tsneIndex < MAX_NODES_DISPLAY ?
-							 this.props.map.tsneData[tsneIndex] :
-							 {title: this.props.map.neighbors[tsneIndex - MAX_NODES_DISPLAY ]}
-					this.props.dispatch(actions.hoveredOnMap(hoveredItem))
+				let i = 0
+				let intersectedObject = intersects[i]
+				while(i < intersects.length && intersectedObject.object.type==='Sprite') {
+					i++
+					intersectedObject = intersects[i]
+				}
+				//console.log(intersects[0])
+
+				// const intersectId = intersects[0].object.material.emissive ? 0 : 1
+				// if (intersects[intersectId] && this.intersected != intersects[intersectId].object && intersects[intersectId].object.material.emissive) {
+				// 	if ( this.intersected ) {
+				// 		this.intersected.material.emissive.setHex( this.intersected.currentHex );	
+				// 	} 
+				// 	this.intersected = intersects[intersectId].object;
+				// 	this.intersected.currentHex = this.intersected.material.emissive.getHex();
+				// 	this.intersected.material.emissive.setHex( 0xff0000 );
+				// 	const tsneIndex = intersects[intersectId].object.id - this.articleStartingId
+				// 	const hoveredItem = tsneIndex < MAX_NODES_DISPLAY ?
+				// 			 this.props.map.tsneData[tsneIndex] :
+				// 			 {title: this.props.map.neighbors[tsneIndex - MAX_NODES_DISPLAY ]}
+				// 	this.props.dispatch(actions.hoveredOnMap(hoveredItem))
+				// }
+				if(intersectedObject && this.props.map.tsneData) {
+					//console.log(intersects)
+					if(intersectedObject.index) {
+						const tsneIndex = intersectedObject.index
+						const hoveredItem = this.props.map.tsneData[tsneIndex] 
+						const materialColor = intersectedObject.object.geometry.colors[tsneIndex]
+						//console.log(materialColor)
+						materialColor.setRGB(0, 0, 1)
+						intersectedObject.object.geometry.colorsNeedUpdate = true
+						//console.log(tsneIndex, hoveredItem.title, )
+						this.props.dispatch(actions.hoveredOnMap(hoveredItem))
+
+					}
+					else if(intersectedObject.object.id) {
+						const neighborId = intersectedObject.object.id
+						//console.log('neighbor ', neighborId, intersectedObject)
+						intersectedObject.object.material.emissive.setRGB(0, 0, 1)
+						this.props.dispatch(actions.hoveredOnMap({title: this.props.map.neighbors[neighborId]}))
+					}
 				}
 			} else {
-				if ( this.intersected ) this.intersected.material.emissive.setHex( this.intersected.currentHex );
+				if ( this.intersected ) {
+					this.intersected.material.emissive.setHex( this.intersected.currentHex );	
+				}
 				this.intersected = null;
 				if(this.props.map.hoveredItem) {
 					this.props.dispatch(actions.hoveredOnMap(null))
