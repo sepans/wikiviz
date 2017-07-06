@@ -13,6 +13,7 @@ import THREE from 'three'
 import OrbitControls  from 'three-orbitcontrols'
 // import TextSprite from '../utils/ThreeTextSprite'
 import { SpriteText2D, MeshText2D, textAlign } from 'three-text2d'
+import TWEEN from 'tween.js'
 
 //const OrbitControls = require('three-orbit-controls')(THREE)
 const ANIMATION_DURATION = 20 //ms?!
@@ -314,15 +315,55 @@ export default class Map extends Component {
 			(this.props.map.zoom===11 && this.locationChanged(this.props.map.location, nextProps.map.location))) {
 			this.time = 0 //reset time
 			const location = nextProps.map.location
-			this.nextCameraPosition = nextProps.map.zoom===11 ?
-						 {x: this.x(location[0]), y: this.y(location[1]) - 80, z: HIGHLIGHT_Z + 100} : {x:  0, y: 0, z: CAMERA_Z}
-			this.nextCameraRotation = nextProps.map.zoom===11  ? {_x: 0.65, _y: 0.0, _z: 0.0} : {_x: 0.0, _y: 0.0, _z: 0.0} 
-			const nextCameraFov = nextProps.map.zoom===11  ? 60 : 45
-			this.cameraFovStep = (nextCameraFov - this.camera.fov)/ANIMATION_DURATION
-			this.positionStep = this.dictOps(this.nextCameraPosition, this. camera.position, (a, b) => (a - b)/ANIMATION_DURATION)
-			this.rotationStep = this.dictOps(this.nextCameraRotation, this. camera.rotation, (a, b) => (a - b)/ANIMATION_DURATION)
-
+		
 			
+			const from = {
+				x: this.camera.position.x,
+				y: this.camera.position.y,
+				z: this.camera.position.z,
+				fov: this.camera.fov,
+				_x: this.camera.rotation._x,
+				_y: this.camera.rotation._y,
+				_z: this.camera.rotation._z
+
+			}
+			const nextCameraProps = nextProps.map.zoom===11 ? 
+			{
+				x: this.x(location[0]),
+				y: this.y(location[1]) - 80,
+				z: HIGHLIGHT_Z + 100,
+				fov: 60,
+				_x: 0.65,
+				_y: 0.0,
+				_z: 0.0
+			} : 
+			{
+				x:  0,
+				y: 0,
+				z: CAMERA_Z,
+				fov: 40,
+				_x: 0.0,
+				_y: 0.0,
+				_z: 0.0
+			}
+			console.log(from, nextCameraProps)
+			var that = this
+ 			var tween = new TWEEN.Tween(from)
+	            .to(nextCameraProps, 500)
+	            .easing(TWEEN.Easing.Quadratic.In)
+	            .onUpdate(function () {
+	            	console.log(this)
+		            that.camera.position.set(this.x, this.y, this.z)
+		            that.camera.rotation.set(this._x, this._y, this._z)
+		            that.camera.fov = this.fov
+		            that.camera.updateProjectionMatrix();
+		            //that.camera.lookAt(new THREE.Vector3(0, 0, 0));
+	        })
+	        .onComplete(function () {
+	        	console.log('animation completed')
+	            //that.camera.lookAt(new THREE.Vector3(0, 0, 0));
+	        })
+	        .start();			
 
 		}
 	}
@@ -387,19 +428,8 @@ export default class Map extends Component {
 	renderThree() {
 	 	//console.log('.')
 		//this.controls.update(  );
-		this.time++;
-		//this.camera.lookAt( this.scene.position )
-		if(this.nextCameraPosition && !this.dictEqual(this.camera.position, this.nextCameraPosition, d => Math.round(d))) { 
-			const newPosition = this.dictOps(this.camera.position, this.positionStep, (a, b) => a + b)
-			const newRotation = this.dictOps(this.camera.rotation, this.rotationStep, (a, b) => a + b)
-			//const cameraLookAt = this.dictOps(this.nextCameraPosition, {x: 0, y: 0, z:0}, (a, b) => a + 300 * Math.cos( 0.2 * this.time ))
-			//console.log(cameraLookAt, this.nextCameraPosition)
-			//this.camera.lookAt(cameraLookAt)
-			this.camera.position.set(newPosition.x, newPosition.y, newPosition.z)
-			this.camera.rotation.set(newRotation._x, newRotation._y, newRotation._z)
-			this.camera.fov = this.camera.fov + this.cameraFovStep;
-			this.camera.updateProjectionMatrix();
-		}
+		
+		TWEEN.update()
 		
 		if(this.props.map.raycast) {
 			this.raycaster.setFromCamera( this.mouse, this.camera );

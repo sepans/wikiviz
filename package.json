@@ -17,7 +17,9 @@
     "redux-thunk": "^2.2.0",
     "three-orbitcontrols": "^1.2.0",
     "three-text2d": "^0.3.4",
-    "three.js": "^0.77.1"
+    "three.js": "^0.77.1",
+    "tween.js": "^16.6.0",
+    "tweenjs": "^0.0.0"
   },
   "devDependencies": {
     "react-scripts": "1.0.7"
