@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { scaleLinear, scaleOrdinal, schemeCategory20c } from 'd3-scale'
 import { extent } from 'd3-array'
+import { rgb } from 'd3-color'
 import * as actions from '../actions/'
 
 
@@ -86,7 +87,7 @@ export default class Map extends Component {
 		const pointsContainer = new THREE.Object3D()
 
 		for ( var i = 0; i < tsneData.length; i ++ ) {
-			const color = this.colorScale(tsneData[i].c)
+			const color = this.colorScale(tsneData[i].dbscanc)
 			
 			// const object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: color, opacity: 0.8, transparent: true  } ) );
 			// object.position.x = this.x(tsneData[i].x)//Math.random() * 10000 - 5000;
@@ -105,7 +106,11 @@ export default class Map extends Component {
 			vertex.z = NODES_Z
 			//console.log(vertex)
 			pointsGeometry.vertices.push(vertex)
-			pointsGeometry.colors.push(new THREE.Color().setRGB(Math.random(), 0.2, 0.2))
+			const rgbColor = rgb(color)
+			const nodeColor = new THREE.Color().setRGB(rgbColor.r/ 255, rgbColor.g/255, rgbColor.b/255)
+			if(i===0)
+			console.log(rgb, rgb(color))
+			pointsGeometry.colors.push(nodeColor)
 			// if(i===0) {
 			// 	this.articleStartingId = object.id
 			// }
