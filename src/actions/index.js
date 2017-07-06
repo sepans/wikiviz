@@ -8,7 +8,7 @@ export function fetchTsneData(pageName) {
 	return {
   		type: 'FETCH_TSNE',
   		//payload: axios.get(`data/withids.json`)
-  		payload: axios.get(`data/rect.json`) //TODO load from server to make json files consistent
+  		payload: axios.get(`data/rastered.json`) //TODO load from server to make json files consistent
 	}
 }
 

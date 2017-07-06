@@ -16,9 +16,9 @@ import { SpriteText2D, MeshText2D, textAlign } from 'three-text2d'
 
 //const OrbitControls = require('three-orbit-controls')(THREE)
 const ANIMATION_DURATION = 20 //ms?!
-const r = 20
-const HIGHLIGHT_Z = -1499
-const NODES_Z = -1500
+const r = 10
+const HIGHLIGHT_Z = -1460
+const NODES_Z = -1530
 const CAMERA_Z = 500
 const MAX_NODES_DISPLAY = /*tsneData.length*/ 50000
 
@@ -57,8 +57,8 @@ export default class Map extends Component {
 		this.x = scaleLinear().range([-width, width])
 		this.y= scaleLinear().range([-height, height])
 		
-		this.x.domain(extent(tsneData, d => d.x))
-		this.y.domain(extent(tsneData, d => d.y))
+		this.x.domain(extent(tsneData, d => d.rx))
+		this.y.domain(extent(tsneData, d => d.ry))
 
 		console.log('domains', this.x.domain(), this.y.domain())
 
@@ -82,7 +82,7 @@ export default class Map extends Component {
 
 		const geometry = new THREE.BoxBufferGeometry( 4, 4, 4 );
 		//points
-		const PARTICLE_SIZE = 2
+		const PARTICLE_SIZE = 3
 		const pointsGeometry = new THREE.Geometry()
 		const pointsContainer = new THREE.Object3D()
 
@@ -101,8 +101,8 @@ export default class Map extends Component {
 			// object.scale.z = Math.random() ;
 
 			var vertex = new THREE.Vector3();
-			vertex.x = this.x(tsneData[i].x)
-			vertex.y = this.y(tsneData[i].y)
+			vertex.x = this.x(tsneData[i].rx)
+			vertex.y = this.y(tsneData[i].ry)
 			vertex.z = NODES_Z
 			//console.log(vertex)
 			pointsGeometry.vertices.push(vertex)
@@ -315,8 +315,8 @@ export default class Map extends Component {
 			this.time = 0 //reset time
 			const location = nextProps.map.location
 			this.nextCameraPosition = nextProps.map.zoom===11 ?
-						 {x: this.x(location[0]), y: this.y(location[1]) - 80, z: NODES_Z + 100} : {x:  0, y: 0, z: CAMERA_Z}
-			this.nextCameraRotation = nextProps.map.zoom===11  ? {_x: 0.6, _y: 0.0, _z: 0.0} : {_x: 0.0, _y: 0.0, _z: 0.0} 
+						 {x: this.x(location[0]), y: this.y(location[1]) - 80, z: HIGHLIGHT_Z + 100} : {x:  0, y: 0, z: CAMERA_Z}
+			this.nextCameraRotation = nextProps.map.zoom===11  ? {_x: 0.65, _y: 0.0, _z: 0.0} : {_x: 0.0, _y: 0.0, _z: 0.0} 
 			const nextCameraFov = nextProps.map.zoom===11  ? 60 : 45
 			this.cameraFovStep = (nextCameraFov - this.camera.fov)/ANIMATION_DURATION
 			this.positionStep = this.dictOps(this.nextCameraPosition, this. camera.position, (a, b) => (a - b)/ANIMATION_DURATION)
