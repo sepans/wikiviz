@@ -300,6 +300,8 @@ export default class Map extends Component {
 
 	componentWillReceiveProps(nextProps) {
 		console.log('recieved props', this.props, nextProps, nextProps.location!=this.props.location)
+		const location = nextProps.map.location
+		const prevLocation = this.props.map.location
 		if(this.props.map.tsneData==null && nextProps.map.tsneData!=null) {
 			//this.addBoxes(nextProps.tsneData)
 			this.init(nextProps.map.tsneData)
@@ -311,29 +313,15 @@ export default class Map extends Component {
 			//this.addNeighbors(nextProps.map.location, nextProps.map.neighbors, nextProps.wikipage.pageTitle)
 			this.updateNeighbors = true;
 		}
-		if((this.props.map.zoom != nextProps.map.zoom) || 
-			(this.props.map.zoom===11 && this.locationChanged(this.props.map.location, nextProps.map.location))) {
-			this.time = 0 //reset time
-			const location = nextProps.map.location
-		
-			
-			const from = {
-				x: this.camera.position.x,
-				y: this.camera.position.y,
-				z: this.camera.position.z,
-				fov: this.camera.fov,
-				_x: this.camera.rotation._x,
-				_y: this.camera.rotation._y,
-				_z: this.camera.rotation._z
+		if(this.props.map.zoom != nextProps.map.zoom) {
 
-			}
 			const nextCameraProps = nextProps.map.zoom===11 ? 
 			{
 				x: this.x(location[0]),
 				y: this.y(location[1]) - 80,
 				z: HIGHLIGHT_Z + 100,
 				fov: 60,
-				_x: 0.65,
+				_x: 0.5,
 				_y: 0.0,
 				_z: 0.0
 			} : 
@@ -346,26 +334,82 @@ export default class Map extends Component {
 				_y: 0.0,
 				_z: 0.0
 			}
-			console.log(from, nextCameraProps)
-			var that = this
- 			var tween = new TWEEN.Tween(from)
-	            .to(nextCameraProps, 500)
-	            .easing(TWEEN.Easing.Quadratic.In)
-	            .onUpdate(function () {
-	            	console.log(this)
-		            that.camera.position.set(this.x, this.y, this.z)
-		            that.camera.rotation.set(this._x, this._y, this._z)
-		            that.camera.fov = this.fov
-		            that.camera.updateProjectionMatrix();
-		            //that.camera.lookAt(new THREE.Vector3(0, 0, 0));
-	        })
-	        .onComplete(function () {
-	        	console.log('animation completed')
-	            //that.camera.lookAt(new THREE.Vector3(0, 0, 0));
-	        })
-	        .start();			
+			this.tweenCamera(nextCameraProps, {}, () => {
+
+			})
+			// setTimeout(() => {
+			// 	this.tweenCamera(nextProps.map.zoom===11 ? {_x: 0.65} : {_x: 0})
+			// }, 100)		
 
 		}
+		else if(this.props.map.zoom===11 && this.locationChanged(this.props.map.location, nextProps.map.location)) {
+			const distance = Math.sqrt( Math.pow(prevLocation[1] - location[1], 2)	+ Math.pow(prevLocation[0] - location[0], 2))
+			const MAX_DISTANCE = 6000
+			const tempZ = (distance / MAX_DISTANCE) * ( CAMERA_Z - HIGHLIGHT_Z - 100) + (HIGHLIGHT_Z + 100)
+			console.log('distance', distance, distance/MAX_DISTANCE, tempZ)		
+			this.tweenCamera({z: tempZ, _x: distance > 200 ? 0.4 : 0.65}, {}, () => {
+				const nextCameraProps = 
+					{
+						x: this.x(location[0]),
+						y: this.y(location[1]) - 80,
+						z: HIGHLIGHT_Z + 100,
+						fov: 60,
+						_x: 0.65,
+						_y: 0.0,
+						_z: 0.0
+					} 
+				this.tweenCamera(nextCameraProps, {}, () => {
+					this.tweenCamera({z: HIGHLIGHT_Z + 100})
+				})	
+			})		
+			
+		}
+	}
+
+	tweenCamera(to, options, done) {
+			options = options || {}
+			options.time = options.time || 500
+			options.easing = options.easing || TWEEN.Easing.Linear.None
+			const from = {
+					x: this.camera.position.x,
+					y: this.camera.position.y,
+					z: this.camera.position.z,
+					fov: this.camera.fov,
+					_x: this.camera.rotation._x,
+					_y: this.camera.rotation._y,
+					_z: this.camera.rotation._z
+
+				}
+			
+			var that = this
+ 			var tween = new TWEEN.Tween(from)
+	            .to(to, options.time)
+	            .easing(options.easing)
+	            .onUpdate(function () {
+		            that.camera.position.setZ(this.z)
+		            const position = {
+		            	x: this.x || that.camera.position.x,
+		            	y: this.y || that.camera.position.y,
+		            	z: this.z || that.camera.position.z
+		            }
+		            const rotation = {
+		            	_x: this._x || that.camera.rotation._x,
+		            	_y: this._y || that.camera.rotation._y,
+		            	_z: this._z || that.camera.rotation._z
+		            }
+		            that.camera.position.set(position.x, position.y, position.z)
+		            that.camera.rotation.set(rotation._x, rotation._y, rotation._z)
+
+	        })
+	        .onComplete(function () {
+	        	console.log('zoom out completed')
+	        	if(done) {
+	        		done()
+	        	}
+	            //that.camera.lookAt(new THREE.Vector3(0, 0, 0));
+	        })
+	        .start();				
+
 	}
 
 	locationChanged(oldLoc, newLoc) {
@@ -431,7 +475,7 @@ export default class Map extends Component {
 		
 		TWEEN.update()
 		
-		if(this.props.map.raycast) {
+		if(this.props.map.raycast && false) {
 			this.raycaster.setFromCamera( this.mouse, this.camera );
 			var intersects = this.raycaster.intersectObjects( this.scene.children, true );
 			if ( intersects.length > 0 ) {
