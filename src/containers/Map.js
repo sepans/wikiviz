@@ -18,9 +18,9 @@ import TWEEN from 'tween.js'
 //const OrbitControls = require('three-orbit-controls')(THREE)
 const ANIMATION_DURATION = 20 //ms?!
 const r = 10
-const HIGHLIGHT_Z = -1460
+const HIGHLIGHT_Z = -1560
 const NODES_Z = -1530
-const CAMERA_Z = 500
+const CAMERA_Z = 6500
 const MAX_NODES_DISPLAY = /*tsneData.length*/ 50000
 
 
@@ -54,16 +54,23 @@ export default class Map extends Component {
 		this.height = height
 
 		container = this.refs.threejs
+		const SCALE_UNIVERSE_FACTOR = 4
 
-		this.x = scaleLinear().range([-width, width])
-		this.y= scaleLinear().range([-height, height])
+		this.x = scaleLinear().range([- SCALE_UNIVERSE_FACTOR * width, SCALE_UNIVERSE_FACTOR * width])
+		this.y= scaleLinear().range([-SCALE_UNIVERSE_FACTOR * height, SCALE_UNIVERSE_FACTOR * height])
 		
-		this.x.domain(extent(tsneData, d => d.rx))
-		this.y.domain(extent(tsneData, d => d.ry))
+		this.x.domain(extent(tsneData, d => d.x))
+		this.y.domain(extent(tsneData, d => d.y))
 
 		console.log('domains', this.x.domain(), this.y.domain())
 
-		this.colorScale = scaleOrdinal(schemeCategory20c)
+		this.colorScale = scaleOrdinal()
+			.range(["rgb(33,240,182)", "rgb(28,135,92)", "rgb(148,211,188)", "rgb(21,114,156)",
+			 "rgb(131,172,243)", "rgb(135,17,172)", "rgb(142,128,251)", "rgb(105,48,110)", 
+			 "rgb(248,134,191)", "rgb(25,69,197)", "rgb(253,63,190)", "rgb(63,22,249)", "rgb(177,230,50)",
+			 "rgb(58,166,9)", "rgb(83,242,89)", "rgb(110,57,13)", "rgb(221,192,189)", "rgb(237,75,4)",
+			 "rgb(142,16,35)", "rgb(222,138,44)", "rgb(71,74,9)", "rgb(234,214,36)", "rgb(124,136,105)",
+			 "rgb(254,29,102)", "rgb(168,119,124)"])
 	
 
 
@@ -83,7 +90,7 @@ export default class Map extends Component {
 
 		const geometry = new THREE.BoxBufferGeometry( 4, 4, 4 );
 		//points
-		const PARTICLE_SIZE = 3
+		const PARTICLE_SIZE = 8
 		const pointsGeometry = new THREE.Geometry()
 		const pointsContainer = new THREE.Object3D()
 
@@ -102,8 +109,8 @@ export default class Map extends Component {
 			// object.scale.z = Math.random() ;
 
 			var vertex = new THREE.Vector3();
-			vertex.x = this.x(tsneData[i].rx)
-			vertex.y = this.y(tsneData[i].ry)
+			vertex.x = this.x(tsneData[i].x)
+			vertex.y = this.y(tsneData[i].y)
 			vertex.z = NODES_Z
 			//console.log(vertex)
 			pointsGeometry.vertices.push(vertex)
@@ -267,7 +274,7 @@ export default class Map extends Component {
 				const x = i===0 ? this.x(location[0]) : this.x(location[0]) + r * Math.cos(i * 2 * Math.PI / numberOfNeighbors)
 				const y = i===0 ? this.y(location[1]) : this.y(location[1]) + r * Math.sin(i * 2 * Math.PI / numberOfNeighbors)
 
-				console.log('you', i, r, x, y)
+				//console.log('you', i, r, x, y)
 
 
 				// you.position.x = this.x(x)
@@ -299,9 +306,9 @@ export default class Map extends Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		console.log('recieved props', this.props, nextProps, nextProps.location!=this.props.location)
 		const location = nextProps.map.location
 		const prevLocation = this.props.map.location
+		const CAMERA_Y_OFFSET = 10
 		if(this.props.map.tsneData==null && nextProps.map.tsneData!=null) {
 			//this.addBoxes(nextProps.tsneData)
 			this.init(nextProps.map.tsneData)
@@ -318,10 +325,10 @@ export default class Map extends Component {
 			const nextCameraProps = nextProps.map.zoom===11 ? 
 			{
 				x: this.x(location[0]),
-				y: this.y(location[1]) - 80,
+				y: this.y(location[1]) - CAMERA_Y_OFFSET,
 				z: HIGHLIGHT_Z + 100,
 				fov: 60,
-				_x: 0.5,
+				_x: 0.1,
 				_y: 0.0,
 				_z: 0.0
 			} : 
@@ -337,38 +344,38 @@ export default class Map extends Component {
 			this.tweenCamera(nextCameraProps, {}, () => {
 
 			})
-			// setTimeout(() => {
-			// 	this.tweenCamera(nextProps.map.zoom===11 ? {_x: 0.65} : {_x: 0})
-			// }, 100)		
 
 		}
 		else if(this.props.map.zoom===11 && this.locationChanged(this.props.map.location, nextProps.map.location)) {
+			
 			const distance = Math.sqrt( Math.pow(prevLocation[1] - location[1], 2)	+ Math.pow(prevLocation[0] - location[0], 2))
-			const MAX_DISTANCE = 6000
-			const tempZ = (distance / MAX_DISTANCE) * ( CAMERA_Z - HIGHLIGHT_Z - 100) + (HIGHLIGHT_Z + 100)
-			console.log('distance', distance, distance/MAX_DISTANCE, tempZ)		
-			this.tweenCamera({z: tempZ, _x: distance > 200 ? 0.4 : 0.65}, {}, () => {
+			const MAX_DISTANCE = this.x.domain()[1] - this.x.domain()[0]
+			const tempZ = distance > 50 ? (distance / MAX_DISTANCE) * ( CAMERA_Z - HIGHLIGHT_Z - 100) + (HIGHLIGHT_Z + 100) : HIGHLIGHT_Z + 100
+			console.log('distance', distance, MAX_DISTANCE, distance/MAX_DISTANCE, tempZ, this.camera.position.z)		
+			const midpoint = {x: this.x((location[0] + prevLocation[0])/2), y: this.y((location[1] + prevLocation[1])/2), z: tempZ, fov: 50}
+			console.log('midpoint', prevLocation, location, [(location[0] + prevLocation[0])/2, (location[1] + prevLocation[1])/2],  midpoint)
+			
+			this.tweenCamera(midpoint, {tween: TWEEN.Easing.Cubic.Out}, () => {
 				const nextCameraProps = 
 					{
 						x: this.x(location[0]),
-						y: this.y(location[1]) - 80,
+						y: this.y(location[1]) - CAMERA_Y_OFFSET,
 						z: HIGHLIGHT_Z + 100,
 						fov: 60,
-						_x: 0.65,
+						_x: 0.1,
 						_y: 0.0,
 						_z: 0.0
 					} 
-				this.tweenCamera(nextCameraProps, {}, () => {
-					this.tweenCamera({z: HIGHLIGHT_Z + 100})
-				})	
-			})		
+				this.tweenCamera(nextCameraProps, {tween: TWEEN.Easing.Exponential.In})
+			})
+	
 			
 		}
 	}
 
 	tweenCamera(to, options, done) {
 			options = options || {}
-			options.time = options.time || 500
+			options.time = options.time || 700
 			options.easing = options.easing || TWEEN.Easing.Linear.None
 			const from = {
 					x: this.camera.position.x,
@@ -475,10 +482,10 @@ export default class Map extends Component {
 		
 		TWEEN.update()
 		
-		if(this.props.map.raycast && false) {
+		if(this.props.map.raycast) {
 			this.raycaster.setFromCamera( this.mouse, this.camera );
 			var intersects = this.raycaster.intersectObjects( this.scene.children, true );
-			if ( intersects.length > 0 ) {
+			if ( intersects.length > 0) {
 				let i = 0
 				let intersectedObject = intersects[i]
 				while(i < intersects.length && intersectedObject.object.type==='Sprite') {
@@ -508,22 +515,38 @@ export default class Map extends Component {
 						const hoveredItem = this.props.map.tsneData[tsneIndex] 
 						const materialColor = intersectedObject.object.geometry.colors[tsneIndex]
 						//console.log(materialColor)
+						
+						this.intersected = intersectedObject
+						// if(!this.intersected.currentHex) {
+						// 	this.intersected.currentHex = materialColor.getHex()
+
+						// }
+
 						materialColor.setRGB(0, 0, 1)
 						intersectedObject.object.geometry.colorsNeedUpdate = true
 						//console.log(tsneIndex, hoveredItem.title, )
 						this.props.dispatch(actions.hoveredOnMap(hoveredItem))
 
+
 					}
 					else if(intersectedObject.object.id) {
 						const neighborId = intersectedObject.object.id
-						//console.log('neighbor ', neighborId, intersectedObject)
-						intersectedObject.object.material.emissive.setRGB(0, 0, 1)
-						this.props.dispatch(actions.hoveredOnMap({title: this.props.map.neighbors[neighborId]}))
+						if(!intersectedObject.object.material.emissive)
+							console.log('neighbor ', neighborId, intersectedObject, intersectedObject.object.material)
+						else {
+							//this.intersected = intersectedObject
+							//this.intersected.currentRGB = intersectedObject.object.material.emissive.getRGB()
+							intersectedObject.object.material.emissive.setRGB(0, 0, 1)
+							this.props.dispatch(actions.hoveredOnMap({title: this.props.map.neighbors[neighborId]}))
+
+						}
 					}
 				}
 			} else {
 				if ( this.intersected ) {
-					this.intersected.material.emissive.setHex( this.intersected.currentHex );	
+					//const materialColor = this.intersected.object.geometry.colors[this.intersected.index]
+
+					//materialColor.setHex( this.intersected.currentHex );	
 				}
 				this.intersected = null;
 				if(this.props.map.hoveredItem) {
@@ -567,7 +590,7 @@ export default class Map extends Component {
 
 
 	render() {
-		console.log('map props', this.props)
+		//console.log('map props', this.props)
 		if(this.updateNeighbors) {
 			this.addNeighbors(this.props.map.location, this.props.map.neighbors, this.props.wikipage.pageTitle)
 			this.updateNeighbors = false

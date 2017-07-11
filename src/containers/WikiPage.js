@@ -33,8 +33,8 @@ export default class WikiPage extends Component {
     render() {
       const {wikicontent, pageTitle} = this.props.wikipage
       const wikipediaStyles = {
-        fontFamily: 'sans-serif',
-        fontSize: '14px',
+         fontFamily: 'sans-serif',
+         fontSize: '100%',
          maxHeight: window.innerHeight,
          overflowY: 'scroll'
       }
@@ -42,7 +42,7 @@ export default class WikiPage extends Component {
         <div style={wikipediaStyles} ref={(el) => { this.contentEl = el} } >
           <WikiStyles />
           <h2 style={{fontFamily: "'Linux Libertine','Georgia','Times',serif", fontSize: '28px', fontWeight: 'normal'}}>{pageTitle}</h2>
-          <div onClick={this.wikiLinkClickedNotParsed.bind(this)}  style={{paddingRight: '20px'}}
+          <div className="mw-body-content" onClick={this.wikiLinkClickedNotParsed.bind(this)}  style={{paddingRight: '20px'}}
               dangerouslySetInnerHTML={wikicontent ? {__html: this.addOnclickHandlerToWikiContent(wikicontent)} : {__html: '<span>loading...</span>'}}>
           </div>
         </div>

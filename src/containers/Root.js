@@ -19,7 +19,6 @@ class Root extends Component {
 
 	
   	render() {
-  		console.log('render root', this.props)
   		
     //   const wikiContent = this.props.wikipage.wikicontent
   		// const tsneData = this.props.map.tsneData
