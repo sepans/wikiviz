@@ -1,10 +1,14 @@
 import { applyMiddleware, createStore } from 'redux'
 
-import { logger } from 'redux-logger'
+import { createLogger } from 'redux-logger'
 import thunk from 'redux-thunk'
 import promise from 'redux-promise-middleware'
 
 import rootReducer from './reducers/'
+
+const logger = createLogger({
+  predicate: (getState, action) => action.type !== 'HOVERED_ON_MAP'
+})
 
 const middleware = applyMiddleware(promise(), thunk, logger)
 
