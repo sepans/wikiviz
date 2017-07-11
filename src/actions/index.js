@@ -16,7 +16,7 @@ export function fetchPageLocation(pageName) {
 	console.log('fetchPageLocation', pageName)
 	return {
   		type: 'FETCH_LOCATION',
-  		payload: axios.get(`http://toymaker.local:8888/similars?title=${pageName}`)
+  		payload: axios.get(`http://elephant.local:8888/similars?title=${pageName}`)
 	}
 }
 
