@@ -23,7 +23,7 @@ export default class WikiPage extends Component {
       if(title) {
 
         this.props.dispatch(actions.checkRedirectAndFetch(title))
-        this.props.history.push(`/${title}`) //TODO move this to action to push title returned by checkRedirectAndFetch
+        //this.props.history.push(`/${title}`) //TODO move this to action to push title returned by checkRedirectAndFetch
                                               // might need to switch to react-redux-router
       }
       return false;

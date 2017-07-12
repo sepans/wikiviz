@@ -241,7 +241,6 @@ export default class Map extends Component {
 				const x = i===0 ? this.x(location[0]) : this.x(location[0]) + r * Math.cos(i * 2 * Math.PI / numberOfNeighbors)
 				const y = i===0 ? this.y(location[1]) : this.y(location[1]) + r * Math.sin(i * 2 * Math.PI / numberOfNeighbors)
 				const z = HIGHLIGHT_Z
-				console.log('init', i, r, x, y)
 
 				sprite.position.set(x + marginLeft, y + 5, z + 5)
 				sprite.material.alphaTest = 0.1

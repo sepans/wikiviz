@@ -15,18 +15,33 @@ class Root extends Component {
   		this.props.dispatch(actions.fetchTsneData())
       this.props.dispatch(actions.fetchPageLocation(initialTitle))
 
+      this.props.history.listen((location) => {
+        console.log('history listener', location, this.props)
+        //TODO this is so hacky!
+        if(location) {
+          const title = location.pathname.replace('/', '')
+          this.props.dispatch(actions.navigateToPage(title))
+          this.props.dispatch(actions.fetchPageLocation(title))
+          this.props.dispatch(actions.fetchWikiPage())
+
+
+        }
+
+      })
+
+
   	}
+
+    componentDidUpdate(prevProps, prevState) {
+      // console.log('ROOT CHANGED!!!!!',prevProps.match, this.props.match)
+      // if(this.props.match.params.title != prevProps.match.params.title) {
+      //   console.log('TITLE CHANGED')
+      // }
+    }
 
 	
   	render() {
   		
-    //   const wikiContent = this.props.wikipage.wikicontent
-  		// const tsneData = this.props.map.tsneData
-    //   const dispatch = this.props.dispatch
-    //   const pageTitle = this.props.wikipage.pageTitle
-    //   const location = this.props.map.location
-    //   const neighbors = this.props.map.neighbors
-
 
     	return (<div> 
           <div style={{padding: 10, maxWidth: '700px', width: '45%', display: 'inline-block'}}>
@@ -40,10 +55,12 @@ class Root extends Component {
 
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
+  console.log('mapStateToProps', state, ownProps)
   return {
   	wikipage: state.wikipage,
-  	map: state.map
+  	map: state.map,
+    //match: ownProps.match
   }
 }
 
