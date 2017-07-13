@@ -56,7 +56,6 @@ class Root extends Component {
 }
 
 function mapStateToProps(state, ownProps) {
-  console.log('mapStateToProps', state, ownProps)
   return {
   	wikipage: state.wikipage,
   	map: state.map,

@@ -21,7 +21,8 @@ const initialState = {
 	    fetched: false,
 	    error: [],
 	    zoom: 1,
-	    raycast: false
+	    raycast: true,
+	    wikiHistory: []
 	},
 	wikipage: {
 		pageTitle: null,

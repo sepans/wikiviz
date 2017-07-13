@@ -23,6 +23,12 @@ export default class WikiPage extends Component {
       if(title) {
 
         this.props.dispatch(actions.checkRedirectAndFetch(title))
+        if(this.props.map.zoom!==11) {
+          setTimeout(() => {
+            this.props.dispatch(actions.zoomIn())
+          }, 1000)
+          
+        }
         //this.props.history.push(`/${title}`) //TODO move this to action to push title returned by checkRedirectAndFetch
                                               // might need to switch to react-redux-router
       }
@@ -39,7 +45,7 @@ export default class WikiPage extends Component {
          overflowY: 'scroll'
       }
       return (
-        <div style={wikipediaStyles} ref={(el) => { this.contentEl = el} } >
+        <div style={wikipediaStyles} ref={(el) => { this.contentEl = el} } onWheel={e => { e.stopPropagation() }}>
           <WikiStyles />
           <h2 style={{fontFamily: "'Linux Libertine','Georgia','Times',serif", fontSize: '28px', fontWeight: 'normal'}}>{pageTitle}</h2>
           <div className="mw-body-content" onClick={this.wikiLinkClickedNotParsed.bind(this)}  style={{paddingRight: '20px'}}

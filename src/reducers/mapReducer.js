@@ -27,13 +27,19 @@ export default function reducer(state=defualtState, action) {
       //TODO: move this somewhere better
       const location = action.payload.data.location//Object.values(action.payload.data.query.pages)[0].revisions[0]['*']
       const neighbors = action.payload.data.nn
-      return {...state, /*fetching: false, fetched: true,*/ location: location, neighbors: neighbors}
+      const wikiHistory = state.wikiHistory || []
+      wikiHistory.push({
+        x: location[0],
+        y: location[1],
+        title: state.pageTitle 
+      })
+      return {...state, /*fetching: false, fetched: true,*/ location: location, neighbors: neighbors, wikiHistory: wikiHistory}
     case 'FETCH_LOCATION_REJECTED':
       return {...state, fetching: false, error: state.error.concat(action.payload)}
     case 'MAP_ZOOM_IN':
-      return {...state, zoom: Math.min(state.zoom + 10, 30), raycast: true}
+      return {...state, zoom: 11/*Math.min(state.zoom + 10, 30)*/, raycast: true}
     case 'MAP_ZOOM_OUT':
-      return {...state, zoom: Math.max(state.zoom - 10, 1), raycast: false}
+      return {...state, zoom: 1/*Math.max(state.zoom - 10, 1)*/, raycast: true}
     case 'HOVERED_ON_MAP': 
       return {...state, hoveredItem: action.payload}
     default:

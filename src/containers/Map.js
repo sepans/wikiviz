@@ -17,12 +17,14 @@ import TWEEN from 'tween.js'
 
 //const OrbitControls = require('three-orbit-controls')(THREE)
 const ANIMATION_DURATION = 20 //ms?!
-const r = 10
-const HIGHLIGHT_Z = -1560
+const r = 8
+const HIGHLIGHT_Z = -1530
 const NODES_Z = -1530
 const CAMERA_Z = 6500
 const MAX_NODES_DISPLAY = /*tsneData.length*/ 50000
 
+const getX = d => d.x
+const getY = d => d.y
 
 export default class Map extends Component {
 
@@ -43,8 +45,9 @@ export default class Map extends Component {
 		//let pickingData = [], pickingTexture, pickingScene;
 		const objects = [];
 		let highlightBox;
-		this.mouse = new THREE.Vector2();
-		const offset = new THREE.Vector3( 10, 10, 10 );
+		this.mouse = new THREE.Vector2()
+		this.mouseStart = new THREE.Vector2()
+		const offset = new THREE.Vector3( 10, 10, 10 )
 
 		const width = window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
 		const height = window.innerHeight * 0.95// width
@@ -59,8 +62,8 @@ export default class Map extends Component {
 		this.x = scaleLinear().range([- SCALE_UNIVERSE_FACTOR * width, SCALE_UNIVERSE_FACTOR * width])
 		this.y= scaleLinear().range([-SCALE_UNIVERSE_FACTOR * height, SCALE_UNIVERSE_FACTOR * height])
 		
-		this.x.domain(extent(tsneData, d => d.x))
-		this.y.domain(extent(tsneData, d => d.y))
+		this.x.domain(extent(tsneData, getX))
+		this.y.domain(extent(tsneData, getY))
 
 		console.log('domains', this.x.domain(), this.y.domain())
 
@@ -90,7 +93,7 @@ export default class Map extends Component {
 
 		const geometry = new THREE.BoxBufferGeometry( 4, 4, 4 );
 		//points
-		const PARTICLE_SIZE = 8
+		const PARTICLE_SIZE = 10
 		const pointsGeometry = new THREE.Geometry()
 		const pointsContainer = new THREE.Object3D()
 
@@ -109,8 +112,8 @@ export default class Map extends Component {
 			// object.scale.z = Math.random() ;
 
 			var vertex = new THREE.Vector3();
-			vertex.x = this.x(tsneData[i].x)
-			vertex.y = this.y(tsneData[i].y)
+			vertex.x = this.x(getX(tsneData[i]))
+			vertex.y = this.y(getY(tsneData[i]))
 			vertex.z = NODES_Z
 			//console.log(vertex)
 			pointsGeometry.vertices.push(vertex)
@@ -160,6 +163,10 @@ export default class Map extends Component {
 
 		renderer.domElement.addEventListener( 'mousemove', (e) => this.mouseMove(e) )
 		renderer.domElement.addEventListener( 'click', (e) => this.mouseClicked(e) )
+
+// window.addEventListener( 'mousewheel', this.mousewheel.bind(this), false );
+// window.addEventListener( 'DOMMouseScroll', this.mousewheel.bind(this), false ); // firefox
+
 
 		//controls = new OrbitControls(camera, renderer.domElement)
 		console.log('camera after', camera)
@@ -215,7 +222,7 @@ export default class Map extends Component {
 
 	addNeighbors(location, neighbors, pageTitle) {
 		console.log('ADD/UPDATE NEIG...', location, pageTitle, this.youarehere)
-		const numberOfNeighbors = 20
+		const numberOfNeighbors = 8
 		if(!this.youarehere ) {
 			return
 		}
@@ -223,7 +230,7 @@ export default class Map extends Component {
 		if(this.youarehere.length===0) {
 			for ( var i = 0; i < numberOfNeighbors + 1; i ++ ) {
 				const fill = i===0 ? '#000000' : '#888888'
-				const object = new THREE.Mesh( this.geometry, new THREE.MeshLambertMaterial( { color: fill, opacity: 0.6, transparent: true  } ) );
+				const object = new THREE.Mesh( this.geometry, new THREE.MeshLambertMaterial( { color: fill, opacity: 0.8, transparent: true  } ) );
 				
 				const title = i===0 ? pageTitle : ''//neighbors[i]
 				const align = i===0 ? textAlign.center : 
@@ -259,9 +266,9 @@ export default class Map extends Component {
 				object.rotation.x = 0//Math.random() * 2 * Math.PI;
 				object.rotation.y = 0//Math.random() * 2 * Math.PI;
 				object.rotation.z = 0//Math.random() * 2 * Math.PI;
-				 object.scale.x = .4//Math.random() * 200 + 100;
-				 object.scale.y = .4//Math.random() * 200 + 100;
-				 object.scale.z = .4//Math.random() * 200 + 100;
+				object.scale.x = .8//Math.random() * 200 + 100;
+				object.scale.y = .8//Math.random() * 200 + 100;
+				object.scale.z = .8//Math.random() * 200 + 100;
 				//console.log(object.position.z)
 				this.scene.add( object );
 				this.youarehere.push(object)
@@ -307,7 +314,7 @@ export default class Map extends Component {
 	componentWillReceiveProps(nextProps) {
 		const location = nextProps.map.location
 		const prevLocation = this.props.map.location
-		const CAMERA_Y_OFFSET = 10
+		const CAMERA_Y_OFFSET = 50
 		if(this.props.map.tsneData==null && nextProps.map.tsneData!=null) {
 			//this.addBoxes(nextProps.tsneData)
 			this.init(nextProps.map.tsneData)
@@ -318,6 +325,7 @@ export default class Map extends Component {
 			console.log('UPDATING neighbors')
 			//this.addNeighbors(nextProps.map.location, nextProps.map.neighbors, nextProps.wikipage.pageTitle)
 			this.updateNeighbors = true;
+			this.drawHistory()
 		}
 		if(this.props.map.zoom != nextProps.map.zoom) {
 
@@ -325,9 +333,9 @@ export default class Map extends Component {
 			{
 				x: this.x(location[0]),
 				y: this.y(location[1]) - CAMERA_Y_OFFSET,
-				z: HIGHLIGHT_Z + 100,
+				z: HIGHLIGHT_Z + 600,
 				fov: 60,
-				_x: 0.1,
+				_x: 0.25,
 				_y: 0.0,
 				_z: 0.0
 			} : 
@@ -349,19 +357,19 @@ export default class Map extends Component {
 			
 			const distance = Math.sqrt( Math.pow(prevLocation[1] - location[1], 2)	+ Math.pow(prevLocation[0] - location[0], 2))
 			const MAX_DISTANCE = this.x.domain()[1] - this.x.domain()[0]
-			const tempZ = distance > 50 ? (distance / MAX_DISTANCE) * ( CAMERA_Z - HIGHLIGHT_Z - 100) + (HIGHLIGHT_Z + 100) : HIGHLIGHT_Z + 100
+			const tempZ = distance > 300 ? (distance / MAX_DISTANCE) * ( CAMERA_Z - HIGHLIGHT_Z - 100) * 0.6 + (HIGHLIGHT_Z + 600) : HIGHLIGHT_Z + 600
 			console.log('distance', distance, MAX_DISTANCE, distance/MAX_DISTANCE, tempZ, this.camera.position.z)		
 			const midpoint = {x: this.x((location[0] + prevLocation[0])/2), y: this.y((location[1] + prevLocation[1])/2), z: tempZ, fov: 50}
 			console.log('midpoint', prevLocation, location, [(location[0] + prevLocation[0])/2, (location[1] + prevLocation[1])/2],  midpoint)
 			
-			this.tweenCamera(midpoint, {tween: TWEEN.Easing.Cubic.Out}, () => {
+			this.tweenCamera(midpoint, {tween: TWEEN.Easing.Exponential.Out}, () => {
 				const nextCameraProps = 
 					{
 						x: this.x(location[0]),
 						y: this.y(location[1]) - CAMERA_Y_OFFSET,
-						z: HIGHLIGHT_Z + 100,
+						z: HIGHLIGHT_Z + 600,
 						fov: 60,
-						_x: 0.1,
+						_x: 0.25,
 						_y: 0.0,
 						_z: 0.0
 					} 
@@ -520,11 +528,15 @@ export default class Map extends Component {
 						// 	this.intersected.currentHex = materialColor.getHex()
 
 						// }
-
-						materialColor.setRGB(0, 0, 1)
-						intersectedObject.object.geometry.colorsNeedUpdate = true
-						//console.log(tsneIndex, hoveredItem.title, )
-						this.props.dispatch(actions.hoveredOnMap(hoveredItem))
+						if(materialColor) {
+							materialColor.setRGB(0, 0, 1)
+							intersectedObject.object.geometry.colorsNeedUpdate = true
+							//console.log(tsneIndex, hoveredItem.title, )
+							this.props.dispatch(actions.hoveredOnMap(hoveredItem))
+						}
+						else {
+							console.log('no material color ', intersectedObject.index, intersectedObject)
+						}
 
 
 					}
@@ -587,17 +599,133 @@ export default class Map extends Component {
 		}
 	}
 
+	drawHistory() {
+		 const history = this.props.map.wikiHistory
+		 if(history.length < 2) {
+		 	return
+		 }
+		 let points = []
+
+		 for(let i=0 ; i< history.length -1 ; i++) {
+		 	const curve = new THREE.CubicBezierCurve3(
+				new THREE.Vector3( this.x(history[i].x), this.y(history[i].y), NODES_Z ),
+				new THREE.Vector3( this.x((history[i].x + history[i + 1].x) * 0.5), this.y((history[i].y + history[i + 1].y) * 0.5) , NODES_Z + 400),
+				new THREE.Vector3( this.x((history[i].x + history[i + 1].x) * 0.5), this.y((history[i].y + history[i + 1].y) * 0.5) , NODES_Z + 400),
+				new THREE.Vector3( this.x(history[i + 1].x), this.y(history[i + 1].y), NODES_Z)
+			);
+		 	points = points.concat(curve.getSpacedPoints( 20 ))
+
+		 }
+
+		//var points = curve.getSpacedPoints( 20 );
+
+		var path = new THREE.Path();
+		var historyLineGeometry = path.createGeometry( points );
+		  
+		historyLineGeometry.dynamic = true
+		var material = new THREE.LineBasicMaterial({
+	        color: 0xff0000
+	    });
+
+		    // Create the final Object3d to add to the scene
+		 if(!this.splineObject) {
+			 this.splineObject = new THREE.Line(historyLineGeometry, material);
+			 this.scene.add(this.splineObject);
+
+		 }
+		 else {
+		 	this.splineObject.geometry = historyLineGeometry
+		 }
+
+	}
+
+	mousedown(e) {
+	    this.mouseDown = true;
+	    this.sx = e.clientX;
+	    this.sy = e.clientY;
+	    this.ssx = e.clientX;
+	    this.ssy = e.clientY;
+	    const w = this.width
+	    const h = this.height
+
+	    this.mouseStart.x = ( e.clientX / w ) * 2 - 1;
+	    this.mouseStart.y = - ( e.clientY / h ) * 2 + 1;
+
+
+	}
+
+	mouseup(e) {
+	    this.mouseDown = false;
+	}
+
+
+	mousemove(e) {
+	    const camera = this.camera
+	          //scatterPlot = threejsObjects.scatterPlot
+
+	    if (this.mouseDown) {
+	        var dx = e.clientX - this.sx;
+	        var dy = e.clientY - this.sy;
+
+            camera.position.x -= dx;
+            camera.position.y += dy;
+
+	        //}     
+	        this.sx += dx;
+	        this.sy += dy;
+
+	    }
+
+	    const w = this.width
+	    const h = this.height
+
+	}
+
+
+	mousewheel(e) {
+		console.log('mousewheel', e.wheelDelta, e.detail)
+		//debugger;
+		e.preventDefault()
+		e.stopPropagation()
+		const ZOOM_MIN_Z = -1000,
+		      ZOOM_MAX_Z = 8100
+
+		let d = e.deltaY//((typeof e.wheelDelta != "undefined")?(-e.wheelDelta):e.detail);
+		console.log('raw d', d)
+	    d = 100 * ((d>0)?1:-1);    
+		console.log('cooked d', d)
+	    const cPos = this.camera.position;
+	    if (isNaN(cPos.x) || isNaN(cPos.y) || isNaN(cPos.y)) return;
+
+		const mb = d>0 ? 0.05 : -0.05;
+		const deltaZ = 2000
+	    const newZ = cPos.z + mb * deltaZ
+		console.log('mousewheel newZ', newZ, mb * deltaZ)
+		
+	    if (newZ <= ZOOM_MIN_Z || newZ >= ZOOM_MAX_Z ){
+	       return ;
+	    }
+	    
+	    cPos.z = newZ
+	}	
 
 	render() {
 		//console.log('map props', this.props)
+		const hasHistory = this.props.map.wikiHistory.length > 1
 		if(this.updateNeighbors) {
 			this.addNeighbors(this.props.map.location, this.props.map.neighbors, this.props.wikipage.pageTitle)
 			this.updateNeighbors = false
 		}
 		return (
 				<div>
-					<button onClick={(e) => this.zoomClicked()}>zoom {this.props.map.zoom===1 ? 'in' : 'out'}</button>
-					<div style={{margin: '20px'}} ref="threejs"></div>
+					<button onClick={(e) => this.zoomClicked()}>{this.props.map.zoom===1 ? 'zoom to article' : 'show all map'}</button>
+					{/*<button onClick={(e) => this.drawHistory()} disabled={!hasHistory}>draw history</button>*/}
+					<div style={{margin: '20px'}} ref="threejs"
+						onMouseDown={(e) => this.mousedown(e)}
+						onMouseUp={(e) => this.mouseup(e)}
+						onMouseMove={(e) => this.mousemove(e)}
+						onWheel={(e) => this.mousewheel(e)}
+					></div>
 					<div style={{position: 'absolute', bottom: '10px'}}>{this.props.map.hoveredItem ? this.props.map.hoveredItem.title : ''}</div>
 				</div>
 				
