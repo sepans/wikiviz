@@ -93,7 +93,7 @@ export default class Map extends Component {
 
 		const geometry = new THREE.BoxBufferGeometry( 4, 4, 4 );
 		//points
-		const PARTICLE_SIZE = 10
+		const PARTICLE_SIZE = 15
 		const pointsGeometry = new THREE.Geometry()
 		const pointsContainer = new THREE.Object3D()
 
@@ -149,6 +149,8 @@ export default class Map extends Component {
 		console.log('MAP props', this.props)
 	
 		this.raycaster = new THREE.Raycaster();
+		console.log('raycaster threshold ', this.raycaster.params.Points.threshold, this.raycaster.params)
+		this.raycaster.params.Points.threshold = 10
 		renderer = new THREE.WebGLRenderer();
 		renderer.setClearColor( 0xffffff );
 		renderer.setPixelRatio( window.devicePixelRatio );
@@ -525,6 +527,8 @@ export default class Map extends Component {
 							materialColor.setRGB(0, 0, 1)
 							intersectedObject.object.geometry.colorsNeedUpdate = true
 							//console.log(tsneIndex, hoveredItem.title, )
+							hoveredItem.mousex = (this.mouse.x + 1)/2 * this.width + 8
+							hoveredItem.mousey = - (this.mouse.y - 1)/2 * this.height - 5
 							this.props.dispatch(actions.hoveredOnMap(hoveredItem))
 						}
 						else {
@@ -541,7 +545,11 @@ export default class Map extends Component {
 							//this.intersected = intersectedObject
 							//this.intersected.currentRGB = intersectedObject.object.material.emissive.getRGB()
 							intersectedObject.object.material.emissive.setRGB(0, 0, 1)
-							this.props.dispatch(actions.hoveredOnMap({title: this.props.map.neighbors[neighborId]}))
+							this.props.dispatch(actions.hoveredOnMap({title: this.props.map.neighbors[neighborId],
+								//TODO is it doing anything?
+								//mousex: (this.mouse.x + 1)/2 * this.width,
+								//mousey: - (this.mouse.y - 1)/2 * this.height 
+							}))
 
 						}
 					}
@@ -714,14 +722,23 @@ export default class Map extends Component {
 
 	render() {
 		//console.log('map props', this.props)
+		const hoveredItem = this.props.map.hoveredItem
 		const hasHistory = this.props.map.wikiHistory.length > 1
 		if(this.updateNeighbors) {
 			this.addNeighbors(this.props.map.location, this.props.map.neighbors, this.props.wikipage.pageTitle)
 			this.updateNeighbors = false
 		}
+		const buttonStyles = {
+			position: 'absolute',
+    		backgroundColor: '#FFF',
+    		border: '1px solid #0000FF',
+    		color: '#0000FF',
+    		margin: '5px',
+    		textShadow: '2px 2px rgba(255, 255, 255, 0.8)'
+		}
 		return (
-				<div>
-					<button style={{position: 'absolute'}} onClick={(e) => this.zoomClicked()}>{this.props.map.zoom===1 ? 'zoom to article' : 'show all map'}</button>
+				<div style={{position: 'relative'}}>
+					<button style={buttonStyles} onClick={(e) => this.zoomClicked()}>{this.props.map.zoom===1 ? 'zoom to article' : 'show all map'}</button>
 					{/*<button onClick={(e) => this.drawHistory()} disabled={!hasHistory}>draw history</button>*/}
 					<div style={{margin: '0px'}} ref="threejs"
 						onMouseDown={(e) => this.mousedown(e)}
@@ -730,7 +747,7 @@ export default class Map extends Component {
 						onWheel={(e) => this.mousewheel(e)}
 						onClick ={(e) => this.mouseClicked(e)}
 					></div>
-					<div style={{position: 'absolute', bottom: '10px'}}>{this.props.map.hoveredItem ? this.props.map.hoveredItem.title : ''}</div>
+					<div style={{position: 'absolute', bottom: '10px', pointerEvents: 'none', top: hoveredItem ? hoveredItem.mousey : 0, left: hoveredItem ? hoveredItem.mousex: 0 }}>{hoveredItem ? hoveredItem.title : ''}</div>
 				</div>
 				
 			)
