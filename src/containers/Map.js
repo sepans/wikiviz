@@ -127,10 +127,10 @@ export default class Map extends Component {
 			// }
 			//scene.add( object );
 		}
-
+		const sprite = new THREE.TextureLoader().load( 'img/circle.png')
 		const material = new THREE.PointsMaterial( { 
 			size: PARTICLE_SIZE, 
-			/*map: sprite,*/ 
+			map: sprite,
 			vertexColors: THREE.VertexColors, 
 			depthTest: false,
 			/*sizeAttenuation: false,*/ 
@@ -161,8 +161,8 @@ export default class Map extends Component {
 
 		container.appendChild( renderer.domElement );
 
-		renderer.domElement.addEventListener( 'mousemove', (e) => this.mouseMove(e) )
-		renderer.domElement.addEventListener( 'click', (e) => this.mouseClicked(e) )
+		 //renderer.domElement.addEventListener( 'mousemove', (e) => this.mouseMove(e) )
+		// renderer.domElement.addEventListener( 'click', (e) => this.mouseClicked(e) )
 
 // window.addEventListener( 'mousewheel', this.mousewheel.bind(this), false );
 // window.addEventListener( 'DOMMouseScroll', this.mousewheel.bind(this), false ); // firefox
@@ -199,26 +199,19 @@ export default class Map extends Component {
 	mouseClicked(e) {
 		console.log(this.intersected)
 		if(this.intersected) {
-			const id = this.intersected.id
+			const id = this.intersected.index
 
-			const tsneIndex = id - this.articleStartingId
-			const title = tsneIndex < MAX_NODES_DISPLAY ?
+			const tsneIndex = id //- this.articleStartingId
+			const title = (tsneIndex < MAX_NODES_DISPLAY || true) ? //TODO fix for neighbors
 							 this.props.map.tsneData[tsneIndex].title :
 							 this.props.map.neighbors[tsneIndex - MAX_NODES_DISPLAY ]
+			console.log('title', title)
 
 			this.props.dispatch(actions.checkRedirectAndFetch(title))
 
 		}
 	}
 
-	mouseMove(e) {
-		//console.log('.')
-		e.preventDefault();
-		this.mouse.x = ( e.offsetX / this.width ) * 2 - 1;
-		this.mouse.y = - ( e.offsetY / this.height ) * 2 + 1;
-		//console.log(this.mouse)
-
-	}
 
 	addNeighbors(location, neighbors, pageTitle) {
 		console.log('ADD/UPDATE NEIG...', location, pageTitle, this.youarehere)
@@ -660,6 +653,8 @@ export default class Map extends Component {
 
 
 	mousemove(e) {
+		e.preventDefault();
+
 	    const camera = this.camera
 	          //scatterPlot = threejsObjects.scatterPlot
 
@@ -678,6 +673,14 @@ export default class Map extends Component {
 
 	    const w = this.width
 	    const h = this.height
+
+		this.mouse.x = ( e.nativeEvent.offsetX / this.width ) * 2 - 1;
+		this.mouse.y = - ( e.nativeEvent.offsetY / this.height ) * 2 + 1;
+		// const mouse2 = new THREE.Vector2()
+		//  mouse2.x = ( e.nativeEvent.offsetX / this.width ) * 2 - 1;
+		// mouse2.y = - ( e.nativeEvent.offsetY / this.height ) * 2 + 1;
+		// console.log('react', mouse2)
+
 
 	}
 
@@ -718,13 +721,14 @@ export default class Map extends Component {
 		}
 		return (
 				<div>
-					<button onClick={(e) => this.zoomClicked()}>{this.props.map.zoom===1 ? 'zoom to article' : 'show all map'}</button>
+					<button style={{position: 'absolute'}} onClick={(e) => this.zoomClicked()}>{this.props.map.zoom===1 ? 'zoom to article' : 'show all map'}</button>
 					{/*<button onClick={(e) => this.drawHistory()} disabled={!hasHistory}>draw history</button>*/}
-					<div style={{margin: '20px'}} ref="threejs"
+					<div style={{margin: '0px'}} ref="threejs"
 						onMouseDown={(e) => this.mousedown(e)}
 						onMouseUp={(e) => this.mouseup(e)}
 						onMouseMove={(e) => this.mousemove(e)}
 						onWheel={(e) => this.mousewheel(e)}
+						onClick ={(e) => this.mouseClicked(e)}
 					></div>
 					<div style={{position: 'absolute', bottom: '10px'}}>{this.props.map.hoveredItem ? this.props.map.hoveredItem.title : ''}</div>
 				</div>
