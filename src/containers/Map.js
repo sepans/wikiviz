@@ -357,7 +357,7 @@ export default class Map extends Component {
 
 			const midpoint = {x: this.x((location[0] + prevLocation[0])/2), y: this.y((location[1] + prevLocation[1])/2) - CAMERA_Y_OFFSET, z: cameraZ, fov: 50}
 			const time = 500 + 2 * (distance * 2000) / MAX_DISTANCE
-\			
+			
 			this.tweenCamera(midpoint, {tween: TWEEN.Easing.Exponential.Out, time: time/2}, () => {
 				
 				const nextCameraProps = 
