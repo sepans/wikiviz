@@ -127,7 +127,7 @@ export default class Map extends Component {
 			// }
 			//scene.add( object );
 		}
-		const sprite = new THREE.TextureLoader().load( 'img/circle.png')
+		const sprite = new THREE.TextureLoader().load( 'img/hex.png')
 		const material = new THREE.PointsMaterial( { 
 			size: PARTICLE_SIZE, 
 			map: sprite,
@@ -349,15 +349,17 @@ export default class Map extends Component {
 
 		}
 		else if(this.props.map.zoom===11 && this.locationChanged(this.props.map.location, nextProps.map.location)) {
-			
-			const distance = Math.sqrt( Math.pow(prevLocation[1] - location[1], 2)	+ Math.pow(prevLocation[0] - location[0], 2))
+			const distance = this.calculateDistance(prevLocation, location)
 			const MAX_DISTANCE = this.x.domain()[1] - this.x.domain()[0]
-			const tempZ = distance > 300 ? (distance / MAX_DISTANCE) * ( CAMERA_Z - HIGHLIGHT_Z - 100) * 0.6 + (HIGHLIGHT_Z + 600) : HIGHLIGHT_Z + 600
-			console.log('distance', distance, MAX_DISTANCE, distance/MAX_DISTANCE, tempZ, this.camera.position.z)		
-			const midpoint = {x: this.x((location[0] + prevLocation[0])/2), y: this.y((location[1] + prevLocation[1])/2), z: tempZ, fov: 50}
-			console.log('midpoint', prevLocation, location, [(location[0] + prevLocation[0])/2, (location[1] + prevLocation[1])/2],  midpoint)
-			
-			this.tweenCamera(midpoint, {tween: TWEEN.Easing.Exponential.Out}, () => {
+			const vFOV = this.camera.fov * Math.PI / 180
+			const zOffset = Math.tan( vFOV / 2) * distance
+			const cameraZ = zOffset < (this.camera.position.z - NODES_Z) ? this.camera.z : (this.camera.position.z + zOffset) 
+
+			const midpoint = {x: this.x((location[0] + prevLocation[0])/2), y: this.y((location[1] + prevLocation[1])/2) - CAMERA_Y_OFFSET, z: cameraZ, fov: 50}
+			const time = 500 + 2 * (distance * 2000) / MAX_DISTANCE
+\			
+			this.tweenCamera(midpoint, {tween: TWEEN.Easing.Exponential.Out, time: time/2}, () => {
+				
 				const nextCameraProps = 
 					{
 						x: this.x(location[0]),
@@ -368,7 +370,8 @@ export default class Map extends Component {
 						_y: 0.0,
 						_z: 0.0
 					} 
-				this.tweenCamera(nextCameraProps, {tween: TWEEN.Easing.Exponential.In})
+				this.tweenCamera(nextCameraProps, {tween: TWEEN.Easing.Exponential.In, time: time/2})
+				
 			})
 	
 			
@@ -442,6 +445,12 @@ export default class Map extends Component {
 		this.renderThree();
 		//stats.update();
 
+	}
+
+	calculateDistance(point1, point2) {
+		const dy = this.y(point2[1]) - this.y(point1[1])
+		const dx = this.x(point2[0]) - this.x(point1[0])
+		return Math.sqrt( Math.pow( dx, 2) + Math.pow( dy, 2))
 	}
 	
 	makeTextSprite( message, parameters )
@@ -524,7 +533,7 @@ export default class Map extends Component {
 
 						// }
 						if(materialColor) {
-							materialColor.setRGB(0, 0, 1)
+							//materialColor.setRGB(0, 0, 1)
 							intersectedObject.object.geometry.colorsNeedUpdate = true
 							//console.log(tsneIndex, hoveredItem.title, )
 							hoveredItem.mousex = (this.mouse.x + 1)/2 * this.width + 8
@@ -608,10 +617,11 @@ export default class Map extends Component {
 		 let points = []
 
 		 for(let i=0 ; i< history.length -1 ; i++) {
+		 	const distance = this.calculateDistance([history[i].x, history[i].y], [history[i + 1].x, history[i + 1].y])
 		 	const curve = new THREE.CubicBezierCurve3(
 				new THREE.Vector3( this.x(history[i].x), this.y(history[i].y), NODES_Z ),
-				new THREE.Vector3( this.x((history[i].x + history[i + 1].x) * 0.5), this.y((history[i].y + history[i + 1].y) * 0.5) , NODES_Z + 400),
-				new THREE.Vector3( this.x((history[i].x + history[i + 1].x) * 0.5), this.y((history[i].y + history[i + 1].y) * 0.5) , NODES_Z + 400),
+				new THREE.Vector3( this.x((history[i].x + history[i + 1].x) * 0.5), this.y((history[i].y + history[i + 1].y) * 0.5) , NODES_Z + distance/2),
+				new THREE.Vector3( this.x((history[i].x + history[i + 1].x) * 0.5), this.y((history[i].y + history[i + 1].y) * 0.5) ,  NODES_Z + distance/2),
 				new THREE.Vector3( this.x(history[i + 1].x), this.y(history[i + 1].y), NODES_Z)
 			);
 		 	points = points.concat(curve.getSpacedPoints( 20 ))
@@ -734,7 +744,13 @@ export default class Map extends Component {
     		border: '1px solid #0000FF',
     		color: '#0000FF',
     		margin: '5px',
-    		textShadow: '2px 2px rgba(255, 255, 255, 0.8)'
+		}
+		const calloutStyles = {
+			position: 'absolute',
+			bottom: '10px',
+			pointerEvents: 'none',
+			top: hoveredItem ? hoveredItem.mousey : 0, left: hoveredItem ? hoveredItem.mousex: 0,
+    		textShadow: '0px 0px 2px rgba(255, 255, 255, 1)',
 		}
 		return (
 				<div style={{position: 'relative'}}>
@@ -747,7 +763,7 @@ export default class Map extends Component {
 						onWheel={(e) => this.mousewheel(e)}
 						onClick ={(e) => this.mouseClicked(e)}
 					></div>
-					<div style={{position: 'absolute', bottom: '10px', pointerEvents: 'none', top: hoveredItem ? hoveredItem.mousey : 0, left: hoveredItem ? hoveredItem.mousex: 0 }}>{hoveredItem ? hoveredItem.title : ''}</div>
+					<div style={calloutStyles}>{hoveredItem ? hoveredItem.title : ''}</div>
 				</div>
 				
 			)
