@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
 import { scaleLinear, scaleOrdinal, schemeCategory20c } from 'd3-scale'
 import { extent } from 'd3-array'
-import { rgb } from 'd3-color'
+import { rgb, hsl } from 'd3-color'
+import { voronoi } from 'd3-voronoi'
 import * as actions from '../actions/'
+import { debounce } from 'lodash'
 
 
 
@@ -22,6 +24,9 @@ const HIGHLIGHT_Z = -1530
 const NODES_Z = -1530
 const CAMERA_Z = 6500
 const MAX_NODES_DISPLAY = /*tsneData.length*/ 50000
+const ZOOM_MIN_Z = -1200,
+      ZOOM_MAX_Z = 8100
+
 
 const getX = d => d.x
 const getY = d => d.y
@@ -75,7 +80,7 @@ export default class Map extends Component {
 			 "rgb(142,16,35)", "rgb(222,138,44)", "rgb(71,74,9)", "rgb(234,214,36)", "rgb(124,136,105)",
 			 "rgb(254,29,102)", "rgb(168,119,124)"])
 	
-
+		this.colorScale.domain([0, 480])
 
 		camera = new THREE.PerspectiveCamera( 45, width / height, 1, 10000 );
 		camera.position.set(0 , 0, CAMERA_Z);
@@ -117,10 +122,9 @@ export default class Map extends Component {
 			vertex.z = NODES_Z
 			//console.log(vertex)
 			pointsGeometry.vertices.push(vertex)
-			const rgbColor = rgb(color)
+			const rgbColor = rgb(color)//hsl(tsneData[i].dbscanc/500 * 256, 0.7, 0.7).rgb()
 			const nodeColor = new THREE.Color().setRGB(rgbColor.r/ 255, rgbColor.g/255, rgbColor.b/255)
-			if(i===0)
-			console.log(rgb, rgb(color))
+			//if(i===0)
 			pointsGeometry.colors.push(nodeColor)
 			// if(i===0) {
 			// 	this.articleStartingId = object.id
@@ -204,9 +208,10 @@ export default class Map extends Component {
 			const id = this.intersected.index
 
 			const tsneIndex = id //- this.articleStartingId
-			const title = (tsneIndex < MAX_NODES_DISPLAY || true) ? //TODO fix for neighbors
+			const numberofDots = this.props.map.tsneData.length
+			const title = (tsneIndex < numberofDots || true) ? //TODO fix for neighbors
 							 this.props.map.tsneData[tsneIndex].title :
-							 this.props.map.neighbors[tsneIndex - MAX_NODES_DISPLAY ]
+							 this.props.map.neighbors[tsneIndex - numberofDots ]
 			console.log('title', title)
 
 			this.props.dispatch(actions.checkRedirectAndFetch(title))
@@ -306,6 +311,123 @@ export default class Map extends Component {
 		
 	}
 
+	drawVoronoi() {
+		const centroids = this.props.map.centroidsData
+		const rangeX = this.x.range()
+		const rangeY = this.y.range()
+		const extent = [[rangeX[0], rangeY[0]], [rangeX[1], rangeY[1] ]]
+		const voro = voronoi()
+			.x(d => this.x(d[0]))
+			.y(d => this.y(d[1]))
+			//.extent(extent)
+
+		const polygons = voro.polygons(centroids)//.slice(0,10)
+		//console.log('polygons', polygons)
+
+		polygons.forEach((polygon, indx) => {
+			console.log('polygon', polygon)
+			polygon = polygon.filter(d => d)
+			
+			let points = []
+			for(let i=0 ; i< polygon.length -1 ; i++) {
+			 	//const distance = this.calculateDistance([history[i].x, history[i].y], [history[i + 1].x, history[i + 1].y])
+			 	const curve = new THREE.CubicBezierCurve3(
+					new THREE.Vector3( polygon[i][0], polygon[i][1], NODES_Z ),
+					new THREE.Vector3( polygon[i][0], polygon[i][1], NODES_Z ),
+					// new THREE.Vector3( this.x((polygon[i].x + polygon[i + 1].x) * 0.5), this.y((polygon[i].y + polygon[i + 1].y) * 0.5) , NODES_Z ),
+					// new THREE.Vector3( this.x((polygon[i].x + polygon[i + 1].x) * 0.5), this.y((polygon[i].y + polygon[i + 1].y) * 0.5) ,  NODES_Z),
+					new THREE.Vector3( polygon[i + 1][0], polygon[i + 1][1], NODES_Z ),
+					new THREE.Vector3( polygon[i + 1][0], polygon[i + 1][1], NODES_Z ),
+				);
+			 	points = points.concat(curve.getSpacedPoints( 5 ))
+
+			 }
+
+			const path = new THREE.Path();
+			const historyLineGeometry = path.createGeometry( points );
+			  
+			historyLineGeometry.dynamic = true
+			const lineMaterial = new THREE.LineBasicMaterial({
+		        color: 0x000000,
+		        opacity: 0.2,
+		        transparent: true
+		    });
+
+			    // Create the final Object3d to add to the scene
+			 //if(!voronoiObject) {
+				 const voronoiObject = new THREE.Line(historyLineGeometry, lineMaterial);
+				 this.scene.add(voronoiObject);
+
+			 // }
+			 // else {
+			 // 	voronoiObject.geometry = historyLineGeometry
+			 // }
+			 
+			
+			 /*
+				const voroGeo  = new THREE.Geometry()
+				for(let i=0 ; i< polygon.length -1 ; i++) {
+					 voroGeo.vertices.push( new THREE.Vector3(polygon[i][0], polygon[i][1], NODES_Z));
+				}
+
+				var normal = new THREE.Vector3( 0, 1, 0 ); //optional
+				var color = new THREE.Color( 0xffaa00 ); //optional
+				var materialIndex = 0; //optional
+				var face = new THREE.Face3( 0, 1, 2, normal, color, materialIndex );
+				voroGeo.faces.push( face );
+				// for ( let i = 0; i< polygon.length-2; i++) {
+				//         voroGeo.faces.push( new THREE.Face3(0,i+1,i+2));
+				        
+				// }
+				voroGeo.computeFaceNormals();
+voroGeo.computeCentroids();
+//geometry.computeFaceNormals();    
+    			//const mesh= new THREE.Mesh( voroGeo, new THREE.MeshNormalMaterial() );				
+				  const material = new THREE.MeshBasicMaterial( { color: 0x00ff00, side: THREE.FrontSide } );
+  		  		const mesh = new THREE.Mesh( voroGeo, material );
+  				this.scene.add( mesh );
+*/
+
+				const voroShape = new THREE.Shape();
+				for(let i=0 ; i< polygon.length ; i++) {
+					const x = polygon[i][0]
+					const y = polygon[i][1]
+					if (i == 0) {
+					    voroShape.moveTo(x, y, NODES_Z);
+					} else {
+					    voroShape.lineTo(x, y, NODES_Z);
+					}
+				}
+				voroShape.autoClose = true
+				const voroGeo = voroShape.makeGeometry()
+				voroGeo.vertices.forEach(vertice => {
+					vertice.setZ(NODES_Z)
+				})
+				console.log(voroGeo)
+				const material = new THREE.MeshBasicMaterial( {shading: THREE.FlatShading,  color: this.colorScale(indx + 1),transparent: true, opacity: 0.02, side: THREE.FrontSide } );
+				//debugger;
+  		  		const mesh = new THREE.Mesh( voroGeo, material );
+  				this.scene.add( mesh );
+
+
+			})
+
+
+		//var points = curve.getSpacedPoints( 20 );
+
+	}
+
+	componentDidUpdate(prevProps) {
+		if((prevProps.map.centroidsData==null && this.props.map.centroidsData!=null && this.props.map.tsneData) ||
+		   (prevProps.map.tsneData==null && this.props.map.tsneData!=null && this.props.map.centroidsData)) {
+			//this.addBoxes(nextProps.tsneData)
+			//this.drawVoronoi()
+			//this.renderer.render( this.scene, this.camera );
+
+		}
+
+	}
+
 	componentWillReceiveProps(nextProps) {
 		const location = nextProps.map.location
 		const prevLocation = this.props.map.location
@@ -322,7 +444,7 @@ export default class Map extends Component {
 			this.updateNeighbors = true;
 			this.drawHistory()
 		}
-		if(this.props.map.zoom != nextProps.map.zoom) {
+		if(this.props.map.zoom != nextProps.map.zoom && (nextProps.map.zoom===11 || nextProps.map.zoom===1)) {
 
 			const nextCameraProps = nextProps.map.zoom===11 ? 
 			{
@@ -541,15 +663,17 @@ export default class Map extends Component {
 							this.props.dispatch(actions.hoveredOnMap(hoveredItem))
 						}
 						else {
-							console.log('no material color ', intersectedObject.index, intersectedObject)
+							//console.log('no material color ', intersectedObject.index, intersectedObject)
 						}
 
 
 					}
 					else if(intersectedObject.object.id) {
 						const neighborId = intersectedObject.object.id
-						if(!intersectedObject.object.material.emissive)
-							console.log('neighbor ', neighborId, intersectedObject, intersectedObject.object.material)
+						if(!intersectedObject.object.material.emissive) {
+							console.log('neighbor ', intersectedObject)
+
+						}
 						else {
 							//this.intersected = intersectedObject
 							//this.intersected.currentRGB = intersectedObject.object.material.emissive.getRGB()
@@ -635,7 +759,7 @@ export default class Map extends Component {
 		  
 		historyLineGeometry.dynamic = true
 		var material = new THREE.LineBasicMaterial({
-	        color: 0xff0000
+	        color: 0x1BB4E1
 	    });
 
 		    // Create the final Object3d to add to the scene
@@ -704,28 +828,31 @@ export default class Map extends Component {
 
 
 	mousewheel(e) {
-		console.log('mousewheel', e.wheelDelta, e.detail)
-		//debugger;
 		e.preventDefault()
 		e.stopPropagation()
-		const ZOOM_MIN_Z = -1000,
-		      ZOOM_MAX_Z = 8100
 
 		let d = e.deltaY//((typeof e.wheelDelta != "undefined")?(-e.wheelDelta):e.detail);
-		console.log('raw d', d)
 	    d = 100 * ((d>0)?1:-1);    
-		console.log('cooked d', d)
 	    const cPos = this.camera.position;
 	    if (isNaN(cPos.x) || isNaN(cPos.y) || isNaN(cPos.y)) return;
 
 		const mb = d>0 ? 0.05 : -0.05;
 		const deltaZ = 2000
 	    const newZ = cPos.z + mb * deltaZ
-		console.log('mousewheel newZ', newZ, mb * deltaZ)
 		
 	    if (newZ <= ZOOM_MIN_Z || newZ >= ZOOM_MAX_Z ){
 	       return ;
 	    }
+	    
+	    const zoomLevel = 10 -  Math.round((newZ /  (ZOOM_MAX_Z - ZOOM_MIN_Z) * 10) * 10) / 10
+	    
+	    //debounce(actions.setZoom(zoomLevel))
+	    if(!this.debouncedSetZoom) {
+		    this.debouncedSetZoom = debounce((level) => this.props.dispatch(actions.setZoom(level)), 500)
+
+	    }
+	    //console.log('debouncedSetZoom', debouncedSetZoom)
+	    this.debouncedSetZoom(zoomLevel)
 	    
 	    cPos.z = newZ
 	}	
@@ -734,6 +861,7 @@ export default class Map extends Component {
 		//console.log('map props', this.props)
 		const hoveredItem = this.props.map.hoveredItem
 		const hasHistory = this.props.map.wikiHistory.length > 1
+		const zoomBtnText = this.props.map.zoom===11 ? 'show all map' : 'zoom to article' 
 		if(this.updateNeighbors) {
 			this.addNeighbors(this.props.map.location, this.props.map.neighbors, this.props.wikipage.pageTitle)
 			this.updateNeighbors = false
@@ -754,7 +882,7 @@ export default class Map extends Component {
 		}
 		return (
 				<div style={{position: 'relative'}}>
-					<button style={buttonStyles} onClick={(e) => this.zoomClicked()}>{this.props.map.zoom===1 ? 'zoom to article' : 'show all map'}</button>
+					<button style={buttonStyles} onClick={(e) => this.zoomClicked()}>{zoomBtnText}</button>
 					{/*<button onClick={(e) => this.drawHistory()} disabled={!hasHistory}>draw history</button>*/}
 					<div style={{margin: '0px'}} ref="threejs"
 						onMouseDown={(e) => this.mousedown(e)}

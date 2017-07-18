@@ -11,13 +11,20 @@ export default function reducer(state=defualtState, action) {
     case 'NAVIGATE_TO_PAGE':
       return {...state, pageTitle: action.payload}
     case 'FETCH_TSNE_PENDING':
-        console.log('fetch', state)
       return {...state, fetching: true}
     case 'FETCH_TSNE_FULFILLED':
       //TODO: move this somewhere better
       const content = Object.values(action.payload.data)//Object.values(action.payload.data.query.pages)[0].revisions[0]['*']
       return {...state, fetching: false, fetched: true, tsneData: content}
     case 'FETCH_TSNE_REJECTED':
+      return {...state, fetching: false, error: state.error.concat(action.payload)}
+
+    case 'FETCH_CENTROIDS_PENDING':
+      return {...state, fetching: true}
+    case 'FETCH_CENTROIDS_FULFILLED':
+      //TODO: move this somewhere better
+      return {...state, fetching: false, fetched: true, centroidsData: action.payload.data}
+    case 'FETCH_CENTROIDS_REJECTED':
       return {...state, fetching: false, error: state.error.concat(action.payload)}
 
     // case 'FETCH_TSNE_PENDING':
@@ -40,6 +47,8 @@ export default function reducer(state=defualtState, action) {
       return {...state, zoom: 11/*Math.min(state.zoom + 10, 30)*/, raycast: true}
     case 'MAP_ZOOM_OUT':
       return {...state, zoom: 1/*Math.max(state.zoom - 10, 1)*/, raycast: true}
+    case 'MAP_SET_ZOOM':
+      return {...state, zoom: action.payload/*Math.max(state.zoom - 10, 1)*/, raycast: true}
     case 'HOVERED_ON_MAP': 
       return {...state, hoveredItem: action.payload}
     default:

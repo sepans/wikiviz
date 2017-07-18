@@ -5,7 +5,6 @@ import { push } from 'react-router-redux'
 //const FETCH_WIKIPAGE = 'FETCH_WIKIPAGE'
 
 export function fetchTsneData(pageName) {
-	console.log('fetchTsneData', pageName)
 	return {
   		type: 'FETCH_TSNE',
   		//payload: axios.get(`data/withids.json`)
@@ -13,8 +12,15 @@ export function fetchTsneData(pageName) {
 	}
 }
 
+export function fetchCentroidData(pageName) {
+	return {
+  		type: 'FETCH_CENTROIDS',
+  		//payload: axios.get(`data/withids.json`)
+  		payload: axios.get(`data/centroids.json`) //TODO load from server to make json files consistent
+	}
+}
+
 export function fetchPageLocation(pageName) {
-	console.log('fetchPageLocation', pageName)
 	return {
   		type: 'FETCH_LOCATION',
   		payload: axios.get(`http://elephant.local:8888/similars?title=${pageName}`) //TODO make environment
@@ -29,7 +35,6 @@ export function hoveredOnMap(item) {
 }
 
 export function navigateToPage(pageName) {
-	console.log('navigateToPage', pageName)
 	return {
   		type: 'NAVIGATE_TO_PAGE',
   		payload: pageName
@@ -38,7 +43,6 @@ export function navigateToPage(pageName) {
 
 export function fetchWikiPage() {
 	const pageName = store.getState().wikipage.pageTitle
-	console.log('fetchWikiPage', pageName)
 	return {
   		type: 'FETCH_WIKIPAGE',
   		//payload: axios.get(`https://en.wikipedia.org/w/api.php?action=query&origin=*&prop=revisions&rvlimit=1&rvprop=content&format=json&&explaintext&pageids=303`)
@@ -56,6 +60,13 @@ export function zoomIn() {
 export function zoomOut() {
 	return {
 		type: 'MAP_ZOOM_OUT',
+	}
+}
+
+export function setZoom(zoomLevel) {
+	return {
+		type: 'MAP_SET_ZOOM',
+		payload: zoomLevel
 	}
 }
 

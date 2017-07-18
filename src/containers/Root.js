@@ -13,6 +13,7 @@ class Root extends Component {
   		this.props.dispatch(actions.fetchWikiPage())
 
   		this.props.dispatch(actions.fetchTsneData())
+      this.props.dispatch(actions.fetchCentroidData())
       this.props.dispatch(actions.fetchPageLocation(initialTitle))
 
       this.props.history.listen((location) => {
