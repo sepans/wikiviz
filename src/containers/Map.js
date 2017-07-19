@@ -204,7 +204,7 @@ export default class Map extends Component {
 
 	mouseClicked(e) {
 		console.log(this.intersected)
-		if(this.intersected) {
+		if(this.intersected && this.props.map.zoom > 7) {
 			const id = this.intersected.index
 
 			const tsneIndex = id //- this.articleStartingId
@@ -327,7 +327,7 @@ export default class Map extends Component {
 		polygons.forEach((polygon, indx) => {
 			console.log('polygon', polygon)
 			polygon = polygon.filter(d => d)
-			
+			/*
 			let points = []
 			for(let i=0 ; i< polygon.length -1 ; i++) {
 			 	//const distance = this.calculateDistance([history[i].x, history[i].y], [history[i + 1].x, history[i + 1].y])
@@ -353,46 +353,16 @@ export default class Map extends Component {
 		        transparent: true
 		    });
 
-			    // Create the final Object3d to add to the scene
-			 //if(!voronoiObject) {
+
 				 const voronoiObject = new THREE.Line(historyLineGeometry, lineMaterial);
 				 this.scene.add(voronoiObject);
-
-			 // }
-			 // else {
-			 // 	voronoiObject.geometry = historyLineGeometry
-			 // }
-			 
-			
-			 /*
-				const voroGeo  = new THREE.Geometry()
-				for(let i=0 ; i< polygon.length -1 ; i++) {
-					 voroGeo.vertices.push( new THREE.Vector3(polygon[i][0], polygon[i][1], NODES_Z));
-				}
-
-				var normal = new THREE.Vector3( 0, 1, 0 ); //optional
-				var color = new THREE.Color( 0xffaa00 ); //optional
-				var materialIndex = 0; //optional
-				var face = new THREE.Face3( 0, 1, 2, normal, color, materialIndex );
-				voroGeo.faces.push( face );
-				// for ( let i = 0; i< polygon.length-2; i++) {
-				//         voroGeo.faces.push( new THREE.Face3(0,i+1,i+2));
-				        
-				// }
-				voroGeo.computeFaceNormals();
-voroGeo.computeCentroids();
-//geometry.computeFaceNormals();    
-    			//const mesh= new THREE.Mesh( voroGeo, new THREE.MeshNormalMaterial() );				
-				  const material = new THREE.MeshBasicMaterial( { color: 0x00ff00, side: THREE.FrontSide } );
-  		  		const mesh = new THREE.Mesh( voroGeo, material );
-  				this.scene.add( mesh );
 */
 
 				const voroShape = new THREE.Shape();
 				for(let i=0 ; i< polygon.length ; i++) {
 					const x = polygon[i][0]
 					const y = polygon[i][1]
-					if (i == 0) {
+					if (i === 0) {
 					    voroShape.moveTo(x, y, NODES_Z);
 					} else {
 					    voroShape.lineTo(x, y, NODES_Z);
@@ -421,7 +391,7 @@ voroGeo.computeCentroids();
 		if((prevProps.map.centroidsData==null && this.props.map.centroidsData!=null && this.props.map.tsneData) ||
 		   (prevProps.map.tsneData==null && this.props.map.tsneData!=null && this.props.map.centroidsData)) {
 			//this.addBoxes(nextProps.tsneData)
-			//this.drawVoronoi()
+			this.drawVoronoi()
 			//this.renderer.render( this.scene, this.camera );
 
 		}
@@ -643,7 +613,7 @@ voroGeo.computeCentroids();
 				// }
 				if(intersectedObject && this.props.map.tsneData) {
 					//console.log(intersects)
-					if(intersectedObject.index) {
+					if(intersectedObject.index ) {
 						const tsneIndex = intersectedObject.index
 						const hoveredItem = this.props.map.tsneData[tsneIndex] 
 						const materialColor = intersectedObject.object.geometry.colors[tsneIndex]
@@ -654,16 +624,23 @@ voroGeo.computeCentroids();
 						// 	this.intersected.currentHex = materialColor.getHex()
 
 						// }
-						if(materialColor) {
-							//materialColor.setRGB(0, 0, 1)
-							intersectedObject.object.geometry.colorsNeedUpdate = true
-							//console.log(tsneIndex, hoveredItem.title, )
-							hoveredItem.mousex = (this.mouse.x + 1)/2 * this.width + 8
-							hoveredItem.mousey = - (this.mouse.y - 1)/2 * this.height - 5
-							this.props.dispatch(actions.hoveredOnMap(hoveredItem))
+						if(this.props.map.zoom > 7) {
+							if(materialColor) {
+								//materialColor.setRGB(0, 0, 1)
+								intersectedObject.object.geometry.colorsNeedUpdate = true
+								//console.log(tsneIndex, hoveredItem.title, )
+								hoveredItem.mousex = (this.mouse.x + 1)/2 * this.width + 8
+								hoveredItem.mousey = - (this.mouse.y - 1)/2 * this.height - 5
+								this.props.dispatch(actions.hoveredOnMap(hoveredItem))
+
+
+							}
+							else {
+								console.log('no materialColor', intersectedObject)
+							}
 						}
-						else {
-							//console.log('no material color ', intersectedObject.index, intersectedObject)
+						else if(intersectedObject.index > this.props.map.tsneData.length) {
+							console.log('what object is this? ', intersectedObject.index)
 						}
 
 
@@ -671,7 +648,15 @@ voroGeo.computeCentroids();
 					else if(intersectedObject.object.id) {
 						const neighborId = intersectedObject.object.id
 						if(!intersectedObject.object.material.emissive) {
-							console.log('neighbor ', intersectedObject)
+							//console.log('voronoi ', intersectedObject.object.id)
+							const mousex = (this.mouse.x + 1)/2 * this.width + 8
+							const mousey = - (this.mouse.y - 1)/2 * this.height - 5
+							this.props.dispatch(actions.hoveredOnMap({
+								title: 'cluster ' + intersectedObject.object.id,
+								mousex,
+								mousey
+							}))
+
 
 						}
 						else {
