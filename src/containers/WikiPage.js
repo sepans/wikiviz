@@ -24,8 +24,8 @@ export default class WikiPage extends Component {
     
 
 
-    wikiLinkClickedNotParsed(title) {
-      //const title = e.target.title
+    wikiLinkClickedNotParsed(e) {
+      const title = e.target.title
       this.contentEl.scrollTop = 0
       if(title) {
 
