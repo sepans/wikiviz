@@ -229,7 +229,7 @@ export default class Map extends Component {
 		}
 		//this.neighborsContainer = new THREE.Object3D()
 		if(this.youarehere.length===0) {
-			for ( var i = 0; i < numberOfNeighbors + 1; i ++ ) {
+			for ( var i = 0; i < 1/*numberOfNeighbors + 1*/; i ++ ) {
 				const fill = i===0 ? '#000000' : '#888888'
 				const object = new THREE.Mesh( this.geometry, new THREE.MeshLambertMaterial( { color: fill, opacity: 0.8, transparent: true  } ) );
 				
