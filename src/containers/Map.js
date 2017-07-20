@@ -327,7 +327,6 @@ export default class Map extends Component {
 
 
 		polygons.forEach((polygon, indx) => {
-			console.log('polygon', polygon)
 			polygon = polygon.filter(d => d)
 			/*
 			let points = []
@@ -375,7 +374,6 @@ export default class Map extends Component {
 			voroGeo.vertices.forEach(vertice => {
 				vertice.setZ(NODES_Z)
 			})
-			console.log(voroGeo)
 			const material = new THREE.MeshBasicMaterial( {shading: THREE.FlatShading,  color: this.colorScale(indx + 1),transparent: true, opacity: 0.02, side: THREE.FrontSide } );
 		  	const mesh = new THREE.Mesh( voroGeo, material );
 			this.scene.add( mesh );
