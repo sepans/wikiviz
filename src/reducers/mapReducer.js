@@ -51,6 +51,8 @@ export default function reducer(state=defualtState, action) {
       return {...state, zoom: action.payload/*Math.max(state.zoom - 10, 1)*/, raycast: true}
     case 'HOVERED_ON_MAP': 
       return {...state, hoveredItem: action.payload}
+    case 'HOVER_MAP_LOCATION':
+      return {...state, hoverLocation: action.payload}
     default:
       return state
   }

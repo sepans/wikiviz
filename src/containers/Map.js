@@ -25,7 +25,8 @@ const NODES_Z = -1530
 const CAMERA_Z = 6500
 const MAX_NODES_DISPLAY = /*tsneData.length*/ 50000
 const ZOOM_MIN_Z = -1200,
-      ZOOM_MAX_Z = 8100
+      ZOOM_MAX_Z = 8100,
+      ZOOM_CAMERA_TILT_X = 0.25
 
 
 const getX = d => d.x
@@ -324,6 +325,7 @@ export default class Map extends Component {
 		const polygons = voro.polygons(centroids)//.slice(0,10)
 		//console.log('polygons', polygons)
 
+
 		polygons.forEach((polygon, indx) => {
 			console.log('polygon', polygon)
 			polygon = polygon.filter(d => d)
@@ -354,36 +356,101 @@ export default class Map extends Component {
 		    });
 
 
-				 const voronoiObject = new THREE.Line(historyLineGeometry, lineMaterial);
-				 this.scene.add(voronoiObject);
-*/
+			const voronoiObject = new THREE.Line(historyLineGeometry, lineMaterial);
+			this.scene.add(voronoiObject);
+			*/
 
-				const voroShape = new THREE.Shape();
-				for(let i=0 ; i< polygon.length ; i++) {
-					const x = polygon[i][0]
-					const y = polygon[i][1]
-					if (i === 0) {
-					    voroShape.moveTo(x, y, NODES_Z);
-					} else {
-					    voroShape.lineTo(x, y, NODES_Z);
-					}
+			const voroShape = new THREE.Shape();
+			for(let i=0 ; i< polygon.length ; i++) {
+				const x = polygon[i][0]
+				const y = polygon[i][1]
+				if (i === 0) {
+				    voroShape.moveTo(x, y, NODES_Z);
+				} else {
+				    voroShape.lineTo(x, y, NODES_Z);
 				}
-				voroShape.autoClose = true
-				const voroGeo = voroShape.makeGeometry()
-				voroGeo.vertices.forEach(vertice => {
-					vertice.setZ(NODES_Z)
-				})
-				console.log(voroGeo)
-				const material = new THREE.MeshBasicMaterial( {shading: THREE.FlatShading,  color: this.colorScale(indx + 1),transparent: true, opacity: 0.02, side: THREE.FrontSide } );
-				//debugger;
-  		  		const mesh = new THREE.Mesh( voroGeo, material );
-  				this.scene.add( mesh );
+			}
+			voroShape.autoClose = true
+			const voroGeo = voroShape.makeGeometry()
+			voroGeo.vertices.forEach(vertice => {
+				vertice.setZ(NODES_Z)
+			})
+			console.log(voroGeo)
+			const material = new THREE.MeshBasicMaterial( {shading: THREE.FlatShading,  color: this.colorScale(indx + 1),transparent: true, opacity: 0.02, side: THREE.FrontSide } );
+		  	const mesh = new THREE.Mesh( voroGeo, material );
+			this.scene.add( mesh );
 
 
 			})
 
 
 		//var points = curve.getSpacedPoints( 20 );
+
+	}
+
+	showRemoveHover() {
+		const hoverLocation = this.props.map.hoverLocation
+		const curLocation = this.props.map.location
+		const zoom = this.props.map.zoom
+		if(hoverLocation) {
+			 let points = []
+
+		 	const distance = this.calculateDistance(curLocation, hoverLocation)
+		 	const curve = new THREE.CubicBezierCurve3(
+				new THREE.Vector3( this.x(curLocation[0]), this.y(curLocation[1]), NODES_Z ),
+				new THREE.Vector3( this.x((curLocation[0] + hoverLocation[0]) * 0.5), this.y((curLocation[1] + hoverLocation[1])  * 0.5) , NODES_Z + distance/2),
+				new THREE.Vector3( this.x((curLocation[0] + hoverLocation[0]) * 0.5), this.y((curLocation[1] + hoverLocation[1])  * 0.5) , NODES_Z + distance/2),
+				new THREE.Vector3( this.x(hoverLocation[0]), this.y(hoverLocation[1]), NODES_Z)
+			);
+		 	points = points.concat(curve.getSpacedPoints( 20 ))
+
+
+			//var points = curve.getSpacedPoints( 20 );
+
+			var path = new THREE.Path();
+			var hoverLineGeometry = path.createGeometry( points );
+			  
+			hoverLineGeometry.dynamic = true
+			var material = new THREE.LineBasicMaterial({
+		        color: 0x00FFFF,
+		        transparent: true
+		    });
+
+			    // Create the final Object3d to add to the scene
+			 if(!this.hoverLineObject) {
+				 this.hoverLineObject = new THREE.Line(hoverLineGeometry, material);
+				 this.scene.add(this.hoverLineObject);
+
+			 }
+			 else {
+			 	this.hoverLineObject.geometry = hoverLineGeometry
+			 	this.hoverLineObject.material.opacity = 1
+			 }
+
+			const xDistance = Math.abs(this.x(hoverLocation[1]) - this.x(curLocation[1]))
+			const yDistance = Math.abs(this.y(hoverLocation[1]) - this.y(curLocation[1]))
+			const maxDistance = Math.max(xDistance, yDistance, distance)
+			const vFOV = this.camera.fov * Math.PI / 180
+			const zOffset = Math.tan( vFOV / 2) * maxDistance * 6
+			const cameraZ = this.camera.position.z + zOffset
+			this.prevCameraZ = this.camera.position.z
+			this.prevCameraTilt = this.camera.rotation._x
+
+			// const midpoint = {x: this.x((location[0] + prevLocation[0])/2), y: this.y((location[1] + prevLocation[1])/2) - CAMERA_Y_OFFSET, z: cameraZ, fov: 50}
+			// const time = 500 + 2 * (distance * 2000) / MAX_DISTANCE
+			if (zOffset > (this.camera.position.z - NODES_Z)) {
+				this.tweenCamera({z: cameraZ, _x: 0}, {tween: TWEEN.Easing.Exponential.Out, time: 250}, () => {	
+				})	
+			}
+					 
+
+		}
+		else if(this.hoverLineObject) {
+			//console.log(this.hoverLineObject)
+			this.hoverLineObject.material.opacity = 0
+			this.tweenCamera({z: this.prevCameraZ, _x: this.prevCameraTilt}, {tween: TWEEN.Easing.Exponential.Out, time: 250}, () => {	
+			})				
+		}
 
 	}
 
@@ -394,6 +461,9 @@ export default class Map extends Component {
 			this.drawVoronoi()
 			//this.renderer.render( this.scene, this.camera );
 
+		}
+		if(prevProps.map.hoverLocation!= this.props.map.hoverLocation) {
+			this.showRemoveHover()
 		}
 
 	}
@@ -422,7 +492,7 @@ export default class Map extends Component {
 				y: this.y(location[1]) - CAMERA_Y_OFFSET,
 				z: HIGHLIGHT_Z + 600,
 				fov: 60,
-				_x: 0.25,
+				_x: ZOOM_CAMERA_TILT_X,
 				_y: 0.0,
 				_z: 0.0
 			} : 
@@ -458,7 +528,7 @@ export default class Map extends Component {
 						y: this.y(location[1]) - CAMERA_Y_OFFSET,
 						z: HIGHLIGHT_Z + 600,
 						fov: 60,
-						_x: 0.25,
+						_x: ZOOM_CAMERA_TILT_X,
 						_y: 0.0,
 						_z: 0.0
 					} 
@@ -510,7 +580,7 @@ export default class Map extends Component {
 	        	if(done) {
 	        		done()
 	        	}
-	            //that.camera.lookAt(new THREE.Vector3(0, 0, 0));
+	            
 	        })
 	        .start();				
 
@@ -595,22 +665,7 @@ export default class Map extends Component {
 					i++
 					intersectedObject = intersects[i]
 				}
-				//console.log(intersects[0])
-
-				// const intersectId = intersects[0].object.material.emissive ? 0 : 1
-				// if (intersects[intersectId] && this.intersected != intersects[intersectId].object && intersects[intersectId].object.material.emissive) {
-				// 	if ( this.intersected ) {
-				// 		this.intersected.material.emissive.setHex( this.intersected.currentHex );	
-				// 	} 
-				// 	this.intersected = intersects[intersectId].object;
-				// 	this.intersected.currentHex = this.intersected.material.emissive.getHex();
-				// 	this.intersected.material.emissive.setHex( 0xff0000 );
-				// 	const tsneIndex = intersects[intersectId].object.id - this.articleStartingId
-				// 	const hoveredItem = tsneIndex < MAX_NODES_DISPLAY ?
-				// 			 this.props.map.tsneData[tsneIndex] :
-				// 			 {title: this.props.map.neighbors[tsneIndex - MAX_NODES_DISPLAY ]}
-				// 	this.props.dispatch(actions.hoveredOnMap(hoveredItem))
-				// }
+				
 				if(intersectedObject && this.props.map.tsneData) {
 					//console.log(intersects)
 					if(intersectedObject.index ) {
@@ -646,22 +701,24 @@ export default class Map extends Component {
 
 					}
 					else if(intersectedObject.object.id) {
-						const neighborId = intersectedObject.object.id
 						if(!intersectedObject.object.material.emissive) {
-							//console.log('voronoi ', intersectedObject.object.id)
-							const mousex = (this.mouse.x + 1)/2 * this.width + 8
-							const mousey = - (this.mouse.y - 1)/2 * this.height - 5
-							this.props.dispatch(actions.hoveredOnMap({
-								title: 'cluster ' + intersectedObject.object.id,
-								mousex,
-								mousey
-							}))
+							if(this.props.map.zoom < 8 ) {
+								const mousex = (this.mouse.x + 1)/2 * this.width + 8
+								const mousey = - (this.mouse.y - 1)/2 * this.height - 5
+								this.props.dispatch(actions.hoveredOnMap({
+									title: 'cluster ' + intersectedObject.object.id,
+									mousex,
+									mousey
+								}))
+
+							}
 
 
 						}
 						else {
 							//this.intersected = intersectedObject
 							//this.intersected.currentRGB = intersectedObject.object.material.emissive.getRGB()
+							const neighborId = intersectedObject.object.id
 							intersectedObject.object.material.emissive.setRGB(0, 0, 1)
 							this.props.dispatch(actions.hoveredOnMap({title: this.props.map.neighbors[neighborId],
 								//TODO is it doing anything?

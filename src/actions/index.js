@@ -51,6 +51,36 @@ export function fetchWikiPage() {
 	}
 }
 
+export function hoveredWikiLink(pageName) {
+	return (dispatch) => {
+		if(!pageName) {
+			dispatch(hoverMapLocation())
+		}
+		else {
+			axios.get(`https://en.wikipedia.org/w/api.php?action=query&format=json&titles=${pageName}&redirects&origin=*`)
+			.then((response) => {
+				const json = response.data
+				console.log(json)
+				const pageTitle = (json.query.redirects && json.query.redirects.length) ?
+				 					json.query.redirects[0].to :
+				 					pageName
+				axios.get(`http://elephant.local:8888/similars?title=${pageTitle}`)
+				.then((response) => {
+					console.log('hover response', response.data.location)
+					dispatch(hoverMapLocation(response.data.location))
+				})
+			})
+		}
+	}
+}
+
+export function hoverMapLocation(location) {
+	return {
+		type: 'HOVER_MAP_LOCATION',
+		payload: location
+	}
+}
+
 export function zoomIn() {
 	return {
 		type: 'MAP_ZOOM_IN',
