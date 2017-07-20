@@ -23,7 +23,7 @@ export function fetchCentroidData(pageName) {
 export function fetchPageLocation(pageName) {
 	return {
   		type: 'FETCH_LOCATION',
-  		payload: axios.get(`http://elephant.local:8888/similars?title=${pageName}`) //TODO make environment
+  		payload: axios.get(`http://wikisep.toymaker.ops.fastforwardlabs.com/similars?title=${pageName}`) //TODO make environment
 	}
 }
 
@@ -45,8 +45,6 @@ export function fetchWikiPage() {
 	const pageName = store.getState().wikipage.pageTitle
 	return {
   		type: 'FETCH_WIKIPAGE',
-  		//payload: axios.get(`https://en.wikipedia.org/w/api.php?action=query&origin=*&prop=revisions&rvlimit=1&rvprop=content&format=json&&explaintext&pageids=303`)
-  		//payload: axios.get(`http://toymaker.local:8000/en.wikipedia.org/v3/page/html/${pageName}`)
   		payload: axios.get(`https://en.wikipedia.org/w/api.php?action=parse&origin=*&format=json&page=${pageName}&contentmodel=wikitext&prop=text`)
 	}
 }
@@ -64,7 +62,7 @@ export function hoveredWikiLink(pageName) {
 				const pageTitle = (json.query.redirects && json.query.redirects.length) ?
 				 					json.query.redirects[0].to :
 				 					pageName
-				axios.get(`http://elephant.local:8888/similars?title=${pageTitle}`)
+				axios.get(`http://wikisep.toymaker.ops.fastforwardlabs.com/similars?title=${pageTitle}`)
 				.then((response) => {
 					console.log('hover response', response.data.location)
 					dispatch(hoverMapLocation(response.data.location))

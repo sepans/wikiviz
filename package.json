@@ -28,6 +28,10 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "tar" : "tar czf build.tar.gz build",
+    "upload": "scp build.tar.gz $SERVER_ADDRESS:$SERVER_PATH",
+    "build-on-server": "ssh $SERVER_ADDRESS $SERVER_SCRIPT",
+    "build-upload": "npm run build; npm run tar; npm run upload; npm run build-on-server",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   }
