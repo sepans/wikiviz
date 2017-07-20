@@ -48,7 +48,7 @@ class Root extends Component {
           <div style={{padding: '10px 0 10px 25px', maxWidth: '700px', width: '45%', display: 'inline-block'}}>
           	<WikiPage {...this.props}/>
           </div>
-          <div style={{border: '1px solid #e5e55', float: 'right'}}>
+          <div style={{border: '1px solid #e5e55', float: 'right', margin: '10px 25px 0 0'}}>
           	<Map {...this.props}/>
           </div>
         </div>)
