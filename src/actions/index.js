@@ -27,6 +27,7 @@ export function fetchPageLocation(pageName) {
 	}
 }
 
+
 export function hoveredOnMap(item) {
 	return {
 		type: 'HOVERED_ON_MAP',

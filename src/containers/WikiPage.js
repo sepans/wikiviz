@@ -11,7 +11,7 @@ export default class WikiPage extends Component {
       //   const title = e.target.title
       //   return debounce((e) => {console.log(e); this.mouseOverLink(e.target.title)}, 2000)
       // }
-      this.debouncedMouseOverLink = debounce(this.handleHover, 2000)//debounce(this.mouseOverLink, 2000)
+      this.debouncedMouseOverLink = debounce(this.handleHover, 500)//debounce(this.mouseOverLink, 2000)
       //console.log('WikiPage construction', this.debouncedMouseOverLink)
     }
 

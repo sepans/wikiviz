@@ -168,23 +168,10 @@ export default class Map extends Component {
 
 		container.appendChild( renderer.domElement );
 
-		 //renderer.domElement.addEventListener( 'mousemove', (e) => this.mouseMove(e) )
-		// renderer.domElement.addEventListener( 'click', (e) => this.mouseClicked(e) )
-
-// window.addEventListener( 'mousewheel', this.mousewheel.bind(this), false );
-// window.addEventListener( 'DOMMouseScroll', this.mousewheel.bind(this), false ); // firefox
 
 
 		//controls = new OrbitControls(camera, renderer.domElement)
 		console.log('camera after', camera)
-
-		//camera.lookAt(new THREE.Vector3(width/2, height/2, -800));
-		//controls.target.set(width/2, height/2, -600);
-		//debugger;
-		//controls.update();
-		//console.log(controls)
-		//controls.enableZoom = false
-		//renderer.render( scene, camera )
 
 
 		this.renderer = renderer
@@ -391,7 +378,7 @@ export default class Map extends Component {
 		const curLocation = this.props.map.location
 		const zoom = this.props.map.zoom
 		if(hoverLocation) {
-			 let points = []
+			let points = []
 
 		 	const distance = this.calculateDistance(curLocation, hoverLocation)
 		 	const curve = new THREE.CubicBezierCurve3(
@@ -402,21 +389,26 @@ export default class Map extends Component {
 			);
 		 	points = points.concat(curve.getSpacedPoints( 20 ))
 
-
-			//var points = curve.getSpacedPoints( 20 );
-
-			var path = new THREE.Path();
-			var hoverLineGeometry = path.createGeometry( points );
+			const path = new THREE.CatmullRomCurve3( points );
+			const hoverLineGeometry = new THREE.TubeGeometry(
+        		path,
+        		64,
+        		2
+    		)
 			  
 			hoverLineGeometry.dynamic = true
-			var material = new THREE.LineBasicMaterial({
-		        color: 0x00FFFF,
-		        transparent: true
+			var material = new THREE.MeshLambertMaterial({
+		        color: 0x6BC46C,
+		        transparent: true,
+		        // linewidth: 100,
+		        //fog: true
 		    });
 
 			    // Create the final Object3d to add to the scene
 			 if(!this.hoverLineObject) {
-				 this.hoverLineObject = new THREE.Line(hoverLineGeometry, material);
+				 this.hoverLineObject = new THREE.Mesh(hoverLineGeometry, material);
+				 this.hoverLineObject.receiveShadow = false
+
 				 this.scene.add(this.hoverLineObject);
 
 			 }
@@ -446,8 +438,10 @@ export default class Map extends Component {
 		else if(this.hoverLineObject) {
 			//console.log(this.hoverLineObject)
 			this.hoverLineObject.material.opacity = 0
-			this.tweenCamera({z: this.prevCameraZ, _x: this.prevCameraTilt}, {tween: TWEEN.Easing.Exponential.Out, time: 250}, () => {	
-			})				
+			if(this.prevCameraZ) {
+				this.tweenCamera({z: this.prevCameraZ, _x: this.prevCameraTilt}, {tween: TWEEN.Easing.Exponential.Out, time: 250})
+			}
+			this.prevCameraZ = null
 		}
 
 	}
@@ -792,14 +786,42 @@ export default class Map extends Component {
 
 		 }
 
-		//var points = curve.getSpacedPoints( 20 );
+		const path = new THREE.CatmullRomCurve3( points );
+		const historyTubeGeometry = new THREE.TubeGeometry(
+    		path,
+    		64,
+    		1.5
+		)
+		  
+		historyTubeGeometry.dynamic = true
+		var material = new THREE.MeshLambertMaterial({
+	        color: 0x1BB4E1,
+	        transparent: true,
+	        // linewidth: 100,
+	        opacity: 0.5,
+	        //fog: true
+	    });
 
+		    // Create the final Object3d to add to the scene
+		if(!this.historyObject) {
+			 this.historyObject = new THREE.Mesh(historyTubeGeometry, material);
+			 this.historyObject.receiveShadow = false
+
+			 this.scene.add(this.historyObject);
+		}
+		else {
+		 	this.historyObject.geometry = historyTubeGeometry
+		}
+
+		//var points = curve.getSpacedPoints( 20 );
+/*
 		var path = new THREE.Path();
 		var historyLineGeometry = path.createGeometry( points );
 		  
 		historyLineGeometry.dynamic = true
 		var material = new THREE.LineBasicMaterial({
-	        color: 0x1BB4E1
+	        color: 0x1BB4E1,
+	        linewidth: 20
 	    });
 
 		    // Create the final Object3d to add to the scene
@@ -811,6 +833,7 @@ export default class Map extends Component {
 		 else {
 		 	this.splineObject.geometry = historyLineGeometry
 		 }
+		 */
 
 	}
 
