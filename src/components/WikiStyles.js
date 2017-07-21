@@ -68,6 +68,10 @@ const WikiStyles = () => {
         div.tleft {
            margin: 0.5em 1.4em 1.3em 0;
         }
+
+        #coordinates {
+          display: none;
+        }
         // .mw-body-content {
         //   line-height: 1.6;
         // }

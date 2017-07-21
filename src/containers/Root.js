@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import * as actions from '../actions/'
 import WikiPage from './WikiPage'
 import Map from './Map'
+import TopBanner from '../components/TopBanner'
 
 
 class Root extends Component {
@@ -45,6 +46,7 @@ class Root extends Component {
   		
 
     	return (<div> 
+          <TopBanner/>
           <div style={{padding: '10px 0 10px 25px', maxWidth: '700px', width: '45%', display: 'inline-block'}}>
           	<WikiPage {...this.props}/>
           </div>
