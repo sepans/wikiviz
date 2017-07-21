@@ -7,12 +7,7 @@ import { debounce } from 'lodash'
 export default class WikiPage extends Component {
     constructor(props) {
       super(props)
-      // this.debouncedMouseOverLink = (e) => {
-      //   const title = e.target.title
-      //   return debounce((e) => {console.log(e); this.mouseOverLink(e.target.title)}, 2000)
-      // }
       this.debouncedMouseOverLink = debounce(this.handleHover, 500)//debounce(this.mouseOverLink, 2000)
-      //console.log('WikiPage construction', this.debouncedMouseOverLink)
     }
 
     componentDidMount() {
@@ -30,7 +25,6 @@ export default class WikiPage extends Component {
       if(title) {
 
         this.props.dispatch(actions.checkRedirectAndFetch(title))
-        //this.props.dispatch(actions.hoveredWikiLink())
         if(this.props.map.zoom!==11) {
           setTimeout(() => {
             this.props.dispatch(actions.zoomIn())
@@ -48,8 +42,6 @@ export default class WikiPage extends Component {
     }
 
     handleHover(title) {
-      //console.log(e)
-      //const title = e.target.title
       if(title) {
         this.props.dispatch(actions.hoveredWikiLink(title))
       }

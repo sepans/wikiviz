@@ -46,7 +46,7 @@ class Root extends Component {
   		
 
     	return (<div> 
-          <TopBanner/>
+          <TopBanner dispatch={this.props.dispatch} results={this.props.wikipage.wikiSearchResults}/>
           <div style={{padding: '10px 0 10px 25px', maxWidth: '700px', width: '45%', display: 'inline-block'}}>
           	<WikiPage {...this.props}/>
           </div>

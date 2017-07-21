@@ -29,6 +29,7 @@ const initialState = {
 	    fetching: false,
 	    fetched: false,
 	    wikicontent: null,
+	    wikiSearchResults: [],
 	    error: []
 	}
 

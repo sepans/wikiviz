@@ -73,6 +73,29 @@ export function hoveredWikiLink(pageName) {
 	}
 }
 
+export function searchForTitle(title) {
+	return {
+		type: 'SEARCH_WIKI_TITLE',
+		payload: axios.get(`https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&list=search&srsearch=${title}&utf8=`)
+	}
+}
+
+export function clearSearchResults() {
+	return {
+		type: 'CLEAR_WIKI_SEARCH'
+	}
+}
+
+export function goToPageAllActions(pageName) {
+	return (dispatch) => {
+		dispatch(navigateToPage(pageName))
+		dispatch(fetchPageLocation(pageName))
+		dispatch(fetchWikiPage(pageName))
+		dispatch(push(pageName))
+
+	}
+}
+
 export function hoverMapLocation(location) {
 	return {
 		type: 'HOVER_MAP_LOCATION',
@@ -111,16 +134,20 @@ export function checkRedirectAndFetch(pageName) {
 				console.log(newPage)
 				//TODO: these should not be here. here url needs to be updated and navigateToPage etc. sould 
 				// be called from Root.js when url changes. (same as block below)
-				dispatch(navigateToPage(newPage))
-				dispatch(fetchPageLocation(newPage))
-				dispatch(fetchWikiPage(newPage))
-				dispatch(push(newPage))
+				// dispatch(navigateToPage(newPage))
+				// dispatch(fetchPageLocation(newPage))
+				// dispatch(fetchWikiPage(newPage))
+				// dispatch(push(newPage))
+				dispatch(goToPageAllActions(newPage))
+
 			}
 			else {
-				dispatch(navigateToPage(pageName))
-				dispatch(fetchPageLocation(pageName))
-				dispatch(fetchWikiPage(pageName))
-				dispatch(push(pageName))
+				// dispatch(navigateToPage(pageName))
+				// dispatch(fetchPageLocation(pageName))
+				// dispatch(fetchWikiPage(pageName))
+				// dispatch(push(pageName))
+				dispatch(goToPageAllActions(pageName))
+
 			}
 		}) 
 	}

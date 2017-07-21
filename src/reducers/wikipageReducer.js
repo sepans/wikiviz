@@ -21,6 +21,12 @@ export default function reducer(state=defualtState, action) {
       return {...state, fetching: false, fetched: true, wikicontent: content}
     case 'FETCH_WIKIPAGE_REJECTED':
       return {...state, fetching: false, error: state.error.concat(action.payload)}
+    case 'SEARCH_WIKI_TITLE_FULFILLED':
+      const results = action.payload.data.query.search
+      console.log('search results', results)
+      return {...state, wikiSearchResults: results}
+    case 'CLEAR_WIKI_SEARCH': 
+      return {...state, wikiSearchResults: []}
     default:
       return state
   }

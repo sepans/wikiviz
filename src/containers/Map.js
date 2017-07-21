@@ -27,6 +27,8 @@ const MAX_NODES_DISPLAY = /*tsneData.length*/ 50000
 const ZOOM_MIN_Z = -1200,
       ZOOM_MAX_Z = 8100,
       ZOOM_CAMERA_TILT_X = 0.25
+const PARTICLE_SIZE = 15
+
 
 
 const getX = d => d.x
@@ -99,23 +101,12 @@ export default class Map extends Component {
 
 		const geometry = new THREE.BoxBufferGeometry( 4, 4, 4 );
 		//points
-		const PARTICLE_SIZE = 15
 		const pointsGeometry = new THREE.Geometry()
 		const pointsContainer = new THREE.Object3D()
 
 		for ( var i = 0; i < tsneData.length; i ++ ) {
 			const color = this.colorScale(tsneData[i].dbscanc)
 			
-			// const object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: color, opacity: 0.8, transparent: true  } ) );
-			// object.position.x = this.x(tsneData[i].x)//Math.random() * 10000 - 5000;
-			// object.position.y = this.y(tsneData[i].y)//Math.random() * 6000 - 3000;
-			// object.position.z = NODES_Z//Math.random() * -9000 ;
-			// object.rotation.x = 0//Math.random() * 2 * Math.PI;
-			// object.rotation.y = 0//Math.random() * 2 * Math.PI;
-			// object.rotation.z = 0//Math.random() * 2 * Math.PI;
-			// object.scale.x = .3//Math.random() * 200 + 100;
-			// object.scale.y = .3//Math.random() * 200 + 100;
-			// object.scale.z = Math.random() ;
 
 			var vertex = new THREE.Vector3();
 			vertex.x = this.x(getX(tsneData[i]))
