@@ -2,8 +2,12 @@ import axios from 'axios'
 import store from '../store'
 import { push } from 'react-router-redux'
 
-//const FETCH_WIKIPAGE = 'FETCH_WIKIPAGE'
-
+export function updateWindowSize(dims) {
+	return {
+		type: 'UPDATE_WINDOW_SIZE',
+		payload: dims
+	}
+}
 export function fetchTsneData(pageName) {
 	return {
   		type: 'FETCH_TSNE',

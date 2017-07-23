@@ -8,6 +8,8 @@ const defualtState = {
 
 export default function reducer(state=defualtState, action) {
   switch(action.type) {
+    case 'UPDATE_WINDOW_SIZE':
+      return {...state, windowSize: action.payload}
     case 'NAVIGATE_TO_PAGE':
       return {...state, pageTitle: action.payload}
     case 'FETCH_WIKIPAGE_PENDING':

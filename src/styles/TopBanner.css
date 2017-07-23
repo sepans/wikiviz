@@ -1,0 +1,75 @@
+.banner {
+	width: 95%;
+	margin: 20px 25px 0 25px;
+	padding: 5px;
+	border: 1px solid rgba(0, 220, 236, 0.5);
+}
+
+.logo {
+	display: inline-block;
+	width: 32px;
+	height: 32px;
+	margin-left: 2px;
+	text-indent: -9999px;
+	font-size: 35px;
+	background: url(/img/ff-logo.svg) 0 0 no-repeat
+}
+
+.title {
+	display: inline-block;
+	font-family: Linux Libertine, Georgia, Times serif;
+	padding: 0;
+	margin: 0 25px;
+	border: none;
+	color: rgba(0, 0, 0, 0.7);
+	font-size: 150%;
+}
+
+.search {
+	width: 20%;
+	float: right;
+	position: relative;
+
+}
+
+.search input {
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	padding: 3px 8px;
+	font-size: 1.15em;
+	font-family: sans-serif;
+	width: 90%;
+}
+*:focus {
+    outline: none;
+}
+
+.searchResults {
+	list-style: none;
+	position: absolute;
+	top: 1.81em;
+	left: 0;
+	padding: 0;
+	margin: 0;
+	z-index: 100;
+	min-width: 70%;
+
+
+}
+
+.searchResults li { 
+	border: 1px solid #eeeeee;
+	padding: 5px;
+	margin: 0;
+	background-color: #FFF;
+	
+	cursor: pointer;
+}
+
+.searchTitle {
+	font-size: 0.8em;
+}
+
+.searchDesc {
+	font-size: 0.7em;
+	color: #555;
+}

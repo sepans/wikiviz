@@ -6,16 +6,16 @@ import { voronoi } from 'd3-voronoi'
 import * as actions from '../actions/'
 import { debounce } from 'lodash'
 
-
-
-
-
-//import THREE from 'three'
 import THREE from 'three'
 import OrbitControls  from 'three-orbitcontrols'
-// import TextSprite from '../utils/ThreeTextSprite'
 import { SpriteText2D, MeshText2D, textAlign } from 'three-text2d'
 import TWEEN from 'tween.js'
+
+import '../styles/Map.css'
+
+
+
+
 
 //const OrbitControls = require('three-orbit-controls')(THREE)
 const ANIMATION_DURATION = 20 //ms?!
@@ -41,9 +41,11 @@ export default class Map extends Component {
 		//this.init()
 	}
 
-	init(tsneData) {
+	init() {
 		//const OrbitControls = OrbitControlsModule(THREE)
 		console.log('INITINITINIT')
+
+		const tsneData = this.props.map.tsneData
 
 		this.youarehere = []
 		this.sprites = []
@@ -57,12 +59,10 @@ export default class Map extends Component {
 		this.mouseStart = new THREE.Vector2()
 		const offset = new THREE.Vector3( 10, 10, 10 )
 
-		const width = window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
-		const height = window.innerHeight * 0.95// width
+		const width = this.props.wikipage.windowSize.width * 0.48// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
+		const height =  this.props.wikipage.windowSize.height * 0.90// width
 
 		//TODO move to redux store
-		this.width = width
-		this.height = height
 
 		container = this.refs.threejs
 		const SCALE_UNIVERSE_FACTOR = 4
@@ -73,7 +73,7 @@ export default class Map extends Component {
 		this.x.domain(extent(tsneData, getX))
 		this.y.domain(extent(tsneData, getY))
 
-		console.log('domains', this.x.domain(), this.y.domain())
+		console.log('domains', this.x.domain(), this.y.domain(), this.x.range(), this.y.range())
 
 		this.colorScale = scaleOrdinal()
 			.range(["rgb(33,240,182)", "rgb(28,135,92)", "rgb(148,211,188)", "rgb(21,114,156)",
@@ -156,9 +156,12 @@ export default class Map extends Component {
 
 
 
+		if(container.hasChildNodes()) {
+			//debugger;
+			container.removeChild(container.firstChild)
+		}
 
 		container.appendChild( renderer.domElement );
-
 
 
 		//controls = new OrbitControls(camera, renderer.domElement)
@@ -438,6 +441,14 @@ export default class Map extends Component {
 	}
 
 	componentDidUpdate(prevProps) {
+
+		if(prevProps.map.tsneData==null && this.props.map.tsneData!=null) {
+			//this.addBoxes(nextProps.tsneData)
+			this.init()
+			//this.renderer.render( this.scene, this.camera );
+
+		}
+		
 		if((prevProps.map.centroidsData==null && this.props.map.centroidsData!=null && this.props.map.tsneData) ||
 		   (prevProps.map.tsneData==null && this.props.map.tsneData!=null && this.props.map.centroidsData)) {
 			//this.addBoxes(nextProps.tsneData)
@@ -449,18 +460,18 @@ export default class Map extends Component {
 			this.showRemoveHover()
 		}
 
+		if((prevProps.wikipage.windowSize.width!= this.props.wikipage.windowSize.width || 
+			prevProps.wikipage.windowSize.height!= this.props.wikipage.windowSize.height) && 
+			this.props.map.tsneData) {
+			this.init()
+		}
+
 	}
 
 	componentWillReceiveProps(nextProps) {
 		const location = nextProps.map.location
 		const prevLocation = this.props.map.location
 		const CAMERA_Y_OFFSET = 50
-		if(this.props.map.tsneData==null && nextProps.map.tsneData!=null) {
-			//this.addBoxes(nextProps.tsneData)
-			this.init(nextProps.map.tsneData)
-			//this.renderer.render( this.scene, this.camera );
-
-		}
 		if(this.locationChanged(this.props.map.location, nextProps.map.location)) {
 			console.log('UPDATING neighbors')
 			//this.addNeighbors(nextProps.map.location, nextProps.map.neighbors, nextProps.wikipage.pageTitle)
@@ -635,6 +646,9 @@ export default class Map extends Component {
 	renderThree() {
 	 	//console.log('.')
 		//this.controls.update(  );
+		const width = this.props.wikipage.windowSize.width * 0.48// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
+		const height =  this.props.wikipage.windowSize.height * 0.90// width
+	
 		
 		TWEEN.update()
 		
@@ -667,8 +681,8 @@ export default class Map extends Component {
 								//materialColor.setRGB(0, 0, 1)
 								intersectedObject.object.geometry.colorsNeedUpdate = true
 								//console.log(tsneIndex, hoveredItem.title, )
-								hoveredItem.mousex = (this.mouse.x + 1)/2 * this.width + 8
-								hoveredItem.mousey = - (this.mouse.y - 1)/2 * this.height - 5
+								hoveredItem.mousex = (this.mouse.x + 1)/2 * width + 8
+								hoveredItem.mousey = - (this.mouse.y - 1)/2 * height - 5
 								this.props.dispatch(actions.hoveredOnMap(hoveredItem))
 
 
@@ -686,8 +700,8 @@ export default class Map extends Component {
 					else if(intersectedObject.object.id) {
 						if(!intersectedObject.object.material.emissive) {
 							if(this.props.map.zoom < 8 ) {
-								const mousex = (this.mouse.x + 1)/2 * this.width + 8
-								const mousey = - (this.mouse.y - 1)/2 * this.height - 5
+								const mousex = (this.mouse.x + 1)/2 * width + 8
+								const mousey = - (this.mouse.y - 1)/2 * height - 5
 								this.props.dispatch(actions.hoveredOnMap({
 									title: 'cluster ' + intersectedObject.object.id,
 									mousex,
@@ -804,27 +818,7 @@ export default class Map extends Component {
 		 	this.historyObject.geometry = historyTubeGeometry
 		}
 
-		//var points = curve.getSpacedPoints( 20 );
-/*
-		var path = new THREE.Path();
-		var historyLineGeometry = path.createGeometry( points );
-		  
-		historyLineGeometry.dynamic = true
-		var material = new THREE.LineBasicMaterial({
-	        color: 0x1BB4E1,
-	        linewidth: 20
-	    });
-
-		    // Create the final Object3d to add to the scene
-		 if(!this.splineObject) {
-			 this.splineObject = new THREE.Line(historyLineGeometry, material);
-			 this.scene.add(this.splineObject);
-
-		 }
-		 else {
-		 	this.splineObject.geometry = historyLineGeometry
-		 }
-		 */
+		
 
 	}
 
@@ -834,8 +828,8 @@ export default class Map extends Component {
 	    this.sy = e.clientY;
 	    this.ssx = e.clientX;
 	    this.ssy = e.clientY;
-	    const w = this.width
-	    const h = this.height
+		const w = this.props.wikipage.windowSize.width * 0.48
+		const h =  this.props.wikipage.windowSize.height * 0.95
 
 	    this.mouseStart.x = ( e.clientX / w ) * 2 - 1;
 	    this.mouseStart.y = - ( e.clientY / h ) * 2 + 1;
@@ -867,11 +861,11 @@ export default class Map extends Component {
 
 	    }
 
-	    const w = this.width
-	    const h = this.height
+		const w = this.props.wikipage.windowSize.width * 0.48
+		const h =  this.props.wikipage.windowSize.height * 0.95
 
-		this.mouse.x = ( e.nativeEvent.offsetX / this.width ) * 2 - 1;
-		this.mouse.y = - ( e.nativeEvent.offsetY / this.height ) * 2 + 1;
+		this.mouse.x = ( e.nativeEvent.offsetX / w ) * 2 - 1;
+		this.mouse.y = - ( e.nativeEvent.offsetY / h ) * 2 + 1;
 		// const mouse2 = new THREE.Vector2()
 		//  mouse2.x = ( e.nativeEvent.offsetX / this.width ) * 2 - 1;
 		// mouse2.y = - ( e.nativeEvent.offsetY / this.height ) * 2 + 1;
@@ -920,32 +914,22 @@ export default class Map extends Component {
 			this.addNeighbors(this.props.map.location, this.props.map.neighbors, this.props.wikipage.pageTitle)
 			this.updateNeighbors = false
 		}
-		const buttonStyles = {
-			position: 'absolute',
-    		backgroundColor: '#FFF',
-    		border: '1px solid #0000FF',
-    		color: '#0000FF',
-    		margin: '5px',
-		}
-		const calloutStyles = {
-			position: 'absolute',
-			bottom: '10px',
-			pointerEvents: 'none',
-			top: hoveredItem ? hoveredItem.mousey : 0, left: hoveredItem ? hoveredItem.mousex: 0,
-    		textShadow: '0px 0px 2px rgba(255, 255, 255, 1)',
-		}
+		
 		return (
 				<div style={{position: 'relative'}}>
-					<button style={buttonStyles} onClick={(e) => this.zoomClicked()}>{zoomBtnText}</button>
+					<button className="zoomBtn" onClick={(e) => this.zoomClicked()}>{zoomBtnText}</button>
 					{/*<button onClick={(e) => this.drawHistory()} disabled={!hasHistory}>draw history</button>*/}
-					<div style={{margin: '0px'}} ref="threejs"
+					<div style={{margin: '0px'}} ref="threejs" className="threeContainer"
 						onMouseDown={(e) => this.mousedown(e)}
 						onMouseUp={(e) => this.mouseup(e)}
 						onMouseMove={(e) => this.mousemove(e)}
 						onWheel={(e) => this.mousewheel(e)}
 						onClick ={(e) => this.mouseClicked(e)}
 					></div>
-					<div style={calloutStyles}>{hoveredItem ? hoveredItem.title : ''}</div>
+					<div className="callout"
+						 style={{top: hoveredItem ? hoveredItem.mousey : 0, left: hoveredItem ? hoveredItem.mousex: 0}}>
+						 	{hoveredItem ? hoveredItem.title : ''}
+					</div>
 				</div>
 				
 			)

@@ -26,6 +26,7 @@ const initialState = {
 	},
 	wikipage: {
 		pageTitle: null,
+		windowSize: {},
 	    fetching: false,
 	    fetched: false,
 	    wikicontent: null,
