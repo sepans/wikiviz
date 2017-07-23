@@ -53,6 +53,8 @@ export default function reducer(state=defualtState, action) {
       return {...state, hoveredItem: action.payload}
     case 'HOVER_MAP_LOCATION':
       return {...state, hoverLocation: action.payload}
+    case 'MAP_READY':
+      return {...state, mapReady: true}
     default:
       return state
   }

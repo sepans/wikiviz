@@ -22,7 +22,8 @@ const initialState = {
 	    error: [],
 	    zoom: 1,
 	    raycast: true,
-	    wikiHistory: []
+	    wikiHistory: [],
+	    mapReady: false
 	},
 	wikipage: {
 		pageTitle: null,

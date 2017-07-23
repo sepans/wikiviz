@@ -31,6 +31,11 @@ export function fetchPageLocation(pageName) {
 	}
 }
 
+export function mapReady(pageName) {
+	return {
+		type: 'MAP_READY'
+	}
+}
 
 export function hoveredOnMap(item) {
 	return {

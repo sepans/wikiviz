@@ -181,6 +181,8 @@ export default class Map extends Component {
 
 		}
 
+		this.props.dispatch(actions.mapReady())
+
 		this.animate()
 	}
 
@@ -916,7 +918,8 @@ export default class Map extends Component {
 		}
 		
 		return (
-				<div style={{position: 'relative'}}>
+				<div style={{position: 'relative', opacity: this.props.map.mapReady ? 1 : 0, transition: 'opacity 0.5s ease-in'}}>
+
 					<button className="zoomBtn" onClick={(e) => this.zoomClicked()}>{zoomBtnText}</button>
 					{/*<button onClick={(e) => this.drawHistory()} disabled={!hasHistory}>draw history</button>*/}
 					<div style={{margin: '0px'}} ref="threejs" className="threeContainer"
