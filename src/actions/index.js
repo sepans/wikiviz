@@ -72,10 +72,11 @@ export function hoveredWikiLink(pageName) {
 				const pageTitle = (json.query.redirects && json.query.redirects.length) ?
 				 					json.query.redirects[0].to :
 				 					pageName
+
 				axios.get(`http://wikisep.toymaker.ops.fastforwardlabs.com/similars?title=${pageTitle}`)
 				.then((response) => {
 					console.log('hover response', response.data.location)
-					dispatch(hoverMapLocation(response.data.location))
+					dispatch(hoverMapLocation({title: pageTitle, location: response.data.location}))
 				})
 			})
 		}
@@ -128,6 +129,13 @@ export function setZoom(zoomLevel) {
 	return {
 		type: 'MAP_SET_ZOOM',
 		payload: zoomLevel
+	}
+}
+
+export function cameraMoving(moving) {
+	return {
+		type: 'CAMERA_MOVING',
+		payload: moving
 	}
 }
 

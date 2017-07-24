@@ -29,6 +29,10 @@ const ZOOM_MIN_Z = -1200,
       ZOOM_CAMERA_TILT_X = 0.25
 const PARTICLE_SIZE = 15
 
+const pageToCanvasWidthRatio = 0.48,
+	  pageToCanvasHeightRatio = 0.9
+	
+
 
 
 const getX = d => d.x
@@ -59,8 +63,8 @@ export default class Map extends Component {
 		this.mouseStart = new THREE.Vector2()
 		const offset = new THREE.Vector3( 10, 10, 10 )
 
-		const width = this.props.wikipage.windowSize.width * 0.48// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
-		const height =  this.props.wikipage.windowSize.height * 0.90// width
+		const width = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
+		const height =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio// width
 
 		//TODO move to redux store
 
@@ -146,7 +150,7 @@ export default class Map extends Component {
 	
 		this.raycaster = new THREE.Raycaster();
 		console.log('raycaster threshold ', this.raycaster.params.Points.threshold, this.raycaster.params)
-		this.raycaster.params.Points.threshold = 10
+		this.raycaster.params.Points.threshold = 5
 		renderer = new THREE.WebGLRenderer();
 		renderer.setClearColor( 0xffffff );
 		renderer.setPixelRatio( window.devicePixelRatio );
@@ -187,7 +191,7 @@ export default class Map extends Component {
 	}
 
 	mouseClicked(e) {
-		console.log(this.intersected)
+		console.log('mouse clicked', this.mouseDown)
 		if(this.intersected && this.props.map.zoom > 7) {
 			const id = this.intersected.index
 
@@ -370,7 +374,7 @@ export default class Map extends Component {
 	}
 
 	showRemoveHover() {
-		const hoverLocation = this.props.map.hoverLocation
+		const hoverLocation = this.props.map.wikiHover ? this.props.map.wikiHover.location : null
 		const curLocation = this.props.map.location
 		const zoom = this.props.map.zoom
 		if(hoverLocation) {
@@ -458,7 +462,7 @@ export default class Map extends Component {
 			//this.renderer.render( this.scene, this.camera );
 
 		}
-		if(prevProps.map.hoverLocation!= this.props.map.hoverLocation) {
+		if(prevProps.map.wikiHover!= this.props.map.wikiHover) {
 			this.showRemoveHover()
 		}
 
@@ -537,6 +541,7 @@ export default class Map extends Component {
 	}
 
 	tweenCamera(to, options, done) {
+			this.props.dispatch(actions.cameraMoving(true))
 			options = options || {}
 			options.time = options.time || 700
 			options.easing = options.easing || TWEEN.Easing.Linear.None
@@ -571,8 +576,9 @@ export default class Map extends Component {
 		            that.camera.rotation.set(rotation._x, rotation._y, rotation._z)
 
 	        })
-	        .onComplete(function () {
+	        .onComplete(() => {
 	        	console.log('zoom out completed')
+	        	this.props.dispatch(actions.cameraMoving(false))
 	        	if(done) {
 	        		done()
 	        	}
@@ -648,8 +654,8 @@ export default class Map extends Component {
 	renderThree() {
 	 	//console.log('.')
 		//this.controls.update(  );
-		const width = this.props.wikipage.windowSize.width * 0.48// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
-		const height =  this.props.wikipage.windowSize.height * 0.90// width
+		const width = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
+		const height =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio// width
 	
 		
 		TWEEN.update()
@@ -830,8 +836,8 @@ export default class Map extends Component {
 	    this.sy = e.clientY;
 	    this.ssx = e.clientX;
 	    this.ssy = e.clientY;
-		const w = this.props.wikipage.windowSize.width * 0.48
-		const h =  this.props.wikipage.windowSize.height * 0.95
+		const w = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio
+		const h =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio
 
 	    this.mouseStart.x = ( e.clientX / w ) * 2 - 1;
 	    this.mouseStart.y = - ( e.clientY / h ) * 2 + 1;
@@ -843,6 +849,11 @@ export default class Map extends Component {
 	    this.mouseDown = false;
 	}
 
+	mouseout(e) 
+	{
+		console.log('MOUSEOUT')
+		this.props.dispatch(actions.hoveredOnMap(null))
+	}
 
 	mousemove(e) {
 		e.preventDefault();
@@ -863,8 +874,8 @@ export default class Map extends Component {
 
 	    }
 
-		const w = this.props.wikipage.windowSize.width * 0.48
-		const h =  this.props.wikipage.windowSize.height * 0.95
+		const w = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio
+		const h =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio
 
 		this.mouse.x = ( e.nativeEvent.offsetX / w ) * 2 - 1;
 		this.mouse.y = - ( e.nativeEvent.offsetY / h ) * 2 + 1;
@@ -905,20 +916,64 @@ export default class Map extends Component {
 	    this.debouncedSetZoom(zoomLevel)
 	    
 	    cPos.z = newZ
+	}
+
+	mapLocationToDomLocation(location) {
+			const width = this.props.wikipage.windowSize.width,
+				  height =  this.props.wikipage.windowSize.height
+
+		    const curLocationVector = new THREE.Vector3(this.x(location[0]),
+		    											this.y(location[1]),
+		    											 NODES_Z)
+
+	        curLocationVector.project(this.camera)
+	        return [(curLocationVector.x * width * pageToCanvasWidthRatio * 0.5 + width * pageToCanvasWidthRatio * 0.5), 
+	        				-(curLocationVector.y * height * pageToCanvasHeightRatio * 0.5) + height * pageToCanvasHeightRatio * 0.5]
 	}	
 
 	render() {
 		//console.log('map props', this.props)
+		const mapReady = this.props.map.mapReady
 		const hoveredItem = this.props.map.hoveredItem
 		const hasHistory = this.props.map.wikiHistory.length > 1
-		const zoomBtnText = this.props.map.zoom===11 ? 'show all map' : 'zoom to article' 
+		const cameraMoving = this.props.map.cameraMoving
+		const zoomLevel = this.props.map.zoom
+		const wikiHover = this.props.map.wikiHover
+
+		// let curLocation = mapReady ? 
+		// 				[this.x(this.props.map.location[0]), this.y(this.props.map.location[1])] : [0,0]
+		let curLocation = [0, 0],
+			wikiHoverLocation = [0, 0]
+		if(mapReady) {
+		    // const curLocationVector = new THREE.Vector3(this.x(this.props.map.location[0]),
+		    // 											this.y(this.props.map.location[1]),
+		    // 											 NODES_Z)
+
+	     //    //debugger;
+	     //    curLocationVector.project(this.camera)
+	     //    curLocation = [(curLocationVector.x * width * pageToCanvasWidthRatio * 0.5 + width * pageToCanvasWidthRatio * 0.5), 
+	     //    				-(curLocationVector.y * height * pageToCanvasHeightRatio * 0.5) + height * pageToCanvasHeightRatio * 0.5]
+	     	// this.mouseStart.x = ( e.clientX / w ) * 2 - 1;
+	    	// this.mouseStart.y = - ( e.clientY / h ) * 2 + 1;
+            // x = ( project.x * w/2 ) + w/2;
+            // y = - ( project.y * h/2 ) + h/2;
+            //debugger;
+	        //console.log(curLocationVector,curLocationProjected,curLocation)
+	        curLocation = this.mapLocationToDomLocation(this.props.map.location)
+		}
+		if(wikiHover) {
+			wikiHoverLocation = this.mapLocationToDomLocation(wikiHover.location)
+		}
+
+		const pageTitle = this.props.map.pageTitle
+		const zoomBtnText = zoomLevel===11 ? 'show all map' : 'zoom to article' 
 		if(this.updateNeighbors) {
-			this.addNeighbors(this.props.map.location, this.props.map.neighbors, this.props.wikipage.pageTitle)
+			//this.addNeighbors(this.props.map.location, this.props.map.neighbors, this.props.wikipage.pageTitle)
 			this.updateNeighbors = false
 		}
 		
 		return (
-				<div style={{position: 'relative', opacity: this.props.map.mapReady ? 1 : 0, transition: 'opacity 0.5s ease-in'}}>
+				<div className="mapContainer" style={{opacity: this.props.map.mapReady ? 1 : 0 }}>
 
 					<button className="zoomBtn" onClick={(e) => this.zoomClicked()}>{zoomBtnText}</button>
 					{/*<button onClick={(e) => this.drawHistory()} disabled={!hasHistory}>draw history</button>*/}
@@ -926,13 +981,36 @@ export default class Map extends Component {
 						onMouseDown={(e) => this.mousedown(e)}
 						onMouseUp={(e) => this.mouseup(e)}
 						onMouseMove={(e) => this.mousemove(e)}
+						onMouseOut={(e) => this.mouseout(e)}
 						onWheel={(e) => this.mousewheel(e)}
 						onClick ={(e) => this.mouseClicked(e)}
 					></div>
-					<div className="callout"
-						 style={{top: hoveredItem ? hoveredItem.mousey : 0, left: hoveredItem ? hoveredItem.mousex: 0}}>
-						 	{hoveredItem ? hoveredItem.title : ''}
+					<div className="callout marker"
+						 style={{top: hoveredItem ? hoveredItem.mousey : 0,
+						 		 left: hoveredItem ? hoveredItem.mousex: 0,
+						 		 opacity: hoveredItem && !cameraMoving ? 1 : 0
+						 		}}>
+						 	{hoveredItem && hoveredItem.title!==pageTitle ? hoveredItem.title : ''}
 					</div>
+					<div className="currentArticle marker"
+						style={{top: curLocation[1],
+						 		 left: curLocation[0],
+						 		 fontSize: '12px',
+						 		 lineHeight: '12px',
+						 		 opacity: cameraMoving ? 0 : 1
+						 		}}>
+						 		{zoomLevel < 3 && !wikiHover ? 'You are here!' : pageTitle}
+					</div>
+					<div className="wikiHover marker"
+						style={{top: wikiHoverLocation[1],
+						 		 left: wikiHoverLocation[0],
+						 		 fontSize: '12px',
+						 		 lineHeight: '12px',
+						 		 opacity: cameraMoving ? 0 : 1
+						 		}}>
+						 		{wikiHover ? wikiHover.title : ''}
+					</div>
+
 				</div>
 				
 			)
