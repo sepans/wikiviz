@@ -23,6 +23,7 @@
 .callout  {
 	bottom: 10px;
 	transition: opacity 0.5s ease-in;
+	font-size: 14px;
 }
 
 .currentArticle {

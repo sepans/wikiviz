@@ -995,8 +995,8 @@ export default class Map extends Component {
 					<div className="currentArticle marker"
 						style={{top: curLocation[1],
 						 		 left: curLocation[0],
-						 		 fontSize: '12px',
-						 		 lineHeight: '12px',
+						 		 fontSize: zoomLevel > 7 ? '14px' : '12px',
+						 		 lineHeight: zoomLevel > 7 ? '14px' : '12px',
 						 		 opacity: cameraMoving ? 0 : 1
 						 		}}>
 						 		{zoomLevel < 3 && !wikiHover ? 'You are here!' : pageTitle}
@@ -1004,8 +1004,8 @@ export default class Map extends Component {
 					<div className="wikiHover marker"
 						style={{top: wikiHoverLocation[1],
 						 		 left: wikiHoverLocation[0],
-						 		 fontSize: '12px',
-						 		 lineHeight: '12px',
+						 		 fontSize: zoomLevel > 7 ? '14px' : '12px',
+						 		 lineHeight: zoomLevel > 7 ? '14px' : '12px',
 						 		 opacity: cameraMoving ? 0 : 1
 						 		}}>
 						 		{wikiHover ? wikiHover.title : ''}

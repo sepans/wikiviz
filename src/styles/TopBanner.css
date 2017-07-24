@@ -33,11 +33,26 @@
 }
 
 .search input {
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	padding: 3px 8px;
+	border: none;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	padding: 7px 3px 1px 3px;
 	font-size: 1.15em;
+
 	font-family: sans-serif;
 	width: 90%;
+}
+
+.search input::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color: rgba(100, 100, 100, 0.5);
+}
+.search input::-moz-placeholder { /* Firefox 19+ */
+  color: rgba(100, 100, 100, 0.5);
+}
+.search input:-ms-input-placeholder { /* IE 10+ */
+  color: rgba(100, 100, 100, 0.5);
+}
+.search input:-moz-placeholder { /* Firefox 18- */
+  color: rgba(100, 100, 100, 0.5);
 }
 *:focus {
     outline: none;
