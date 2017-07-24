@@ -26,7 +26,7 @@
     "react-scripts": "1.0.7"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "ENVIRONMENT='development' react-scripts start",
     "build": "react-scripts build",
     "tar" : "tar czf build.tar.gz build",
     "upload": "scp build.tar.gz $SERVER_ADDRESS:$SERVER_PATH",

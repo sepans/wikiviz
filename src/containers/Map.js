@@ -345,7 +345,6 @@ export default class Map extends Component {
 			const voronoiObject = new THREE.Line(historyLineGeometry, lineMaterial);
 			this.scene.add(voronoiObject);
 			*/
-
 			const voroShape = new THREE.Shape();
 			for(let i=0 ; i< polygon.length ; i++) {
 				const x = polygon[i][0]
@@ -977,7 +976,7 @@ export default class Map extends Component {
 
 					<button className="zoomBtn" onClick={(e) => this.zoomClicked()}>{zoomBtnText}</button>
 					{/*<button onClick={(e) => this.drawHistory()} disabled={!hasHistory}>draw history</button>*/}
-					<div style={{margin: '0px'}} ref="threejs" className="threeContainer"
+					<div ref="threejs" className="threeContainer"
 						onMouseDown={(e) => this.mousedown(e)}
 						onMouseUp={(e) => this.mouseup(e)}
 						onMouseMove={(e) => this.mousemove(e)}

@@ -8,11 +8,15 @@ import { createBrowserHistory } from 'history';
 
 import rootReducer from './reducers/'
 
+const dev = process.env.NODE_ENV === 'development'
+
 const logger = createLogger({
   predicate: (getState, action) => action.type !== 'HOVERED_ON_MAP'
 })
 
-const middleware = applyMiddleware(promise(), thunk, logger, routerMiddleware(createBrowserHistory()))
+const middleware = dev ? 
+					applyMiddleware(promise(), thunk, logger, routerMiddleware(createBrowserHistory())) :
+					applyMiddleware(promise(), thunk, routerMiddleware(createBrowserHistory()))
 
 const initialState = {
 	map: {
