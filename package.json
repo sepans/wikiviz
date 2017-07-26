@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "axios": "^0.16.2",
+    "d3-polygon": "^1.0.3",
     "d3-scale": "^1.0.6",
     "d3-voronoi": "^1.1.2",
     "prop-types": "^15.5.10",
@@ -28,7 +29,7 @@
   "scripts": {
     "start": "ENVIRONMENT='development' react-scripts start",
     "build": "react-scripts build",
-    "tar" : "tar czf build.tar.gz build",
+    "tar": "tar czf build.tar.gz build",
     "upload": "scp build.tar.gz $SERVER_ADDRESS:$SERVER_PATH",
     "build-on-server": "ssh $SERVER_ADDRESS $SERVER_SCRIPT",
     "deploy": "npm run build; npm run tar; npm run upload; npm run build-on-server",

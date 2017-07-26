@@ -23,7 +23,10 @@ export default function reducer(state=defualtState, action) {
       return {...state, fetching: true}
     case 'FETCH_CENTROIDS_FULFILLED':
       //TODO: move this somewhere better
-      return {...state, fetching: false, fetched: true, centroidsData: action.payload.data}
+      const centroidsData = action.payload.data.map(d => d.c || d)
+      const clusterNames = action.payload.data.map((d, i) => d.n || 'cluster '+i)
+      console.log('clusterNames', clusterNames.slice(0, 4))
+      return {...state, fetching: false, fetched: true, centroidsData, clusterNames}
     case 'FETCH_CENTROIDS_REJECTED':
       return {...state, fetching: false, error: state.error.concat(action.payload)}
 

@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import { scaleLinear, scaleOrdinal, schemeCategory20c } from 'd3-scale'
-import { extent } from 'd3-array'
+import { extent, mean } from 'd3-array'
 import { rgb, hsl } from 'd3-color'
 import { voronoi } from 'd3-voronoi'
+import { polygonHull, polygonCentroid } from 'd3-polygon'
 import * as actions from '../actions/'
 import { debounce } from 'lodash'
 
@@ -146,7 +147,6 @@ export default class Map extends Component {
 		pointsContainer.add(points)
 		scene.add(pointsContainer)
 
-		console.log('MAP props', this.props)
 	
 		this.raycaster = new THREE.Raycaster();
 		console.log('raycaster threshold ', this.raycaster.params.Points.threshold, this.raycaster.params)
@@ -167,9 +167,6 @@ export default class Map extends Component {
 
 		container.appendChild( renderer.domElement );
 
-
-		//controls = new OrbitControls(camera, renderer.domElement)
-		console.log('camera after', camera)
 
 
 		this.renderer = renderer
@@ -192,18 +189,23 @@ export default class Map extends Component {
 
 	mouseClicked(e) {
 		console.log('mouse clicked', this.mouseDown)
-		if(this.intersected && this.props.map.zoom > 7) {
-			const id = this.intersected.index
+		if(this.intersected) {
+			if (this.props.map.zoom > 7) {
+				const id = this.intersected.index
 
-			const tsneIndex = id //- this.articleStartingId
-			const numberofDots = this.props.map.tsneData.length
-			const title = (tsneIndex < numberofDots || true) ? //TODO fix for neighbors
-							 this.props.map.tsneData[tsneIndex].title :
-							 this.props.map.neighbors[tsneIndex - numberofDots ]
-			console.log('title', title)
+				const tsneIndex = id //- this.articleStartingId
+				const numberofDots = this.props.map.tsneData.length
+				const title = (tsneIndex < numberofDots || true) ? //TODO fix for neighbors
+								 this.props.map.tsneData[tsneIndex].title :
+								 this.props.map.neighbors[tsneIndex - numberofDots ]
+				console.log('title', title)
 
-			this.props.dispatch(actions.checkRedirectAndFetch(title))
+				this.props.dispatch(actions.checkRedirectAndFetch(title))
 
+			}
+			else {
+				
+			}
 		}
 	}
 
@@ -300,30 +302,102 @@ export default class Map extends Component {
 	}
 
 	drawVoronoi() {
-		const centroids = this.props.map.centroidsData
+		const centroids = this.props.map.centroidsData//.map((d, i) => { return {c: d, i: i}})
 		const rangeX = this.x.range()
 		const rangeY = this.y.range()
-		const extent = [[rangeX[0], rangeY[0]], [rangeX[1], rangeY[1] ]]
+		const width = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
+		const height =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio// width
+
+		const extent = [[-1, -1], [width +1 , height + 1]]//[[rangeX[0], rangeY[0]], [rangeX[1], rangeY[1] ]]
 		const voro = voronoi()
-			.x(d => this.x(d[0]))
-			.y(d => this.y(d[1]))
+			.x(d => d[0])
+			.y(d => d[1])
 			//.extent(extent)
 
-		const polygons = voro.polygons(centroids)//.slice(0,10)
-		//console.log('polygons', polygons)
+		//code from https://bl.ocks.org/Fil/711834f9dc943d1de9c9577b10a7a872 to limit voronois
+		var links = voro.links(centroids)
+		   
+		var ext = mean(links, function(l) {
+		    var dx = l.source[0] - l.target[0],
+		        dy = l.source[1] - l.target[1];
+		      return Math.sqrt(dx*dx + dy*dy);
+		});
+		   
 
+		var convex = polygonHull(centroids);
+		    convex.centroid = polygonCentroid(convex);
+		  	convex = convex.map(function(p){
+		    	var dx = p[0] - convex.centroid[0],
+		      	dy = p[1] - convex.centroid[1],
+		      	angle = Math.atan2(dy, dx);
+		    	return [p[0] + Math.cos(angle) * ext, p[1] + Math.sin(angle) * ext];
+		  });
 
-		polygons.forEach((polygon, indx) => {
+		var centroids2 = centroids.slice(); // clone
+		for (var i = 0; i < convex.length; i++) {
+		    var n = convex[i], m = convex[i+1]||convex[0]; 
+		    var dx = n[0] - m[0],
+		        dy = n[1] - m[1],
+		        dist = Math.sqrt(dx * dx + dy * dy);
+		    var pts = Math.ceil(dist / 2 / ext);
+		    for(var j=0; j <= pts; j++) {
+		      var p = [m[0] + dx *j / pts, m[1] + dy * j / pts];
+		      p.artificial = 1;
+		      centroids2.push(p);
+		    }
+		}			
+
+		this.polygons = voro.polygons(centroids2)
+		
+
+		this.polygons.forEach((polygon, indx) => {
+			//const polyData = polygon.data
+			if(indx > centroids.length) {
+				return
+			}
 			polygon = polygon.filter(d => d)
-			/*
+			
+			const voroShape = new THREE.Shape();
+			for(let i=0 ; i< polygon.length ; i++) {
+				const x = this.x(polygon[i][0])
+				const y = this.y(polygon[i][1])
+				if (i === 0) {
+				    voroShape.moveTo(x, y, NODES_Z);
+				} else {
+				    voroShape.lineTo(x, y, NODES_Z);
+				}
+			}
+			voroShape.autoClose = true
+			const voroGeo = voroShape.makeGeometry()
+			voroGeo.vertices.forEach(vertice => {
+				vertice.setZ(NODES_Z)
+			})
+			const material = new THREE.MeshBasicMaterial( {shading: THREE.FlatShading,  color: this.colorScale(indx + 1),transparent: true, opacity:  0.02 , side: THREE.FrontSide } );
+		  	const mesh = new THREE.Mesh( voroGeo, material );
+			this.scene.add( mesh );
+			if(indx===0) {
+				this.firstVoronoiId = mesh.id
+				//console.log('vorous', mesh.id, polygon)
+			}
+			//this.meshIdToCentroidId[mesh.id] = polyData.i
+
+
+		})
+		
+	
+
+		//var points = curve.getSpacedPoints( 20 );
+
+	}
+	/*
+	drawVoronoiBoundry(clusterId) {
+		if(clusterId > -1) {
+			const polygon = this.polygons[clusterId].filter(d => d)
 			let points = []
-			for(let i=0 ; i< polygon.length -1 ; i++) {
-			 	//const distance = this.calculateDistance([history[i].x, history[i].y], [history[i + 1].x, history[i + 1].y])
+			for(let i=0 ; i< polygon.length - 1 ; i++) {
 			 	const curve = new THREE.CubicBezierCurve3(
 					new THREE.Vector3( polygon[i][0], polygon[i][1], NODES_Z ),
 					new THREE.Vector3( polygon[i][0], polygon[i][1], NODES_Z ),
-					// new THREE.Vector3( this.x((polygon[i].x + polygon[i + 1].x) * 0.5), this.y((polygon[i].y + polygon[i + 1].y) * 0.5) , NODES_Z ),
-					// new THREE.Vector3( this.x((polygon[i].x + polygon[i + 1].x) * 0.5), this.y((polygon[i].y + polygon[i + 1].y) * 0.5) ,  NODES_Z),
 					new THREE.Vector3( polygon[i + 1][0], polygon[i + 1][1], NODES_Z ),
 					new THREE.Vector3( polygon[i + 1][0], polygon[i + 1][1], NODES_Z ),
 				);
@@ -342,35 +416,15 @@ export default class Map extends Component {
 		    });
 
 
-			const voronoiObject = new THREE.Line(historyLineGeometry, lineMaterial);
-			this.scene.add(voronoiObject);
-			*/
-			const voroShape = new THREE.Shape();
-			for(let i=0 ; i< polygon.length ; i++) {
-				const x = polygon[i][0]
-				const y = polygon[i][1]
-				if (i === 0) {
-				    voroShape.moveTo(x, y, NODES_Z);
-				} else {
-				    voroShape.lineTo(x, y, NODES_Z);
-				}
-			}
-			voroShape.autoClose = true
-			const voroGeo = voroShape.makeGeometry()
-			voroGeo.vertices.forEach(vertice => {
-				vertice.setZ(NODES_Z)
-			})
-			const material = new THREE.MeshBasicMaterial( {shading: THREE.FlatShading,  color: this.colorScale(indx + 1),transparent: true, opacity: 0.02, side: THREE.FrontSide } );
-		  	const mesh = new THREE.Mesh( voroGeo, material );
-			this.scene.add( mesh );
-
-
-			})
-
-
-		//var points = curve.getSpacedPoints( 20 );
-
+			this.clusterBorder = new THREE.Line(historyLineGeometry, lineMaterial);
+			this.scene.add(this.clusterBorder);			
+		}
+		else if(this.clusterBorder) {
+			this.clusterBorder.material.opacity = 0
+		}
+		
 	}
+	*/
 
 	showRemoveHover() {
 		const hoverLocation = this.props.map.wikiHover ? this.props.map.wikiHover.location : null
@@ -660,6 +714,7 @@ export default class Map extends Component {
 		TWEEN.update()
 		
 		if(this.props.map.raycast) {
+			this.raycaster.params.Points.threshold = this.props.map.zoom > 8 ? 5 : 20
 			this.raycaster.setFromCamera( this.mouse, this.camera );
 			var intersects = this.raycaster.intersectObjects( this.scene.children, true );
 			if ( intersects.length > 0) {
@@ -709,11 +764,36 @@ export default class Map extends Component {
 							if(this.props.map.zoom < 8 ) {
 								const mousex = (this.mouse.x + 1)/2 * width + 8
 								const mousey = - (this.mouse.y - 1)/2 * height - 5
+								//this.drawVoronoiBoundry(-1)
+								const objectId = intersectedObject.object.id - this.firstVoronoiId -1
+								if(this.voronoiHover && 
+									this.voronoiHover.object.id!==intersectedObject.object.id) {
+									if(this.voronoiHover.object.material) {
+
+										this.voronoiHover.object.material.opacity = 0.02
+									}
+									this.voronoiHover = null
+								}
+								//const secondClosestObj = intersects[i++]
+								//console.log('secondClosestObj', secondClosestObj)
+								let newObjectId = -1
+								if(intersects.length > i + 1 && intersects[i + 1].index) {
+									const ix = intersects[i + 1].index
+									console.log(this.props.map.tsneData[ix].dbscanc)
+									newObjectId = this.props.map.tsneData[ix].dbscanc
+								}
+								
 								this.props.dispatch(actions.hoveredOnMap({
-									title: 'cluster ' + intersectedObject.object.id,
+									//title: newObjectId > -1 ? newObjectId + ' '+ this.props.map.clusterNames[newObjectId] + ' ' + objectId + ' ' + this.props.map.clusterNames[objectId]: '',//objectId + ' ' + this.props.map.clusterNames[objectId] ,//'cluster ' + intersectedObject.object.id,//
+									title: newObjectId > -1 ?  this.props.map.clusterNames[newObjectId] : '',
 									mousex,
-									mousey
+									mousey,
+									cluster: true
 								}))
+								//debugger;
+								intersectedObject.object.material.opacity = 0.1
+								this.voronoiHover = intersectedObject
+								//this.drawVoronoiBoundry(objectId)
 
 							}
 
@@ -722,13 +802,13 @@ export default class Map extends Component {
 						else {
 							//this.intersected = intersectedObject
 							//this.intersected.currentRGB = intersectedObject.object.material.emissive.getRGB()
-							const neighborId = intersectedObject.object.id
-							intersectedObject.object.material.emissive.setRGB(0, 0, 1)
-							this.props.dispatch(actions.hoveredOnMap({title: this.props.map.neighbors[neighborId],
-								//TODO is it doing anything?
-								//mousex: (this.mouse.x + 1)/2 * this.width,
-								//mousey: - (this.mouse.y - 1)/2 * this.height 
-							}))
+							// const neighborId = intersectedObject.object.id
+							// intersectedObject.object.material.emissive.setRGB(0, 0, 1)
+							// this.props.dispatch(actions.hoveredOnMap({title: this.props.map.neighbors[neighborId],
+							// 	//TODO is it doing anything?
+							// 	//mousex: (this.mouse.x + 1)/2 * this.width,
+							// 	//mousey: - (this.mouse.y - 1)/2 * this.height 
+							// }))
 
 						}
 					}
@@ -850,8 +930,14 @@ export default class Map extends Component {
 
 	mouseout(e) 
 	{
-		console.log('MOUSEOUT')
+		//TODO why none of these are working?!?!
 		this.props.dispatch(actions.hoveredOnMap(null))
+
+		if(this.voronoiHover && this.voronoiHover.object.material) {
+			this.voronoiHover.object.material.opacity = 0.02
+			this.voronoiHover = null
+		}
+
 	}
 
 	mousemove(e) {
@@ -987,9 +1073,10 @@ export default class Map extends Component {
 					<div className="callout marker"
 						 style={{top: hoveredItem ? hoveredItem.mousey : 0,
 						 		 left: hoveredItem ? hoveredItem.mousex: 0,
-						 		 opacity: hoveredItem && !cameraMoving ? 1 : 0
+						 		 opacity: hoveredItem && !cameraMoving ? 1 : 0,
+						 		 color: hoveredItem && hoveredItem.cluster ? '#0000FF' : '#000000'
 						 		}}>
-						 	{hoveredItem && hoveredItem.title!==pageTitle ? hoveredItem.title : ''}
+						 	{hoveredItem && hoveredItem.title!==pageTitle ? hoveredItem.title /*+ ' ' + hoveredItem.dbscanc*/ : ''}
 					</div>
 					<div className="currentArticle marker"
 						style={{top: curLocation[1],

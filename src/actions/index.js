@@ -20,7 +20,7 @@ export function fetchCentroidData(pageName) {
 	return {
   		type: 'FETCH_CENTROIDS',
   		//payload: axios.get(`data/withids.json`)
-  		payload: axios.get(`data/centroids.json`) //TODO load from server to make json files consistent
+  		payload: axios.get(`data/centroidWithName.json`) //TODO load from server to make json files consistent
 	}
 }
 
