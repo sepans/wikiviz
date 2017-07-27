@@ -27,7 +27,7 @@ export function fetchCentroidData(pageName) {
 export function fetchPageLocation(pageName) {
 	return {
   		type: 'FETCH_LOCATION',
-  		payload: axios.get(`http://wikisep.toymaker.ops.fastforwardlabs.com/similars?title=${pageName}`) //TODO make environment
+  		payload: axios.get(`/api/similars?title=${pageName}`) //TODO make environment
 	}
 }
 
@@ -73,7 +73,7 @@ export function hoveredWikiLink(pageName) {
 				 					json.query.redirects[0].to :
 				 					pageName
 
-				axios.get(`http://wikisep.toymaker.ops.fastforwardlabs.com/similars?title=${pageTitle}`)
+				axios.get(`/api/similars?title=${pageTitle}`)
 				.then((response) => {
 					console.log('hover response', response.data.location)
 					dispatch(hoverMapLocation({title: pageTitle, location: response.data.location}))
