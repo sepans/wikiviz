@@ -8,12 +8,22 @@
 	margin: 0px;
 }
 
-.zoomBtn {
+.controls {
 	position: absolute;
+
+}
+
+.zoomBtn {
 	background-color: #FFF;
 	border: 1px solid #0000FF;
 	color: #0000FF;
 	margin: 5px;
+	cursor: pointer;
+}
+.disabled {
+	opacity: 0.5;
+	pointer-events: none;
+	cursor: default;
 }
 .marker {
 	position: absolute;

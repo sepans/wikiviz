@@ -110,7 +110,7 @@ export default class Map extends Component {
 		const pointsContainer = new THREE.Object3D()
 
 		for ( var i = 0; i < tsneData.length; i ++ ) {
-			const color = this.colorScale(tsneData[i].dbscanc)
+			const color = this.colorScale(tsneData[i].d)
 			
 
 			var vertex = new THREE.Vector3();
@@ -119,7 +119,7 @@ export default class Map extends Component {
 			vertex.z = NODES_Z
 			//console.log(vertex)
 			pointsGeometry.vertices.push(vertex)
-			const rgbColor = rgb(color)//hsl(tsneData[i].dbscanc/500 * 256, 0.7, 0.7).rgb()
+			const rgbColor = rgb(color)//hsl(tsneData[i].d/500 * 256, 0.7, 0.7).rgb()
 			const nodeColor = new THREE.Color().setRGB(rgbColor.r/ 255, rgbColor.g/255, rgbColor.b/255)
 			//if(i===0)
 			pointsGeometry.colors.push(nodeColor)
@@ -195,16 +195,36 @@ export default class Map extends Component {
 
 				const tsneIndex = id //- this.articleStartingId
 				const numberofDots = this.props.map.tsneData.length
-				const title = (tsneIndex < numberofDots || true) ? //TODO fix for neighbors
-								 this.props.map.tsneData[tsneIndex].title :
-								 this.props.map.neighbors[tsneIndex - numberofDots ]
+				console.log('tsneIndex', tsneIndex)
+				if(!tsneIndex) {
+					console.log('no tsneindex',  this.intersected)
+					return
+				}
+				const title = this.props.map.tsneData[tsneIndex].title
 				console.log('title', title)
 
 				this.props.dispatch(actions.checkRedirectAndFetch(title))
 
 			}
 			else {
-				
+				const width = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
+				const height =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio// width
+
+				const mouse3 = new THREE.Vector3(this.mouse.x, this.mouse.y, NODES_Z)
+
+				mouse3.unproject( this.camera );
+
+				const dir = mouse3.sub( this.camera.position ).normalize();
+
+				const distance = - this.camera.position.z / dir.z;
+
+				const pos = this.camera.position.clone().add( dir.multiplyScalar( distance ) );
+				console.log(pos)	
+				const clusterZ = -500
+				this.tweenCamera({x: pos.x, y: pos.y, z: -500}, {}, () => {
+					const zoomLevel = 10 -  Math.round((clusterZ /  (ZOOM_MAX_Z - ZOOM_MIN_Z) * 10) * 10) / 10
+					this.props.dispatch(actions.setZoom(zoomLevel))
+				})			
 			}
 		}
 	}
@@ -726,18 +746,14 @@ export default class Map extends Component {
 				}
 				
 				if(intersectedObject && this.props.map.tsneData) {
-					//console.log(intersects)
 					if(intersectedObject.index ) {
+						//all points have inde -> points
 						const tsneIndex = intersectedObject.index
 						const hoveredItem = this.props.map.tsneData[tsneIndex] 
 						const materialColor = intersectedObject.object.geometry.colors[tsneIndex]
-						//console.log(materialColor)
 						
 						this.intersected = intersectedObject
-						// if(!this.intersected.currentHex) {
-						// 	this.intersected.currentHex = materialColor.getHex()
 
-						// }
 						if(this.props.map.zoom > 7) {
 							if(materialColor) {
 								//materialColor.setRGB(0, 0, 1)
@@ -759,8 +775,10 @@ export default class Map extends Component {
 
 
 					}
+
 					else if(intersectedObject.object.id) {
-						if(!intersectedObject.object.material.emissive) {
+						//meshes have object.id -> polygons
+						if(!intersectedObject.object.material.emissive) { //TODO: needed?
 							if(this.props.map.zoom < 8 ) {
 								const mousex = (this.mouse.x + 1)/2 * width + 8
 								const mousey = - (this.mouse.y - 1)/2 * height - 5
@@ -774,13 +792,11 @@ export default class Map extends Component {
 									}
 									this.voronoiHover = null
 								}
-								//const secondClosestObj = intersects[i++]
-								//console.log('secondClosestObj', secondClosestObj)
 								let newObjectId = -1
 								if(intersects.length > i + 1 && intersects[i + 1].index) {
 									const ix = intersects[i + 1].index
-									console.log(this.props.map.tsneData[ix].dbscanc)
-									newObjectId = this.props.map.tsneData[ix].dbscanc
+									console.log(this.props.map.tsneData[ix].d)
+									newObjectId = this.props.map.tsneData[ix].d
 								}
 								
 								this.props.dispatch(actions.hoveredOnMap({
@@ -794,7 +810,8 @@ export default class Map extends Component {
 								intersectedObject.object.material.opacity = 0.1
 								this.voronoiHover = intersectedObject
 								//this.drawVoronoiBoundry(objectId)
-
+								this.intersected = intersectedObject
+								//console.log('this.intersected', this.intersected)
 							}
 
 
@@ -819,6 +836,7 @@ export default class Map extends Component {
 
 					//materialColor.setHex( this.intersected.currentHex );	
 				}
+				//console.log('setting this.intersected to null')
 				this.intersected = null;
 				if(this.props.map.hoveredItem) {
 					this.props.dispatch(actions.hoveredOnMap(null))
@@ -857,6 +875,14 @@ export default class Map extends Component {
 		else {
 			this.props.dispatch(actions.zoomIn())
 		}
+	}
+
+	zoomInClicked() {
+		this.props.dispatch(actions.zoomIn())
+	}
+
+	zoomOutClicked() {
+		this.props.dispatch(actions.zoomOut())
 	}
 
 	drawHistory() {
@@ -1059,8 +1085,12 @@ export default class Map extends Component {
 		
 		return (
 				<div className="mapContainer" style={{opacity: this.props.map.mapReady ? 1 : 0 }}>
-
-					<button className="zoomBtn" onClick={(e) => this.zoomClicked()}>{zoomBtnText}</button>
+					<div className="controls">
+						<button className={`zoomBtn ${zoomLevel===11 ? 'disabled' : ''}`} 
+								onClick={(e) => this.zoomInClicked()}>zoom to article</button>
+						<button className={`zoomBtn ${zoomLevel===1 ? 'disabled' : ''}`}  
+								onClick={(e) => this.zoomOutClicked()}>show entire map</button>
+					</div>
 					{/*<button onClick={(e) => this.drawHistory()} disabled={!hasHistory}>draw history</button>*/}
 					<div ref="threejs" className="threeContainer"
 						onMouseDown={(e) => this.mousedown(e)}
@@ -1076,7 +1106,7 @@ export default class Map extends Component {
 						 		 opacity: hoveredItem && !cameraMoving ? 1 : 0,
 						 		 color: hoveredItem && hoveredItem.cluster ? '#0000FF' : '#000000'
 						 		}}>
-						 	{hoveredItem && hoveredItem.title!==pageTitle ? hoveredItem.title /*+ ' ' + hoveredItem.dbscanc*/ : ''}
+						 	{hoveredItem && hoveredItem.title!==pageTitle ? hoveredItem.title /*+ ' ' + hoveredItem.d*/ : ''}
 					</div>
 					<div className="currentArticle marker"
 						style={{top: curLocation[1],
