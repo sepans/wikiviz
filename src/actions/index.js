@@ -2,6 +2,10 @@ import axios from 'axios'
 import store from '../store'
 import { push } from 'react-router-redux'
 
+const dev = process.env.NODE_ENV === 'development'
+const API_ENDPOINT = dev ? 'http://localhost/api/' : '/api/'
+
+
 export function updateWindowSize(dims) {
 	return {
 		type: 'UPDATE_WINDOW_SIZE',
@@ -27,7 +31,7 @@ export function fetchCentroidData(pageName) {
 export function fetchPageLocation(pageName) {
 	return {
   		type: 'FETCH_LOCATION',
-  		payload: axios.get(`/api/similars?title=${pageName}`) //TODO make environment
+  		payload: axios.get(`${API_ENDPOINT}similars?title=${pageName}`) //TODO make environment
 	}
 }
 
@@ -73,7 +77,7 @@ export function hoveredWikiLink(pageName) {
 				 					json.query.redirects[0].to :
 				 					pageName
 
-				axios.get(`/api/similars?title=${pageTitle}`)
+				axios.get(`${API_ENDPOINT}similars?title=${pageTitle}`)
 				.then((response) => {
 					console.log('hover response', response.data.location)
 					dispatch(hoverMapLocation({title: pageTitle, location: response.data.location}))

@@ -25,14 +25,9 @@ export default function reducer(state=defualtState, action) {
       //TODO: move this somewhere better
       const centroidsData = action.payload.data.map(d => d.c || d)
       const clusterNames = action.payload.data.map((d, i) => d.n || 'cluster '+i)
-      console.log('clusterNames', clusterNames.slice(0, 4))
       return {...state, fetching: false, fetched: true, centroidsData, clusterNames}
     case 'FETCH_CENTROIDS_REJECTED':
       return {...state, fetching: false, error: state.error.concat(action.payload)}
-
-    // case 'FETCH_TSNE_PENDING':
-    //     console.log('fetch', state)
-    //   return {...state, fetching: true}
     case 'FETCH_LOCATION_FULFILLED':
       //TODO: move this somewhere better
       const location = action.payload.data.location//Object.values(action.payload.data.query.pages)[0].revisions[0]['*']

@@ -30,7 +30,6 @@ class Root extends Component {
 
 
       this.props.history.listen((location) => {
-        console.log('history listener', location, this.props)
         //TODO this is so hacky!
         if(location) {
           const title = location.pathname.replace('/', '')

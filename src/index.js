@@ -7,7 +7,7 @@ import store from './store'
 //import { BrowserRouter as Router, Route } from 'react-router-dom'
 import { Router, Route } from 'react-router'
 import { createHashHistory } from 'history';
-import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
+import { syncHistoryWithStore } from 'react-router-redux'
 
 const app = document.getElementById('root')
 

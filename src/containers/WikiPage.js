@@ -70,8 +70,8 @@ export default class WikiPage extends Component {
               onMouseOver={(e) => this.hoverOnLink(e)}
               onMouseOut={(e) => this.mouseOutLink(e)}
               style={{paddingRight: '20px'}}
-              dangerouslySetInnerHTML={wikicontent ? {__html: this.addOnclickHandlerToWikiContent(wikicontent)} : {__html: '<span>loading...</span>'}}>
-          </div>
+              dangerouslySetInnerHTML={wikicontent ? {__html: this.addOnclickHandlerToWikiContent(wikicontent)} : {__html: '<span>loading...</span>'}}/>
+          
         </div>
         )
           

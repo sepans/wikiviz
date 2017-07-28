@@ -1,15 +1,14 @@
 import React, { Component } from 'react'
-import { scaleLinear, scaleOrdinal, schemeCategory20c } from 'd3-scale'
+import { scaleLinear, scaleOrdinal } from 'd3-scale'
 import { extent, mean } from 'd3-array'
-import { rgb, hsl } from 'd3-color'
+import { rgb } from 'd3-color'
 import { voronoi } from 'd3-voronoi'
 import { polygonHull, polygonCentroid } from 'd3-polygon'
 import * as actions from '../actions/'
 import { debounce } from 'lodash'
 
 import THREE from 'three'
-import OrbitControls  from 'three-orbitcontrols'
-import { SpriteText2D, MeshText2D, textAlign } from 'three-text2d'
+//import OrbitControls  from 'three-orbitcontrols'
 import TWEEN from 'tween.js'
 
 import '../styles/Map.css'
@@ -19,12 +18,9 @@ import '../styles/Map.css'
 
 
 //const OrbitControls = require('three-orbit-controls')(THREE)
-const ANIMATION_DURATION = 20 //ms?!
-const r = 8
 const HIGHLIGHT_Z = -1530
 const NODES_Z = -1530
 const CAMERA_Z = 6500
-const MAX_NODES_DISPLAY = /*tsneData.length*/ 50000
 const ZOOM_MIN_Z = -1200,
       ZOOM_MAX_Z = 8100,
       ZOOM_CAMERA_TILT_X = 0.25
@@ -47,22 +43,16 @@ export default class Map extends Component {
 	}
 
 	init() {
-		//const OrbitControls = OrbitControlsModule(THREE)
-		console.log('INITINITINIT')
-
 		const tsneData = this.props.map.tsneData
 
 		this.youarehere = []
 		this.sprites = []
 
 		let container
-		let camera, controls, scene, renderer;
+		let camera, scene, renderer;
 		//let pickingData = [], pickingTexture, pickingScene;
-		const objects = [];
-		let highlightBox;
 		this.mouse = new THREE.Vector2()
 		this.mouseStart = new THREE.Vector2()
-		const offset = new THREE.Vector3( 10, 10, 10 )
 
 		const width = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
 		const height =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio// width
@@ -78,8 +68,6 @@ export default class Map extends Component {
 		this.x.domain(extent(tsneData, getX))
 		this.y.domain(extent(tsneData, getY))
 
-		console.log('domains', this.x.domain(), this.y.domain(), this.x.range(), this.y.range())
-
 		this.colorScale = scaleOrdinal()
 			.range(["rgb(33,240,182)", "rgb(28,135,92)", "rgb(148,211,188)", "rgb(21,114,156)",
 			 "rgb(131,172,243)", "rgb(135,17,172)", "rgb(142,128,251)", "rgb(105,48,110)", 
@@ -92,9 +80,6 @@ export default class Map extends Component {
 
 		camera = new THREE.PerspectiveCamera( 45, width / height, 1, 10000 );
 		camera.position.set(0 , 0, CAMERA_Z);
-		//camera.lookAt(new THREE.Vector3(width/2, height/2, -800));
-		console.log('camera before', camera)
-
 
 		scene = new THREE.Scene();
 		let light = new THREE.DirectionalLight( 0xffffff, 1 );
@@ -142,14 +127,12 @@ export default class Map extends Component {
 		//material.color.setRGB(.5, .5, .5)
 
 		const points = new THREE.Points(pointsGeometry, material) //points ~ particles
-		console.log(points, pointsGeometry)
 
 		pointsContainer.add(points)
 		scene.add(pointsContainer)
 
 	
 		this.raycaster = new THREE.Raycaster();
-		console.log('raycaster threshold ', this.raycaster.params.Points.threshold, this.raycaster.params)
 		this.raycaster.params.Points.threshold = 5
 		renderer = new THREE.WebGLRenderer();
 		renderer.setClearColor( 0xffffff );
@@ -194,8 +177,6 @@ export default class Map extends Component {
 				const id = this.intersected.index
 
 				const tsneIndex = id //- this.articleStartingId
-				const numberofDots = this.props.map.tsneData.length
-				console.log('tsneIndex', tsneIndex)
 				if(!tsneIndex) {
 					console.log('no tsneindex',  this.intersected)
 					return
@@ -207,8 +188,6 @@ export default class Map extends Component {
 
 			}
 			else {
-				const width = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
-				const height =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio// width
 
 				const mouse3 = new THREE.Vector3(this.mouse.x, this.mouse.y, NODES_Z)
 
@@ -230,109 +209,12 @@ export default class Map extends Component {
 	}
 
 
-	addNeighbors(location, neighbors, pageTitle) {
-		console.log('ADD/UPDATE NEIG...', location, pageTitle, this.youarehere)
-		const numberOfNeighbors = 8
-		if(!this.youarehere ) {
-			return
-		}
-		//this.neighborsContainer = new THREE.Object3D()
-		if(this.youarehere.length===0) {
-			for ( var i = 0; i < 1/*numberOfNeighbors + 1*/; i ++ ) {
-				const fill = i===0 ? '#000000' : '#888888'
-				const object = new THREE.Mesh( this.geometry, new THREE.MeshLambertMaterial( { color: fill, opacity: 0.8, transparent: true  } ) );
-				
-				const title = i===0 ? pageTitle : ''//neighbors[i]
-				const align = i===0 ? textAlign.center : 
-						Math.cos(i * 2 * Math.PI / numberOfNeighbors) > 0 ? textAlign.left : textAlign.right
-				const marginLeft =  i===0 ? 0 : 
-						Math.cos(i * 2 * Math.PI / numberOfNeighbors) > 0 ? 5 : 5//-5
-				const font = i===0 ? '16px Arial' : '8px Arial'
-				const sprite = new SpriteText2D(title, { 
-					align: align,  font: font, fillStyle: fill , antialias: false ,
-				    //shadowColor: 'rgba(0, 0, 0, 0.2)',
-				    // shadowBlur: 3,
-				    // shadowOffsetX: 2,
-				    // shadowOffsetY: 2
-				})
-				const x = i===0 ? this.x(location[0]) : this.x(location[0]) + r * Math.cos(i * 2 * Math.PI / numberOfNeighbors)
-				const y = i===0 ? this.y(location[1]) : this.y(location[1]) + r * Math.sin(i * 2 * Math.PI / numberOfNeighbors)
-				const z = HIGHLIGHT_Z
-
-				sprite.position.set(x + marginLeft, y + 5, z + 5)
-				sprite.material.alphaTest = 0.1
-				//sprite.scale.set(1.5, 1.5, 1.5)
-				//console.log('FILL', sprite.fillStyle)
-				if(i===0) {
-					this.sprites.push(sprite)
-					this.scene.add(sprite)
-				}
-
-				
-				//const node = tsneData[i]
-				object.position.x = x//Math.random() * 10000 - 5000;
-				object.position.y = y//Math.random() * 6000 - 3000;
-				object.position.z = z//Math.random() * -9000 ;
-				object.rotation.x = 0//Math.random() * 2 * Math.PI;
-				object.rotation.y = 0//Math.random() * 2 * Math.PI;
-				object.rotation.z = 0//Math.random() * 2 * Math.PI;
-				object.scale.x = .8//Math.random() * 200 + 100;
-				object.scale.y = .8//Math.random() * 200 + 100;
-				object.scale.z = .8//Math.random() * 200 + 100;
-				//console.log(object.position.z)
-				this.scene.add( object );
-				this.youarehere.push(object)
-			}				
-		}
-		else {
-			//this.sprite.position.set(this.x(location[0]), this.y(location[1]), HIGHLIGHT_Z)
-			this.youarehere.forEach((you, i) => {
-				const x = i===0 ? this.x(location[0]) : this.x(location[0]) + r * Math.cos(i * 2 * Math.PI / numberOfNeighbors)
-				const y = i===0 ? this.y(location[1]) : this.y(location[1]) + r * Math.sin(i * 2 * Math.PI / numberOfNeighbors)
-
-				//console.log('you', i, r, x, y)
-
-
-				// you.position.x = this.x(x)
-				// you.position.y = this.y(y)
-				you.position.set(x, y, HIGHLIGHT_Z)
-
-			})
-			this.sprites.forEach((sprite, i) => {
-				const x = i===0 ? this.x(location[0]) : this.x(location[0]) + r * Math.cos(i * 2 * Math.PI / numberOfNeighbors)
-				const y = i===0 ? this.y(location[1]) : this.y(location[1]) + r * Math.sin(i * 2 * Math.PI / numberOfNeighbors)
-				const title = i===0 ? pageTitle : neighbors[i]
-
-				console.log('sprite', i, r, x, y)
-
-				sprite.text= title
-				// sprite.position.x = this.x(x)
-				// sprite.position.y = this.y(y)
-				sprite.position.set(x, y, HIGHLIGHT_Z + 5)
-
-			})
-			// 			this.sprite.position.set(this.x(location[0]), this.y(location[1]), HIGHLIGHT_Z)
-			// this.youarehere.forEach((you) {
-			// 	this.youarehere.position.x = this.x(location[0])
-			// 	this.youarehere.position.y = this.y(location[1])
-
-
-		}
-		
-	}
-
 	drawVoronoi() {
-		const centroids = this.props.map.centroidsData//.map((d, i) => { return {c: d, i: i}})
-		const rangeX = this.x.range()
-		const rangeY = this.y.range()
-		const width = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
-		const height =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio// width
+		const centroids = this.props.map.centroidsData
 
-		const extent = [[-1, -1], [width +1 , height + 1]]//[[rangeX[0], rangeY[0]], [rangeX[1], rangeY[1] ]]
 		const voro = voronoi()
 			.x(d => d[0])
 			.y(d => d[1])
-			//.extent(extent)
 
 		//code from https://bl.ocks.org/Fil/711834f9dc943d1de9c9577b10a7a872 to limit voronois
 		var links = voro.links(centroids)
@@ -449,7 +331,6 @@ export default class Map extends Component {
 	showRemoveHover() {
 		const hoverLocation = this.props.map.wikiHover ? this.props.map.wikiHover.location : null
 		const curLocation = this.props.map.location
-		const zoom = this.props.map.zoom
 		if(hoverLocation) {
 			let points = []
 
@@ -528,19 +409,19 @@ export default class Map extends Component {
 
 		}
 		
-		if((prevProps.map.centroidsData==null && this.props.map.centroidsData!=null && this.props.map.tsneData) ||
-		   (prevProps.map.tsneData==null && this.props.map.tsneData!=null && this.props.map.centroidsData)) {
+		if((prevProps.map.centroidsData===null && this.props.map.centroidsData!==null && this.props.map.tsneData) ||
+		   (prevProps.map.tsneData===null && this.props.map.tsneData!==null && this.props.map.centroidsData)) {
 			//this.addBoxes(nextProps.tsneData)
 			this.drawVoronoi()
 			//this.renderer.render( this.scene, this.camera );
 
 		}
-		if(prevProps.map.wikiHover!= this.props.map.wikiHover) {
+		if(prevProps.map.wikiHover!== this.props.map.wikiHover) {
 			this.showRemoveHover()
 		}
 
-		if((prevProps.wikipage.windowSize.width!= this.props.wikipage.windowSize.width || 
-			prevProps.wikipage.windowSize.height!= this.props.wikipage.windowSize.height) && 
+		if((prevProps.wikipage.windowSize.width!== this.props.wikipage.windowSize.width || 
+			prevProps.wikipage.windowSize.height!== this.props.wikipage.windowSize.height) && 
 			this.props.map.tsneData) {
 			this.init()
 		}
@@ -557,7 +438,7 @@ export default class Map extends Component {
 			this.updateNeighbors = true;
 			this.drawHistory()
 		}
-		if(this.props.map.zoom != nextProps.map.zoom && (nextProps.map.zoom===11 || nextProps.map.zoom===1)) {
+		if(this.props.map.zoom !== nextProps.map.zoom && (nextProps.map.zoom===11 || nextProps.map.zoom===1)) {
 
 			const nextCameraProps = nextProps.map.zoom===11 ? 
 			{
@@ -629,8 +510,8 @@ export default class Map extends Component {
 
 				}
 			
-			var that = this
- 			var tween = new TWEEN.Tween(from)
+			const that = this
+ 			new TWEEN.Tween(from)
 	            .to(to, options.time)
 	            .easing(options.easing)
 	            .onUpdate(function () {
@@ -690,40 +571,6 @@ export default class Map extends Component {
 		return Math.sqrt( Math.pow( dx, 2) + Math.pow( dy, 2))
 	}
 	
-	makeTextSprite( message, parameters )
-    {
-        if ( parameters === undefined ) parameters = {};
-        var fontface = parameters.hasOwnProperty("fontface") ? parameters["fontface"] : "Arial";
-        var fontsize = parameters.hasOwnProperty("fontsize") ? parameters["fontsize"] : 18;
-        var borderThickness = parameters.hasOwnProperty("borderThickness") ? parameters["borderThickness"] : 4;
-        var borderColor = parameters.hasOwnProperty("borderColor") ?parameters["borderColor"] : { r:0, g:0, b:0, a:1.0 };
-        var backgroundColor = parameters.hasOwnProperty("backgroundColor") ?parameters["backgroundColor"] : { r:255, g:255, b:255, a:1.0 };
-        var textColor = parameters.hasOwnProperty("textColor") ?parameters["textColor"] : { r:0, g:0, b:0, a:1.0 };
-
-        var canvas = document.createElement('canvas');
-        var context = canvas.getContext('2d');
-        context.font = "Bold " + fontsize + "px " + fontface;
-        var metrics = context.measureText( message );
-        var textWidth = metrics.width;
-
-        context.fillStyle   = "rgba(" + backgroundColor.r + "," + backgroundColor.g + "," + backgroundColor.b + "," + backgroundColor.a + ")";
-        context.strokeStyle = "rgba(" + borderColor.r + "," + borderColor.g + "," + borderColor.b + "," + borderColor.a + ")";
-
-        context.lineWidth = borderThickness;
-        //roundRect(context, borderThickness/2, borderThickness/2, (textWidth + borderThickness) * 1.1, fontsize * 1.4 + borderThickness, 8);
-
-        context.fillStyle = "rgba("+textColor.r+", "+textColor.g+", "+textColor.b+", 1.0)";
-        context.fillText( message, borderThickness, fontsize + borderThickness);
-
-        var texture = new THREE.Texture(this.renderer.domElement) 
-        texture.needsUpdate = true;
-
-        var spriteMaterial = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: false } );
-        var sprite = new THREE.Sprite( spriteMaterial );
-        sprite.scale.set(0.5 * fontsize, 0.25 * fontsize, 0.75 * fontsize);
-        return sprite;  
-    }	
-
 	renderThree() {
 	 	//console.log('.')
 		//this.controls.update(  );
@@ -783,7 +630,6 @@ export default class Map extends Component {
 								const mousex = (this.mouse.x + 1)/2 * width + 8
 								const mousey = - (this.mouse.y - 1)/2 * height - 5
 								//this.drawVoronoiBoundry(-1)
-								const objectId = intersectedObject.object.id - this.firstVoronoiId -1
 								if(this.voronoiHover && 
 									this.voronoiHover.object.id!==intersectedObject.object.id) {
 									if(this.voronoiHover.object.material) {
@@ -1046,7 +892,6 @@ export default class Map extends Component {
 		//console.log('map props', this.props)
 		const mapReady = this.props.map.mapReady
 		const hoveredItem = this.props.map.hoveredItem
-		const hasHistory = this.props.map.wikiHistory.length > 1
 		const cameraMoving = this.props.map.cameraMoving
 		const zoomLevel = this.props.map.zoom
 		const wikiHover = this.props.map.wikiHover
@@ -1077,7 +922,6 @@ export default class Map extends Component {
 		}
 
 		const pageTitle = this.props.map.pageTitle
-		const zoomBtnText = zoomLevel===11 ? 'show all map' : 'zoom to article' 
 		if(this.updateNeighbors) {
 			//this.addNeighbors(this.props.map.location, this.props.map.neighbors, this.props.wikipage.pageTitle)
 			this.updateNeighbors = false
