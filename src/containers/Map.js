@@ -185,6 +185,7 @@ export default class Map extends Component {
 				console.log('title', title)
 
 				this.props.dispatch(actions.checkRedirectAndFetch(title))
+				this.props.dispatch(actions.cameraMoving(true))
 
 			}
 			else {
@@ -459,9 +460,7 @@ export default class Map extends Component {
 				_y: 0.0,
 				_z: 0.0
 			}
-			this.tweenCamera(nextCameraProps, {}, () => {
-
-			})
+			this.tweenCamera(nextCameraProps)
 
 		}
 		else if(this.props.map.zoom===11 && this.locationChanged(this.props.map.location, nextProps.map.location)) {
@@ -798,6 +797,10 @@ export default class Map extends Component {
 
 	mouseup(e) {
 	    this.mouseDown = false;
+    	if(this.props.map.cameraMoving) {
+    		this.props.dispatch(actions.cameraMoving(false))
+    	}
+
 	}
 
 	mouseout(e) 
@@ -819,6 +822,9 @@ export default class Map extends Component {
 	          //scatterPlot = threejsObjects.scatterPlot
 
 	    if (this.mouseDown) {
+	    	if(!this.props.map.cameraMoving) {
+	    		this.props.dispatch(actions.cameraMoving(true))
+	    	}
 	        var dx = e.clientX - this.sx;
 	        var dy = e.clientY - this.sy;
 
@@ -849,6 +855,11 @@ export default class Map extends Component {
 		e.preventDefault()
 		e.stopPropagation()
 
+		if(!this.props.map.cameraMoving) {
+	    	this.props.dispatch(actions.cameraMoving(true))
+	    }
+	
+
 		let d = e.deltaY//((typeof e.wheelDelta != "undefined")?(-e.wheelDelta):e.detail);
 	    d = 100 * ((d>0)?1:-1);    
 	    const cPos = this.camera.position;
@@ -866,7 +877,14 @@ export default class Map extends Component {
 	    
 	    //debounce(actions.setZoom(zoomLevel))
 	    if(!this.debouncedSetZoom) {
-		    this.debouncedSetZoom = debounce((level) => this.props.dispatch(actions.setZoom(level)), 500)
+		    this.debouncedSetZoom = debounce((level) => {
+		    	this.props.dispatch(actions.setZoom(level))
+		    	if(!this.props.map.cameraMoving) {
+	    		
+	    			this.props.dispatch(actions.cameraMoving(true))
+	    		}
+
+		    }, 500)
 
 	    }
 	    //console.log('debouncedSetZoom', debouncedSetZoom)
@@ -957,7 +975,7 @@ export default class Map extends Component {
 						 		 left: curLocation[0],
 						 		 fontSize: zoomLevel > 7 ? '14px' : '12px',
 						 		 lineHeight: zoomLevel > 7 ? '14px' : '12px',
-						 		 opacity: cameraMoving ? 0 : 1
+						 		 opacity: cameraMoving && curLocation[0]>0 && curLocation[1] > 0 ? 0 : 1
 						 		}}>
 						 		{zoomLevel < 3 && !wikiHover ? 'You are here!' : pageTitle}
 					</div>
