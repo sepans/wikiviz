@@ -22,7 +22,7 @@ const HIGHLIGHT_Z = -1530
 const NODES_Z = -1530
 const CAMERA_Z = 6500
 const ZOOM_MIN_Z = -1200,
-      ZOOM_MAX_Z = 8100,
+      ZOOM_MAX_Z = 7100,
       ZOOM_CAMERA_TILT_X = 0.25
 const PARTICLE_SIZE = 15
 
@@ -796,6 +796,7 @@ export default class Map extends Component {
 	}
 
 	mouseup(e) {
+	    console.log('mouseup ', this.props.map.cameraMoving)
 	    this.mouseDown = false;
     	if(this.props.map.cameraMoving) {
     		this.props.dispatch(actions.cameraMoving(false))
@@ -821,19 +822,20 @@ export default class Map extends Component {
 	    const camera = this.camera
 	          //scatterPlot = threejsObjects.scatterPlot
 
+	    //disable drag since mouseup is not working
 	    if (this.mouseDown) {
-	    	if(!this.props.map.cameraMoving) {
-	    		this.props.dispatch(actions.cameraMoving(true))
-	    	}
-	        var dx = e.clientX - this.sx;
-	        var dy = e.clientY - this.sy;
+	    	// if(!this.props.map.cameraMoving) {
+	    	// 	this.props.dispatch(actions.cameraMoving(true))
+	    	// }
+	     //    var dx = e.clientX - this.sx;
+	     //    var dy = e.clientY - this.sy;
 
-            camera.position.x -= dx;
-            camera.position.y += dy;
+      //       camera.position.x -= dx;
+      //       camera.position.y += dy;
 
-	        //}     
-	        this.sx += dx;
-	        this.sy += dy;
+	     //    //}     
+	     //    this.sx += dx;
+	     //    this.sy += dy;
 
 	    }
 
@@ -879,9 +881,9 @@ export default class Map extends Component {
 	    if(!this.debouncedSetZoom) {
 		    this.debouncedSetZoom = debounce((level) => {
 		    	this.props.dispatch(actions.setZoom(level))
-		    	if(!this.props.map.cameraMoving) {
+		    	if(this.props.map.cameraMoving) {
 	    		
-	    			this.props.dispatch(actions.cameraMoving(true))
+	    			this.props.dispatch(actions.cameraMoving(false))
 	    		}
 
 		    }, 500)
