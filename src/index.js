@@ -6,13 +6,13 @@ import Root from './containers/Root'
 import store from './store'
 //import { BrowserRouter as Router, Route } from 'react-router-dom'
 import { Router, Route } from 'react-router'
-import { createBrowserHistory } from 'history';
+import { createHashHistory } from 'history';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
 
 const app = document.getElementById('root')
 
 //const history = syncHistoryWithStore(browserHistory, store)
-const history = syncHistoryWithStore(createBrowserHistory(), store);
+const history = syncHistoryWithStore(createHashHistory(), store);
 
 ReactDOM.render(
         <Provider store={store}>

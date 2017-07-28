@@ -148,21 +148,10 @@ export function checkRedirectAndFetch(pageName) {
 			console.log(json)
 			if(json.query.redirects && json.query.redirects.length) {
 				const newPage = json.query.redirects[0].to
-				console.log(newPage)
-				//TODO: these should not be here. here url needs to be updated and navigateToPage etc. sould 
-				// be called from Root.js when url changes. (same as block below)
-				// dispatch(navigateToPage(newPage))
-				// dispatch(fetchPageLocation(newPage))
-				// dispatch(fetchWikiPage(newPage))
-				// dispatch(push(newPage))
 				dispatch(goToPageAllActions(newPage))
 
 			}
 			else {
-				// dispatch(navigateToPage(pageName))
-				// dispatch(fetchPageLocation(pageName))
-				// dispatch(fetchWikiPage(pageName))
-				// dispatch(push(pageName))
 				dispatch(goToPageAllActions(pageName))
 
 			}

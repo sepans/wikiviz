@@ -4,7 +4,7 @@ import { createLogger } from 'redux-logger'
 import thunk from 'redux-thunk'
 import promise from 'redux-promise-middleware'
 import { routerMiddleware } from 'react-router-redux'
-import { createBrowserHistory } from 'history';
+import { createHashHistory } from 'history';
 
 import rootReducer from './reducers/'
 
@@ -15,8 +15,8 @@ const logger = createLogger({
 })
 
 const middleware = dev ? 
-					applyMiddleware(promise(), thunk, logger, routerMiddleware(createBrowserHistory())) :
-					applyMiddleware(promise(), thunk, routerMiddleware(createBrowserHistory()))
+					applyMiddleware(promise(), thunk, logger, routerMiddleware(createHashHistory())) :
+					applyMiddleware(promise(), thunk, routerMiddleware(createHashHistory()))
 
 const initialState = {
 	map: {
