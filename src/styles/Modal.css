@@ -1,0 +1,33 @@
+.modal {
+	position: fixed;
+	width: 100%;
+	margin: 0 auto;
+	bottom: 0px;
+	font-size: 0.9em;
+	transition: all 0.2s linear;
+	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,1+100;White+to+Transparent */
+	background-color: rgba(255, 255, 255, 1);
+	background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 15%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 15%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 15%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
+}
+
+.modalConstainer {
+	margin: 25px;
+	margin-top: 35px;
+	border: 1px solid #E5E5E5;
+	padding: 10px;
+	background-color: #FFF;
+}
+
+.close {
+	float: right;
+	display: inline-block;
+	cursor: pointer;
+	margin: 5px 10px;
+}
+
+h1 {
+	font-size: 1.12em;
+}

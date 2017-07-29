@@ -6,6 +6,7 @@ import { voronoi } from 'd3-voronoi'
 import { polygonHull, polygonCentroid } from 'd3-polygon'
 import * as actions from '../actions/'
 import { debounce } from 'lodash'
+import ArrowLabel from '../components/ArrowLabel'
 
 import THREE from 'three'
 //import OrbitControls  from 'three-orbitcontrols'
@@ -972,15 +973,22 @@ export default class Map extends Component {
 							onWheel={(e) => this.mousewheel(e)}
 							onClick ={(e) => this.mouseClicked(e)}
 						></div>
+						<ArrowLabel location={hoveredItem ? [hoveredItem.mousex, hoveredItem.mousey] : null}
+									color={hoveredItem && hoveredItem.cluster ? '#0000FF' : '#000000'}
+									opacity={hoveredItem && !cameraMoving ? 1 : 0}
+									label={hoveredItem && hoveredItem.title!==pageTitle ? hoveredItem.title : ''}/>
+
+						{/*
 						<div className="callout marker"
 							 style={{top: hoveredItem ? hoveredItem.mousey : 0,
 							 		 left: hoveredItem ? hoveredItem.mousex: 0,
 							 		 opacity: hoveredItem && !cameraMoving ? 1 : 0,
 							 		 color: hoveredItem && hoveredItem.cluster ? '#0000FF' : '#000000'
 							 		}}>
-							 	{hoveredItem && hoveredItem.title!==pageTitle ? hoveredItem.title /*+ ' ' + hoveredItem.d*/ : ''}
+							 	{hoveredItem && hoveredItem.title!==pageTitle ? hoveredItem.title : ''}
 						</div>
-						<div className="currentArticle marker"
+						*/}
+						{/*<div className="currentArticle marker"
 							style={{top: curLocation[1],
 							 		 left: curLocation[0],
 							 		 fontSize: zoomLevel > 7 ? '14px' : '12px',
@@ -989,9 +997,21 @@ export default class Map extends Component {
 							 		}}>
 							 		<span className="dot" style={{width: dotSize, height: dotSize}}/>
 							 		{zoomLevel < 3 && !wikiHover ? 'You are here!' : pageTitle}
-						</div>
+						</div>*/}
 
-						<div className="wikiHover marker"
+						<ArrowLabel location={curLocation}
+									fontSize={zoomLevel > 7 ? '14px' : '12px'}
+									opacity={cameraMoving || (curLocation[0]<1 && curLocation[1] < 1) ? 0 : 1}
+									label={zoomLevel < 3 && !wikiHover ? 'You are here!' : pageTitle}/>
+
+
+						<ArrowLabel location={wikiHoverLocation}
+									fontSize={zoomLevel > 7 ? '14px' : '12px'}
+									opacity={cameraMoving || (wikiHoverLocation[0]<1 && wikiHoverLocation[1] < 1) ? 0 : 1}
+									label={wikiHover ? wikiHover.title : ''}/>
+
+
+						{/*<div className="wikiHover marker"
 							style={{top: wikiHoverLocation[1],
 							 		 left: wikiHoverLocation[0],
 							 		 fontSize: zoomLevel > 7 ? '14px' : '12px',
@@ -1001,7 +1021,7 @@ export default class Map extends Component {
 							 		<span className="dot"  style={{width: dotSize, height: dotSize}}/>
 							 		{wikiHover ? wikiHover.title : ''}
 						</div>
-
+						*/}
 					</div>
 				</div>
 				
