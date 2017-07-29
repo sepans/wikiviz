@@ -43,7 +43,7 @@ export default class TopBanner extends Component {
 		return (
 			<div className="banner">
 				<span className="logo">Fast forward labs</span>
-				<h1 className="title">Never Navigate Wikipedia Without a Map</h1>
+				<h1 className="title">{this.props.appName}</h1>
 				<span className="search">
 					<input onChange={(e) => this.searchChanged(e)} placeholder="search"></input>
 					<ul className="searchResults">

@@ -143,6 +143,17 @@ export function cameraMoving(moving) {
 	}
 }
 
+export function openModal() {
+	return {
+		type: 'OPEN_MODAL'
+	}
+}
+
+export function closeModal() {
+	return {
+		type: 'CLOSE_MODAL'
+	}
+}
 
 export function checkRedirectAndFetch(pageName) {
 	return (dispatch) => {

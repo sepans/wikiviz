@@ -5,9 +5,14 @@ import * as actions from '../actions/'
 import WikiPage from './WikiPage'
 import Map from './Map'
 import TopBanner from '../components/TopBanner'
+import Modal from '../components/Modal'
+
+const appName = 'Encartopedia'
 
 
 class Root extends Component {
+
+
   	componentWillMount() {
 
       this.props.dispatch(actions.updateWindowSize({width: window.innerWidth, height: window.innerHeight}))
@@ -45,19 +50,24 @@ class Root extends Component {
 
   	}
 
-
+    closeModal() {
+      this.props.dispatch(actions.closeModal())
+    }
 
 	
   	render() {
 
+      const showModal = this.props.wikipage.modal
+
     	return (<div> 
-          <TopBanner dispatch={this.props.dispatch} results={this.props.wikipage.wikiSearchResults}/>
+          <TopBanner dispatch={this.props.dispatch} results={this.props.wikipage.wikiSearchResults} appName={appName}/>
           <div style={{padding: '10px 0 10px 25px',  width: '45%', display: 'inline-block'}}>
           	<WikiPage {...this.props}/>
           </div>
           <div style={{border: '1px solid #e5e55', float: 'right', margin: '10px 25px 0 0'}}>
           	<Map {...this.props}/>
           </div>
+          <Modal showModal={showModal} closeModal={this.closeModal.bind(this)} appName={appName}/>
         </div>)
   	}
 

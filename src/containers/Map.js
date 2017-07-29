@@ -353,8 +353,9 @@ export default class Map extends Component {
 			  
 			hoverLineGeometry.dynamic = true
 			var material = new THREE.MeshLambertMaterial({
-		        color: 0x6BC46C,
+		        color: 0x000000,
 		        transparent: true,
+		        opacity: 0.55,
 		        // linewidth: 100,
 		        //fog: true
 		    });
@@ -369,7 +370,7 @@ export default class Map extends Component {
 			 }
 			 else {
 			 	this.hoverLineObject.geometry = hoverLineGeometry
-			 	this.hoverLineObject.material.opacity = 1
+			 	this.hoverLineObject.material.opacity = 0.55
 			 }
 
 			const xDistance = Math.abs(this.x(hoverLocation[1]) - this.x(curLocation[1]))
@@ -400,6 +401,56 @@ export default class Map extends Component {
 		}
 
 	}
+
+	drawHistory() {
+		 const history = this.props.map.wikiHistory
+		 if(history.length < 2) {
+		 	return
+		 }
+		 let points = []
+
+		 for(let i=0 ; i< history.length -1 ; i++) {
+		 	const distance = this.calculateDistance([history[i].x, history[i].y], [history[i + 1].x, history[i + 1].y])
+		 	const curve = new THREE.CubicBezierCurve3(
+				new THREE.Vector3( this.x(history[i].x), this.y(history[i].y), NODES_Z ),
+				new THREE.Vector3( this.x((history[i].x + history[i + 1].x) * 0.5), this.y((history[i].y + history[i + 1].y) * 0.5) , NODES_Z + distance/2),
+				new THREE.Vector3( this.x((history[i].x + history[i + 1].x) * 0.5), this.y((history[i].y + history[i + 1].y) * 0.5) ,  NODES_Z + distance/2),
+				new THREE.Vector3( this.x(history[i + 1].x), this.y(history[i + 1].y), NODES_Z)
+			);
+		 	points = points.concat(curve.getSpacedPoints( 20 ))
+
+		 }
+
+		const path = new THREE.CatmullRomCurve3( points );
+		const historyTubeGeometry = new THREE.TubeGeometry(
+    		path,
+    		64,
+    		1.5
+		)
+		  
+		historyTubeGeometry.dynamic = true
+		var material = new THREE.MeshLambertMaterial({
+	        color: 0x000000,
+	        transparent: true,
+	        // linewidth: 100,
+	        opacity: 0.85,
+	        //fog: true
+	    });
+
+		    // Create the final Object3d to add to the scene
+		if(!this.historyObject) {
+			 this.historyObject = new THREE.Mesh(historyTubeGeometry, material);
+			 this.historyObject.receiveShadow = false
+
+			 this.scene.add(this.historyObject);
+		}
+		else {
+		 	this.historyObject.geometry = historyTubeGeometry
+		}
+
+		
+
+	}	
 
 	componentDidUpdate(prevProps) {
 
@@ -730,55 +781,7 @@ export default class Map extends Component {
 		this.props.dispatch(actions.zoomOut())
 	}
 
-	drawHistory() {
-		 const history = this.props.map.wikiHistory
-		 if(history.length < 2) {
-		 	return
-		 }
-		 let points = []
 
-		 for(let i=0 ; i< history.length -1 ; i++) {
-		 	const distance = this.calculateDistance([history[i].x, history[i].y], [history[i + 1].x, history[i + 1].y])
-		 	const curve = new THREE.CubicBezierCurve3(
-				new THREE.Vector3( this.x(history[i].x), this.y(history[i].y), NODES_Z ),
-				new THREE.Vector3( this.x((history[i].x + history[i + 1].x) * 0.5), this.y((history[i].y + history[i + 1].y) * 0.5) , NODES_Z + distance/2),
-				new THREE.Vector3( this.x((history[i].x + history[i + 1].x) * 0.5), this.y((history[i].y + history[i + 1].y) * 0.5) ,  NODES_Z + distance/2),
-				new THREE.Vector3( this.x(history[i + 1].x), this.y(history[i + 1].y), NODES_Z)
-			);
-		 	points = points.concat(curve.getSpacedPoints( 20 ))
-
-		 }
-
-		const path = new THREE.CatmullRomCurve3( points );
-		const historyTubeGeometry = new THREE.TubeGeometry(
-    		path,
-    		64,
-    		1.5
-		)
-		  
-		historyTubeGeometry.dynamic = true
-		var material = new THREE.MeshLambertMaterial({
-	        color: 0x1BB4E1,
-	        transparent: true,
-	        // linewidth: 100,
-	        opacity: 0.5,
-	        //fog: true
-	    });
-
-		    // Create the final Object3d to add to the scene
-		if(!this.historyObject) {
-			 this.historyObject = new THREE.Mesh(historyTubeGeometry, material);
-			 this.historyObject.receiveShadow = false
-
-			 this.scene.add(this.historyObject);
-		}
-		else {
-		 	this.historyObject.geometry = historyTubeGeometry
-		}
-
-		
-
-	}
 
 	mousedown(e) {
 	    this.mouseDown = true;
@@ -946,51 +949,60 @@ export default class Map extends Component {
 			//this.addNeighbors(this.props.map.location, this.props.map.neighbors, this.props.wikipage.pageTitle)
 			this.updateNeighbors = false
 		}
+
+		const dotSize = zoomLevel > 7 ? '8px' : '4px'
+
 		
 		return (
-				<div className="mapContainer" style={{opacity: this.props.map.mapReady ? 1 : 0 }}>
-					<div className="controls">
-						<button className={`zoomBtn ${zoomLevel===11 ? 'disabled' : ''}`} 
-								onClick={(e) => this.zoomInClicked()}>zoom to article</button>
-						<button className={`zoomBtn ${zoomLevel===1 ? 'disabled' : ''}`}  
-								onClick={(e) => this.zoomOutClicked()}>show entire map</button>
-					</div>
-					{/*<button onClick={(e) => this.drawHistory()} disabled={!hasHistory}>draw history</button>*/}
-					<div ref="threejs" className="threeContainer"
-						onMouseDown={(e) => this.mousedown(e)}
-						onMouseUp={(e) => this.mouseup(e)}
-						onMouseMove={(e) => this.mousemove(e)}
-						onMouseOut={(e) => this.mouseout(e)}
-						onWheel={(e) => this.mousewheel(e)}
-						onClick ={(e) => this.mouseClicked(e)}
-					></div>
-					<div className="callout marker"
-						 style={{top: hoveredItem ? hoveredItem.mousey : 0,
-						 		 left: hoveredItem ? hoveredItem.mousex: 0,
-						 		 opacity: hoveredItem && !cameraMoving ? 1 : 0,
-						 		 color: hoveredItem && hoveredItem.cluster ? '#0000FF' : '#000000'
-						 		}}>
-						 	{hoveredItem && hoveredItem.title!==pageTitle ? hoveredItem.title /*+ ' ' + hoveredItem.d*/ : ''}
-					</div>
-					<div className="currentArticle marker"
-						style={{top: curLocation[1],
-						 		 left: curLocation[0],
-						 		 fontSize: zoomLevel > 7 ? '14px' : '12px',
-						 		 lineHeight: zoomLevel > 7 ? '14px' : '12px',
-						 		 opacity: cameraMoving && curLocation[0]>0 && curLocation[1] > 0 ? 0 : 1
-						 		}}>
-						 		{zoomLevel < 3 && !wikiHover ? 'You are here!' : pageTitle}
-					</div>
-					<div className="wikiHover marker"
-						style={{top: wikiHoverLocation[1],
-						 		 left: wikiHoverLocation[0],
-						 		 fontSize: zoomLevel > 7 ? '14px' : '12px',
-						 		 lineHeight: zoomLevel > 7 ? '14px' : '12px',
-						 		 opacity: cameraMoving ? 0 : 1
-						 		}}>
-						 		{wikiHover ? wikiHover.title : ''}
-					</div>
+				<div className="root">	
+					<div className="loading" style={{opacity: mapReady ? 0 : 1}}>loading...</div>
+					<div className="mapContainer" style={{opacity: this.props.map.mapReady ? 1 : 0 }}>
+						<div className="controls">
+							<button className={`zoomBtn ${zoomLevel===11 ? 'disabled' : ''}`} 
+									onClick={(e) => this.zoomInClicked()}>zoom to article</button>
+							<button className={`zoomBtn ${zoomLevel===1 ? 'disabled' : ''}`}  
+									onClick={(e) => this.zoomOutClicked()}>center the entire map</button>
+						</div>
+						{/*<button onClick={(e) => this.drawHistory()} disabled={!hasHistory}>draw history</button>*/}
+						<div ref="threejs" className="threeContainer"
+							onMouseDown={(e) => this.mousedown(e)}
+							onMouseUp={(e) => this.mouseup(e)}
+							onMouseMove={(e) => this.mousemove(e)}
+							onMouseOut={(e) => this.mouseout(e)}
+							onWheel={(e) => this.mousewheel(e)}
+							onClick ={(e) => this.mouseClicked(e)}
+						></div>
+						<div className="callout marker"
+							 style={{top: hoveredItem ? hoveredItem.mousey : 0,
+							 		 left: hoveredItem ? hoveredItem.mousex: 0,
+							 		 opacity: hoveredItem && !cameraMoving ? 1 : 0,
+							 		 color: hoveredItem && hoveredItem.cluster ? '#0000FF' : '#000000'
+							 		}}>
+							 	{hoveredItem && hoveredItem.title!==pageTitle ? hoveredItem.title /*+ ' ' + hoveredItem.d*/ : ''}
+						</div>
+						<div className="currentArticle marker"
+							style={{top: curLocation[1],
+							 		 left: curLocation[0],
+							 		 fontSize: zoomLevel > 7 ? '14px' : '12px',
+							 		 lineHeight: zoomLevel > 7 ? '14px' : '12px',
+							 		 opacity: cameraMoving || (curLocation[0]<1 && curLocation[1] < 1) ? 0 : 1
+							 		}}>
+							 		<span className="dot" style={{width: dotSize, height: dotSize}}/>
+							 		{zoomLevel < 3 && !wikiHover ? 'You are here!' : pageTitle}
+						</div>
 
+						<div className="wikiHover marker"
+							style={{top: wikiHoverLocation[1],
+							 		 left: wikiHoverLocation[0],
+							 		 fontSize: zoomLevel > 7 ? '14px' : '12px',
+							 		 lineHeight: zoomLevel > 7 ? '14px' : '12px',
+							 		 opacity: cameraMoving || (wikiHoverLocation[0]<1 && wikiHoverLocation[1] < 1)  ? 0 : 1
+							 		}}>
+							 		<span className="dot"  style={{width: dotSize, height: dotSize}}/>
+							 		{wikiHover ? wikiHover.title : ''}
+						</div>
+
+					</div>
 				</div>
 				
 			)

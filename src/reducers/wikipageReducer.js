@@ -25,6 +25,10 @@ export default function reducer(state=defualtState, action) {
       return {...state, wikiSearchResults: results}
     case 'CLEAR_WIKI_SEARCH': 
       return {...state, wikiSearchResults: []}
+    case 'OPEN_MODAL': 
+      return {...state, modal: true}
+    case 'CLOSE_MODAL': 
+      return {...state, modal: false}
     default:
       return state
   }
