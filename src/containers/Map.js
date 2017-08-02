@@ -981,21 +981,22 @@ export default class Map extends Component {
 						<ArrowLabel location={curLocation}
 									fontSize={zoomLevel > 7 ? '14' : '12'}
 									opacity={cameraMoving || (curLocation[0]<1 && curLocation[1] < 1) ? 0 : 1}
-									arrow={true}
+									arrow={(wikiHoverLocation[0] && wikiHoverLocation[1]) ? false : true}
+									direction={zoomLevel > 7 ? 1 : 0}
 									arrowLenght={zoomLevel > 7 ? 20 : 25}
 									label={zoomLevel < 3 && !wikiHover ? 'You are here!' : pageTitle}/>
 
 						<ArrowLabel location={hoveredItem ? [hoveredItem.mousex, hoveredItem.mousey] : null}
 									color={hoveredItem && hoveredItem.cluster ? '#0000FF' : '#000000'}
+									arrow={hoveredItem && hoveredItem.cluster && hoveredItem.title ? true : false}
 									opacity={hoveredItem && !cameraMoving ? 1 : 0}
+									direction={1}
 									label={hoveredItem && hoveredItem.title!==pageTitle ? hoveredItem.title : ''}/>
 
 						
 						<ArrowLabel location={wikiHoverLocation}
 									fontSize={zoomLevel > 7 ? '14' : '12'}
 									opacity={cameraMoving || (wikiHoverLocation[0]<1 && wikiHoverLocation[1] < 1) ? 0 : 1}
-									arrow={true}
-									arrowLenght={zoomLevel > 7 ? 20 : 25}
 									label={wikiHover ? wikiHover.title : ''}/>
 
 
