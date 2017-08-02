@@ -31,8 +31,8 @@ const ArrowLabel = (props) => {
 				 		<div style={{transform: `translate(0,${direction===0  ? 0 : -2.3 * arrowEnd[1]}px)`}}>
 						 	<div className='markerLabel' style={{position: 'absolute',top: arrowEnd[1] -1 , left: arrowEnd[0] + 5, width: label.length * fontSize * 0.56}}>{label}</div>
 					 		<svg width={Math.abs(2 * arrowEnd[0]) + 5} height={Math.abs(2 * arrowEnd[1]) + 5} 
-					 			style={{opacity: opacity , top: 0, left: -3}}>
-							  <g className="arrow" transform={`translate(4, 4)`}>
+					 			style={{opacity: arrow ? opacity : 0 , top: 0, left: -3}}>
+							  <g className="arrow" transform={`translate(4, ${direction ? 0 : 4})`}>
 							  	<path className="arrowShadow" 
 							  		d={pathD} />
 							  	<path 
