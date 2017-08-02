@@ -11,6 +11,8 @@ const ArrowLabel = (props) => {
 	const arrow = props.arrow || false
 	const arrowLenght = props.arrowLenght || arrow ? 20 : 0
 	const arrowEnd = props.arrowEnd ? [props.arrowEnd[0] - location[0], props.arrowEnd[1] - location[1]] : [arrowLenght, arrowLenght]
+	const rand =  Math.random()* 0.3 - 0.15
+	const pathD = `M${arrowEnd[0]},${arrowEnd[1]}C${arrowEnd[0] * (0.33 + rand)},${arrowEnd[1]},0,${arrowEnd[0] * (0.66 + rand)},0,0`
 	return (
 			<div className="marker"
 				style={{top: location[1],
@@ -21,9 +23,16 @@ const ArrowLabel = (props) => {
 				 		 color: color
 				 		}}>
 				 		{/*<span className="dot"  style={{width: dotSize, height: dotSize}}/>*/}
-					 	<div className='markerLabel' style={{position: 'absolute',top: '-2.5em', right: arrowEnd[0], width: label.length * fontSize * 0.56}}>{label}</div>
-				 		<svg width={arrowLenght + 10} height={arrowLenght + 10} 
-				 			style={{opacity: opacity, top: -arrowEnd[1] - 8, left: -arrowEnd[0] - 3}}>
+					 	<div className='markerLabel' style={{position: 'absolute',top: arrowEnd[1] -5, left: arrowEnd[0] + 5, width: label.length * fontSize * 0.56}}>{label}</div>
+				 		<svg width={arrowEnd[0] + 5} height={arrowEnd[1] + 5} 
+				 			style={{opacity: opacity, top: 1, left: -4}}>
+						  <g className="arrow" transform={`translate(4, 4)`}>
+						  	<path className="arrowShadow" 
+						  		d={pathD} />
+						  	<path 
+						  		d={pathD}
+						  		markerEnd="url(#arrow)"/>
+						  </g>
 						  <defs>
 						    <marker
 						      id="arrow"
@@ -37,11 +46,6 @@ const ArrowLabel = (props) => {
 						      <path d="M2,2 L10,6 L2,10 L6,6 L2,2"></path>
 						    </marker>
 						  </defs>
-						  <g className="arrow" transform={`translate(${arrowEnd[0]/2}, ${arrowEnd[1]/2}) rotate(180) translate(${-arrowEnd[0]/2}, ${-arrowEnd[1]/2})`}>
-						  	<path 
-						  		d={`M${arrowEnd[0]},${arrowEnd[1]}C${arrowEnd[0] * 0.33},${arrowEnd[1]},0,${arrowEnd[0] * 0.66},0,0`} 
-						  		markerEnd="url(#arrow)"/>
-						  </g>
 						</svg>
 			</div>
 	)

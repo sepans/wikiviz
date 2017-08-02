@@ -982,7 +982,7 @@ export default class Map extends Component {
 									fontSize={zoomLevel > 7 ? '14' : '12'}
 									opacity={cameraMoving || (curLocation[0]<1 && curLocation[1] < 1) ? 0 : 1}
 									arrow={true}
-									arrowLenght={zoomLevel > 7 ? 10 : 25}
+									arrowLenght={zoomLevel > 7 ? 20 : 25}
 									label={zoomLevel < 3 && !wikiHover ? 'You are here!' : pageTitle}/>
 
 						<ArrowLabel location={hoveredItem ? [hoveredItem.mousex, hoveredItem.mousey] : null}
@@ -994,6 +994,8 @@ export default class Map extends Component {
 						<ArrowLabel location={wikiHoverLocation}
 									fontSize={zoomLevel > 7 ? '14' : '12'}
 									opacity={cameraMoving || (wikiHoverLocation[0]<1 && wikiHoverLocation[1] < 1) ? 0 : 1}
+									arrow={true}
+									arrowLenght={zoomLevel > 7 ? 20 : 25}
 									label={wikiHover ? wikiHover.title : ''}/>
 
 
