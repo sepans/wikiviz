@@ -492,7 +492,7 @@ export default class Map extends Component {
 			this.drawHistory()
 		}
 		if(this.props.map.zoom !== nextProps.map.zoom && (nextProps.map.zoom===11 || nextProps.map.zoom===1)) {
-
+			//zoom btns clicked
 			const nextCameraProps = nextProps.map.zoom===11 ? 
 			{
 				x: this.x(location[0]),
@@ -516,6 +516,7 @@ export default class Map extends Component {
 
 		}
 		else if(this.props.map.zoom===11 && this.locationChanged(this.props.map.location, nextProps.map.location)) {
+			//location changed
 			const distance = this.calculateDistance(prevLocation, location)
 			const MAX_DISTANCE = this.x.domain()[1] - this.x.domain()[0]
 			const vFOV = this.camera.fov * Math.PI / 180
@@ -583,7 +584,10 @@ export default class Map extends Component {
 	        })
 	        .onComplete(() => {
 	        	console.log('zoom out completed')
-	        	this.props.dispatch(actions.cameraMoving(false))
+	        	setTimeout(() => {
+	        		this.props.dispatch(actions.cameraMoving(false))
+	        	}, 100)
+	        	
 	        	if(done) {
 	        		done()
 	        	}
@@ -632,7 +636,7 @@ export default class Map extends Component {
 		TWEEN.update()
 		
 		if(this.props.map.raycast) {
-			this.raycaster.params.Points.threshold = this.props.map.zoom > 8 ? 5 : 20
+			this.raycaster.params.Points.threshold = this.props.map.zoom > 8 ? 5 : 30
 			this.raycaster.setFromCamera( this.mouse, this.camera );
 			var intersects = this.raycaster.intersectObjects( this.scene.children, true );
 			if ( intersects.length > 0) {
@@ -955,7 +959,7 @@ export default class Map extends Component {
 
 		
 		return (
-				<div className="root">	
+				<div className="root">							
 					<div className="loading" style={{opacity: mapReady ? 0 : 1}}>loading...</div>
 					<div className="mapContainer" style={{opacity: this.props.map.mapReady ? 1 : 0 }}>
 						<div className="controls">
@@ -964,7 +968,7 @@ export default class Map extends Component {
 							<button className={`zoomBtn ${zoomLevel===1 ? 'disabled' : ''}`}  
 									onClick={(e) => this.zoomOutClicked()}>center the entire map</button>
 						</div>
-						{/*<button onClick={(e) => this.drawHistory()} disabled={!hasHistory}>draw history</button>*/}
+						
 						<div ref="threejs" className="threeContainer"
 							onMouseDown={(e) => this.mousedown(e)}
 							onMouseUp={(e) => this.mouseup(e)}
@@ -973,55 +977,27 @@ export default class Map extends Component {
 							onWheel={(e) => this.mousewheel(e)}
 							onClick ={(e) => this.mouseClicked(e)}
 						></div>
+
+						<ArrowLabel location={curLocation}
+									fontSize={zoomLevel > 7 ? '14' : '12'}
+									opacity={cameraMoving || (curLocation[0]<1 && curLocation[1] < 1) ? 0 : 1}
+									arrow={true}
+									arrowLenght={zoomLevel > 7 ? 10 : 25}
+									label={zoomLevel < 3 && !wikiHover ? 'You are here!' : pageTitle}/>
+
 						<ArrowLabel location={hoveredItem ? [hoveredItem.mousex, hoveredItem.mousey] : null}
 									color={hoveredItem && hoveredItem.cluster ? '#0000FF' : '#000000'}
 									opacity={hoveredItem && !cameraMoving ? 1 : 0}
 									label={hoveredItem && hoveredItem.title!==pageTitle ? hoveredItem.title : ''}/>
 
-						{/*
-						<div className="callout marker"
-							 style={{top: hoveredItem ? hoveredItem.mousey : 0,
-							 		 left: hoveredItem ? hoveredItem.mousex: 0,
-							 		 opacity: hoveredItem && !cameraMoving ? 1 : 0,
-							 		 color: hoveredItem && hoveredItem.cluster ? '#0000FF' : '#000000'
-							 		}}>
-							 	{hoveredItem && hoveredItem.title!==pageTitle ? hoveredItem.title : ''}
-						</div>
-						*/}
-						{/*<div className="currentArticle marker"
-							style={{top: curLocation[1],
-							 		 left: curLocation[0],
-							 		 fontSize: zoomLevel > 7 ? '14px' : '12px',
-							 		 lineHeight: zoomLevel > 7 ? '14px' : '12px',
-							 		 opacity: cameraMoving || (curLocation[0]<1 && curLocation[1] < 1) ? 0 : 1
-							 		}}>
-							 		<span className="dot" style={{width: dotSize, height: dotSize}}/>
-							 		{zoomLevel < 3 && !wikiHover ? 'You are here!' : pageTitle}
-						</div>*/}
-
-						<ArrowLabel location={curLocation}
-									fontSize={zoomLevel > 7 ? '14px' : '12px'}
-									opacity={cameraMoving || (curLocation[0]<1 && curLocation[1] < 1) ? 0 : 1}
-									label={zoomLevel < 3 && !wikiHover ? 'You are here!' : pageTitle}/>
-
-
+						
 						<ArrowLabel location={wikiHoverLocation}
-									fontSize={zoomLevel > 7 ? '14px' : '12px'}
+									fontSize={zoomLevel > 7 ? '14' : '12'}
 									opacity={cameraMoving || (wikiHoverLocation[0]<1 && wikiHoverLocation[1] < 1) ? 0 : 1}
 									label={wikiHover ? wikiHover.title : ''}/>
 
 
-						{/*<div className="wikiHover marker"
-							style={{top: wikiHoverLocation[1],
-							 		 left: wikiHoverLocation[0],
-							 		 fontSize: zoomLevel > 7 ? '14px' : '12px',
-							 		 lineHeight: zoomLevel > 7 ? '14px' : '12px',
-							 		 opacity: cameraMoving || (wikiHoverLocation[0]<1 && wikiHoverLocation[1] < 1)  ? 0 : 1
-							 		}}>
-							 		<span className="dot"  style={{width: dotSize, height: dotSize}}/>
-							 		{wikiHover ? wikiHover.title : ''}
-						</div>
-						*/}
+						
 					</div>
 				</div>
 				
