@@ -12,6 +12,8 @@ const ArrowLabel = (props) => {
 	const direction = props.direction || 0
 	const arrowLenght = !arrow ? 0 : props.arrowLenght || 20 
 	const arrowEnd = props.arrowEnd ? [props.arrowEnd[0] - location[0], props.arrowEnd[1] - location[1]] : [arrowLenght, arrowLenght]
+	// if(label.indexOf('You ')<0)
+	// 	console.log('',  props.arrowLenght, arrowLenght, props)
 	const rand =  Math.random()* 0.3 - 0.15
 	const pathD = direction===0  ?
 					 //`M${arrowEnd[0]},${arrowEnd[1]}L0,0` :

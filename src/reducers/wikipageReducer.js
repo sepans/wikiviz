@@ -29,6 +29,8 @@ export default function reducer(state=defualtState, action) {
       return {...state, modal: true}
     case 'CLOSE_MODAL': 
       return {...state, modal: false}
+    case 'TOGGLE_EXPAND_MODAL': 
+      return {...state, expandModal: !state.expandModal}
     default:
       return state
   }

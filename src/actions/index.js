@@ -155,6 +155,12 @@ export function closeModal() {
 	}
 }
 
+export function toggleExpand() {
+	return {
+		type: 'TOGGLE_EXPAND_MODAL'
+	}
+}
+
 export function checkRedirectAndFetch(pageName) {
 	return (dispatch) => {
 		axios.get(`https://en.wikipedia.org/w/api.php?action=query&format=json&titles=${pageName}&redirects&origin=*`)

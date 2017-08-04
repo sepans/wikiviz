@@ -39,8 +39,33 @@ const getY = d => d.y
 export default class Map extends Component {
 
 
+	constructor(props)	{
+		
+		super(props)
+
+		if(!this.debouncedNoHover) {
+		    
+		    this.debouncedNoHover = debounce(() => {
+		    	this.props.dispatch(actions.hoveredOnMap(null))
+
+		    }, 100)
+
+		}
+	    if(!this.debouncedSetZoom) {
+		    this.debouncedSetZoom = debounce((level) => {
+		    	this.props.dispatch(actions.setZoom(level))
+		    	if(this.props.map.cameraMoving) {
+	    		
+	    			this.props.dispatch(actions.cameraMoving(false))
+	    		}
+
+		    }, 500)
+
+	    }
+	}
+
 	componentDidMount() {
-		//this.init()
+
 	}
 
 	init() {
@@ -651,7 +676,7 @@ export default class Map extends Component {
 					if(intersectedObject.index ) {
 						//all points have inde -> points
 						const tsneIndex = intersectedObject.index
-						const hoveredItem = this.props.map.tsneData[tsneIndex] 
+						const hoveredItem = this.props.map.tsneData[tsneIndex]
 						const materialColor = intersectedObject.object.geometry.colors[tsneIndex]
 						
 						this.intersected = intersectedObject
@@ -663,7 +688,10 @@ export default class Map extends Component {
 								//console.log(tsneIndex, hoveredItem.title, )
 								hoveredItem.mousex = (this.mouse.x + 1)/2 * width + 8
 								hoveredItem.mousey = - (this.mouse.y - 1)/2 * height - 5
-								this.props.dispatch(actions.hoveredOnMap(hoveredItem))
+								const prevHoveredItem = this.props.map.hoveredItem
+								if(!prevHoveredItem || prevHoveredItem.title !== hoveredItem.title) {
+									this.props.dispatch(actions.hoveredOnMap(hoveredItem))
+								}
 
 
 							}
@@ -696,17 +724,22 @@ export default class Map extends Component {
 								let newObjectId = -1
 								if(intersects.length > i + 1 && intersects[i + 1].index) {
 									const ix = intersects[i + 1].index
-									console.log(this.props.map.tsneData[ix].d)
 									newObjectId = this.props.map.tsneData[ix].d
 								}
+								const prevHoveredItem = this.props.map.hoveredItem
+								const title = newObjectId > -1 ?  this.props.map.clusterNames[newObjectId] : ''
+								//console.log(title, prevHoveredItem && prevHoveredItem.title)
+								if(!prevHoveredItem || prevHoveredItem.title !== title) {
+
+									this.props.dispatch(actions.hoveredOnMap({
+										//title: newObjectId > -1 ? newObjectId + ' '+ this.props.map.clusterNames[newObjectId] + ' ' + objectId + ' ' + this.props.map.clusterNames[objectId]: '',//objectId + ' ' + this.props.map.clusterNames[objectId] ,//'cluster ' + intersectedObject.object.id,//
+										title: newObjectId > -1 ?  this.props.map.clusterNames[newObjectId] : '',
+										mousex,
+										mousey,
+										cluster: true
+									}))
+								}
 								
-								this.props.dispatch(actions.hoveredOnMap({
-									//title: newObjectId > -1 ? newObjectId + ' '+ this.props.map.clusterNames[newObjectId] + ' ' + objectId + ' ' + this.props.map.clusterNames[objectId]: '',//objectId + ' ' + this.props.map.clusterNames[objectId] ,//'cluster ' + intersectedObject.object.id,//
-									title: newObjectId > -1 ?  this.props.map.clusterNames[newObjectId] : '',
-									mousex,
-									mousey,
-									cluster: true
-								}))
 								//debugger;
 								intersectedObject.object.material.opacity = 0.1
 								this.voronoiHover = intersectedObject
@@ -739,8 +772,9 @@ export default class Map extends Component {
 				}
 				//console.log('setting this.intersected to null')
 				this.intersected = null;
+
 				if(this.props.map.hoveredItem) {
-					this.props.dispatch(actions.hoveredOnMap(null))
+					this.debouncedNoHover()
 				}
 			}
 
@@ -885,18 +919,6 @@ export default class Map extends Component {
 	    
 	    const zoomLevel = 10 -  Math.round((newZ /  (ZOOM_MAX_Z - ZOOM_MIN_Z) * 10) * 10) / 10
 	    
-	    //debounce(actions.setZoom(zoomLevel))
-	    if(!this.debouncedSetZoom) {
-		    this.debouncedSetZoom = debounce((level) => {
-		    	this.props.dispatch(actions.setZoom(level))
-		    	if(this.props.map.cameraMoving) {
-	    		
-	    			this.props.dispatch(actions.cameraMoving(false))
-	    		}
-
-		    }, 500)
-
-	    }
 	    //console.log('debouncedSetZoom', debouncedSetZoom)
 	    this.debouncedSetZoom(zoomLevel)
 	    
@@ -927,23 +949,19 @@ export default class Map extends Component {
 		// let curLocation = mapReady ? 
 		// 				[this.x(this.props.map.location[0]), this.y(this.props.map.location[1])] : [0,0]
 		let curLocation = [0, 0],
-			wikiHoverLocation = [0, 0]
+			wikiHoverLocation = [0, 0],
+			curMousePos = [0, 0]
 		if(mapReady) {
-		    // const curLocationVector = new THREE.Vector3(this.x(this.props.map.location[0]),
-		    // 											this.y(this.props.map.location[1]),
-		    // 											 NODES_Z)
 
-	     //    //debugger;
-	     //    curLocationVector.project(this.camera)
-	     //    curLocation = [(curLocationVector.x * width * pageToCanvasWidthRatio * 0.5 + width * pageToCanvasWidthRatio * 0.5), 
-	     //    				-(curLocationVector.y * height * pageToCanvasHeightRatio * 0.5) + height * pageToCanvasHeightRatio * 0.5]
-	     	// this.mouseStart.x = ( e.clientX / w ) * 2 - 1;
-	    	// this.mouseStart.y = - ( e.clientY / h ) * 2 + 1;
-            // x = ( project.x * w/2 ) + w/2;
-            // y = - ( project.y * h/2 ) + h/2;
-            //debugger;
-	        //console.log(curLocationVector,curLocationProjected,curLocation)
 	        curLocation = this.mapLocationToDomLocation(this.props.map.location)
+
+			const w = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio
+			const h =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio
+
+			curMousePos = [ (this.mouse.x + 1)/2 * w ,
+							 -(this.mouse.y - 1)/2 * h]
+
+
 		}
 		if(wikiHover) {
 			wikiHoverLocation = this.mapLocationToDomLocation(wikiHover.location)
@@ -956,6 +974,7 @@ export default class Map extends Component {
 		}
 
 		const dotSize = zoomLevel > 7 ? '8px' : '4px'
+
 
 		
 		return (
@@ -990,6 +1009,7 @@ export default class Map extends Component {
 									color={hoveredItem && hoveredItem.cluster ? '#0000FF' : '#000000'}
 									arrow={hoveredItem && hoveredItem.cluster && hoveredItem.title ? true : false}
 									opacity={hoveredItem && !cameraMoving ? 1 : 0}
+									arrowLenght={zoomLevel > 7 ? 10 : 15}
 									direction={1}
 									label={hoveredItem && hoveredItem.title!==pageTitle ? hoveredItem.title : ''}/>
 

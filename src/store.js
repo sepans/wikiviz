@@ -37,7 +37,8 @@ const initialState = {
 	    wikicontent: null,
 	    wikiSearchResults: [],
 	    error: [],
-	    modal: true
+	    modal: true,
+	    expandModal: false
 	}
 
 }

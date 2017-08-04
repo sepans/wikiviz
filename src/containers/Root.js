@@ -54,10 +54,15 @@ class Root extends Component {
       this.props.dispatch(actions.closeModal())
     }
 
+    toggleExpand() {
+      this.props.dispatch(actions.toggleExpand())
+    }
+
 	
   	render() {
 
       const showModal = this.props.wikipage.modal
+      const expandModal = this.props.wikipage.expandModal
 
     	return (<div> 
           <TopBanner dispatch={this.props.dispatch} results={this.props.wikipage.wikiSearchResults} appName={appName}/>
@@ -67,7 +72,10 @@ class Root extends Component {
           <div style={{border: '1px solid #e5e55', float: 'right', margin: '10px 25px 0 0'}}>
           	<Map {...this.props}/>
           </div>
-          <Modal showModal={showModal} closeModal={this.closeModal.bind(this)} appName={appName}/>
+          <Modal showModal={showModal} 
+                expandModal={expandModal}
+                closeModal={this.closeModal.bind(this)} 
+                toggleExpand={this.toggleExpand.bind(this)} appName={appName}/>
         </div>)
   	}
 

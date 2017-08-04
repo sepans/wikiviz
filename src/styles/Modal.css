@@ -3,7 +3,7 @@
 	width: 100%;
 	margin: 0 auto;
 	bottom: 0px;
-	font-size: 0.9em;
+	font-size: 0.8em;
 	transition: all 0.2s linear;
 	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,1+100;White+to+Transparent */
 	background-color: rgba(255, 255, 255, 1);
@@ -19,13 +19,49 @@
 	border: 1px solid #E5E5E5;
 	padding: 10px;
 	background-color: #FFF;
+	max-height: 100px;
+	transition: max-height 0.3s linear;
+	overflow-y: hidden;
+	position: relative;
+
+}
+
+.modalConstainer p {
+	margin: 10px 40px;
 }
 
 .close {
-	float: right;
+	position: absolute;
+	right: 30px;
+	top: 15px;
 	display: inline-block;
 	cursor: pointer;
-	margin: 5px 10px;
+	
+	font-size: 12px;
+}
+
+.more {
+	cursor: pointer;
+	margin: 0px auto;
+	font-size: 12px;
+	width: 100%;
+	text-align: center;
+	display: block;
+	position: absolute;
+	line-height: 1.8em;
+	bottom: 3px;
+
+}
+.expanded {
+	max-height: 550px;
+}
+.moreContent p {
+	opacity: 0;
+	transition: opacity 0.2s linear;
+}
+
+.expanded .moreContent p {
+	opacity: 1;
 }
 
 h1 {
