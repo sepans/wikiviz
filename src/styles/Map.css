@@ -59,9 +59,20 @@
 	position: fixed;
 	top: 100px;
 	right: 50px;
-	
+  	width: 8em;
 
 }
+
+.loading span {
+  	width: 2em;
+	overflow: hidden;
+  	animation: type 3s steps(30, end) infinite; 
+  	display: inline-block;
+}
+
+@keyframes type{ 
+  from { width: 0; } 
+} 
 
 .marker {
 	position: absolute;

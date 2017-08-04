@@ -960,7 +960,7 @@ export default class Map extends Component {
 		
 		return (
 				<div className="root">							
-					<div className="loading" style={{opacity: mapReady ? 0 : 1}}>loading...</div>
+					<div className="loading" style={{opacity: mapReady ? 0 : 1}}>loading<span>...</span></div>
 					<div className="mapContainer" style={{opacity: this.props.map.mapReady ? 1 : 0 }}>
 						<div className="controls">
 							<button className={`zoomBtn ${zoomLevel===11 ? 'disabled' : ''}`} 
