@@ -62,7 +62,6 @@ export default class WikiPage extends Component {
       return (
         <div className="wikipediaStyles" style={{maxHeight: window.innerHeight}} ref={(el) => { this.contentEl = el} } onWheel={e => { e.stopPropagation() }}>
           <WikiStyles />
-          <span className="glitch">testing glitch</span>
           <h2 style={{fontFamily: "'Linux Libertine','Georgia','Times',serif", fontSize: '28px', fontWeight: 'normal'}}>{pageTitle}</h2>
           <div className={`mw-body-content ${hoverLoding ? 'hoverLoading' : ''}`}
               onClick={(e) => this.wikiLinkClickedNotParsed(e)}

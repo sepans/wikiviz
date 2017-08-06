@@ -16,8 +16,8 @@ const ArrowLabel = (props) => {
 	// 	console.log('',  props.arrowLenght, arrowLenght, props)
 	const rand =  Math.random()* 0.3 - 0.15
 	const pathD = direction===0  ?
-					 //`M${arrowEnd[0]},${arrowEnd[1]}L0,0` :
-					 `M${arrowEnd[0]},${arrowEnd[1]}C${arrowEnd[0] * (0.6)},${arrowEnd[1] * 0.9}, 0,${arrowEnd[0] * (0.3)}, 0,0` :
+					 `M${arrowEnd[0]},${arrowEnd[1]}L0,0` :
+					 //`M${arrowEnd[0]},${arrowEnd[1]}C${arrowEnd[0] * (0.6)},${arrowEnd[1] * 0.9}, 0,${arrowEnd[0] * (0.3)}, 0,0` :
 					 `M${arrowEnd[0]},${arrowEnd[1]}C${arrowEnd[0] * (0.6)},${arrowEnd[1] * 0.9}, 0,${arrowEnd[0] * (1.3)}, 0,${arrowEnd[1]*2}`
 	return (
 			<div className="marker"

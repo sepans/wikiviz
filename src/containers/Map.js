@@ -108,11 +108,11 @@ export default class Map extends Component {
 		camera.position.set(0 , 0, CAMERA_Z);
 
 		scene = new THREE.Scene();
-		let light = new THREE.DirectionalLight( 0xffffff, 1 );
-		light.position.set( 1, 1, 1 ).normalize();
-		scene.add( light );
+		// let light = new THREE.DirectionalLight( 0xffffff, 1 );
+		// light.position.set( 1, 1, 1 ).normalize();
+		// scene.add( light );
 
-		light = new THREE.AmbientLight( 0x666666 );
+		let light = new THREE.AmbientLight( 0x666666 );
 		scene.add( light );
 
 		const geometry = new THREE.BoxBufferGeometry( 4, 4, 4 );
