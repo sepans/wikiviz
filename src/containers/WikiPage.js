@@ -3,11 +3,13 @@ import * as actions from '../actions/'
 import WikiStyles from '../components/WikiStyles'
 import { debounce } from 'lodash'
 
+import '../styles/WikiPage.css'
+
 
 export default class WikiPage extends Component {
     constructor(props) {
       super(props)
-      this.debouncedMouseOverLink = debounce(this.handleHover, 500)//debounce(this.mouseOverLink, 2000)
+      this.debouncedMouseOverLink = debounce(this.handleHover, 200)//debounce(this.mouseOverLink, 2000)
     }
 
     componentDidMount() {
@@ -54,18 +56,15 @@ export default class WikiPage extends Component {
   
     render() {
       const {wikicontent, pageTitle} = this.props.wikipage
-      const wikipediaStyles = {
-         fontFamily: 'sans-serif',
-         fontSize: '100%',
-         maxHeight: window.innerHeight,
-         overflowY: 'scroll'
-      }
-      //console.log('wikipage render', this.debouncedMouseOverLink)
+
+      const hoverLoding = this.props.wikipage.hoveredWikiLinkLoading
+
       return (
-        <div style={wikipediaStyles} ref={(el) => { this.contentEl = el} } onWheel={e => { e.stopPropagation() }}>
+        <div className="wikipediaStyles" style={{maxHeight: window.innerHeight}} ref={(el) => { this.contentEl = el} } onWheel={e => { e.stopPropagation() }}>
           <WikiStyles />
+          <span className="glitch">testing glitch</span>
           <h2 style={{fontFamily: "'Linux Libertine','Georgia','Times',serif", fontSize: '28px', fontWeight: 'normal'}}>{pageTitle}</h2>
-          <div className="mw-body-content" 
+          <div className={`mw-body-content ${hoverLoding ? 'hoverLoading' : ''}`}
               onClick={(e) => this.wikiLinkClickedNotParsed(e)}
               onMouseOver={(e) => this.hoverOnLink(e)}
               onMouseOut={(e) => this.mouseOutLink(e)}

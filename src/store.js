@@ -38,7 +38,8 @@ const initialState = {
 	    wikiSearchResults: [],
 	    error: [],
 	    modal: true,
-	    expandModal: false
+	    expandModal: false,
+	    hoveredWikiLinkLoading: false
 	}
 
 }

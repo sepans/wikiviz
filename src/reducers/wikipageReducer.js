@@ -25,6 +25,10 @@ export default function reducer(state=defualtState, action) {
       return {...state, wikiSearchResults: results}
     case 'CLEAR_WIKI_SEARCH': 
       return {...state, wikiSearchResults: []}
+    case 'HOVERED_WIKILINK_LOADING':
+      return {...state, hoveredWikiLinkLoading: true}
+    case 'HOVERED_WIKILINK_LOADED':
+      return {...state, hoveredWikiLinkLoading: false}
     case 'OPEN_MODAL': 
       return {...state, modal: true}
     case 'CLOSE_MODAL': 

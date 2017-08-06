@@ -69,6 +69,7 @@ export function hoveredWikiLink(pageName) {
 			dispatch(hoverMapLocation())
 		}
 		else {
+			dispatch(hoveredWikiLinkLoading())
 			axios.get(`https://en.wikipedia.org/w/api.php?action=query&format=json&titles=${pageName}&redirects&origin=*`)
 			.then((response) => {
 				const json = response.data
@@ -81,9 +82,27 @@ export function hoveredWikiLink(pageName) {
 				.then((response) => {
 					console.log('hover response', response.data.location)
 					dispatch(hoverMapLocation({title: pageTitle, location: response.data.location}))
+					dispatch(hoveredWikiLinkLoaded(true))
+				})
+				.catch(err => {
+					dispatch(hoveredWikiLinkLoaded(false))
 				})
 			})
 		}
+	}
+}
+
+export function hoveredWikiLinkLoading() {
+	return {
+		type: 'HOVERED_WIKILINK_LOADING',
+		payload: null
+	}
+}
+
+export function hoveredWikiLinkLoaded() {
+	return {
+		type: 'HOVERED_WIKILINK_LOADED',
+		payload: null
 	}
 }
 
