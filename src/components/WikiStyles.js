@@ -72,6 +72,12 @@ const WikiStyles = () => {
         #coordinates {
           display: none;
         }
+        .hatnote {
+          display: none;
+        }
+        .ambox {
+          display: none;
+        }
         // .mw-body-content {
         //   line-height: 1.6;
         // }

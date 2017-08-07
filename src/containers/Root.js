@@ -25,7 +25,7 @@ class Root extends Component {
       
 
 
-      const initialTitle = this.props.match.params.title || 'Anarchism'
+      const initialTitle = this.props.match.params.title || 'Cartography'
   		this.props.dispatch(actions.navigateToPage(initialTitle))
   		this.props.dispatch(actions.fetchWikiPage())
 

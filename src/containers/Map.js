@@ -25,7 +25,7 @@ const CAMERA_Z = 6500
 const ZOOM_MIN_Z = -1200,
       ZOOM_MAX_Z = 7100,
       ZOOM_CAMERA_TILT_X = 0.25
-const PARTICLE_SIZE = 15
+const PARTICLE_SIZE = 10
 
 const pageToCanvasWidthRatio = 0.48,
 	  pageToCanvasHeightRatio = 0.9
@@ -95,6 +95,15 @@ export default class Map extends Component {
 		this.y.domain(extent(tsneData, getY))
 
 		this.colorScale = scaleOrdinal()
+			// .range(["rgb(33,240,182)", "rgb(28,135,92)", "rgb(148,211,188)", "rgb(21,114,156)",
+			//  "rgb(131,172,243)", "rgb(135,17,172)", "rgb(142,128,251)", "rgb(105,48,110)", 
+			//  "rgb(248,134,191)", "rgb(25,69,197)", "rgb(253,63,190)", "rgb(63,22,249)", "rgb(177,230,50)",
+			//  "rgb(58,166,9)", "rgb(83,242,89)", "rgb(110,57,13)", "rgb(221,192,189)", "rgb(237,75,4)",
+			//  "rgb(142,16,35)", "rgb(222,138,44)", "rgb(71,74,9)", "rgb(234,214,36)", "rgb(124,136,105)",
+			//  "rgb(254,29,102)", "rgb(168,119,124)"])
+			.range(['#ffffff','#f0f0f0','#d9d9d9','#bdbdbd','#969696','#737373','#525252','#252525','#000000'])
+
+		this.colorScaleBackground = scaleOrdinal()
 			.range(["rgb(33,240,182)", "rgb(28,135,92)", "rgb(148,211,188)", "rgb(21,114,156)",
 			 "rgb(131,172,243)", "rgb(135,17,172)", "rgb(142,128,251)", "rgb(105,48,110)", 
 			 "rgb(248,134,191)", "rgb(25,69,197)", "rgb(253,63,190)", "rgb(63,22,249)", "rgb(177,230,50)",
@@ -301,7 +310,14 @@ export default class Map extends Component {
 			voroGeo.vertices.forEach(vertice => {
 				vertice.setZ(NODES_Z)
 			})
-			const material = new THREE.MeshBasicMaterial( {shading: THREE.FlatShading,  color: this.colorScale(indx + 1),transparent: true, opacity:  0.02 , side: THREE.FrontSide } );
+			const material = new THREE.MeshBasicMaterial({
+				shading: THREE.FlatShading,
+				color: this.colorScaleBackground(indx + 1),
+				transparent: true,
+				opacity:  0.02,
+				side: THREE.FrontSide 
+			});
+
 		  	const mesh = new THREE.Mesh( voroGeo, material );
 			this.scene.add( mesh );
 			if(indx===0) {
@@ -741,7 +757,7 @@ export default class Map extends Component {
 								}
 								
 								//debugger;
-								intersectedObject.object.material.opacity = 0.1
+								intersectedObject.object.material.opacity = 0.3
 								this.voronoiHover = intersectedObject
 								//this.drawVoronoiBoundry(objectId)
 								this.intersected = intersectedObject
@@ -1007,7 +1023,8 @@ export default class Map extends Component {
 
 						<ArrowLabel location={hoveredItem ? [hoveredItem.mousex, hoveredItem.mousey] : null}
 									color={hoveredItem && hoveredItem.cluster ? '#0000FF' : '#000000'}
-									arrow={hoveredItem && hoveredItem.cluster && hoveredItem.title ? true : false}
+									//arrow={hoveredItem && hoveredItem.cluster && hoveredItem.title ? true : false}
+									arrow={false}
 									opacity={hoveredItem && !cameraMoving ? 1 : 0}
 									arrowLenght={zoomLevel > 7 ? 10 : 15}
 									direction={1}
