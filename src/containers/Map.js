@@ -1000,10 +1000,16 @@ export default class Map extends Component {
 					<div className="loading" style={{opacity: mapReady ? 0 : 1}}>loading<span>...</span></div>
 					<div className="mapContainer" style={{opacity: this.props.map.mapReady ? 1 : 0 }}>
 						<div className="controls">
+							{/*
 							<button className={`zoomBtn ${zoomLevel===11 ? 'disabled' : ''}`} 
 									onClick={(e) => this.zoomInClicked()}>zoom to article</button>
 							<button className={`zoomBtn ${zoomLevel===1 ? 'disabled' : ''}`}  
 									onClick={(e) => this.zoomOutClicked()}>zoom out</button>
+							*/}
+							<button className="zoomBtn"  
+									onClick={(e) => this.zoomClicked()}>
+									zoom {zoomLevel===1 ? 'to article' : 'out'}
+							</button>
 							<SearchBar results={this.props.wikipage.wikiSearchResults} dispatch={this.props.dispatch} />
 
 						</div>
