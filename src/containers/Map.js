@@ -825,11 +825,11 @@ export default class Map extends Component {
 
 	zoomClicked(e) {
 		console.log('zoom clicked',this.props.map.zoom)
-		if(this.props.map.zoom === 11) {
-			this.props.dispatch(actions.zoomOut())
+		if(this.props.map.zoom === 1) {
+			this.props.dispatch(actions.zoomIn())
 		}
 		else {
-			this.props.dispatch(actions.zoomIn())
+			this.props.dispatch(actions.zoomOut())
 		}
 	}
 
