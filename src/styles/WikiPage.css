@@ -1,0 +1,90 @@
+.wikipediaStyles {
+     font-family: sans-serif;
+     font-size: 100%;
+     overflow-y: scroll;
+}
+
+.wikiHeader {
+	font-family: 'Linux Libertine','Georgia','Times',serif;
+	font-size: 28px;
+	font-weight: normal;
+	border: 0px;
+  margin-bottom: 0;
+}
+
+.neighborSection {
+	 padding: 5px 0px 15px 0;
+   height: 42px;
+   overflow: hidden;
+}
+.neighborSection label {
+	font-size: 11px;
+  padding: 5px 0;
+  color: rgba(100, 100, 100, 0.6);
+  display: inline-block;
+}
+
+.neighbors {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: 14px;
+
+}
+
+.neighbors li {
+	display: inline-block;
+  border: 1px solid rgba(10,33,236, 0.8);
+  padding: 3px 4px;
+  margin-right: 4px;
+  margin-bottom: 30px;
+	font-size: 0.85em;
+  padding-bottom: 0;
+
+}
+
+.neighbors li:hover {
+
+}
+
+.neighbors li a { 
+  padding-bottom: 3px;
+  display: inline-block;
+  color: rgb(10,33,236);
+
+}
+
+
+
+.hoverLoading a:hover {
+   -webkit-animation: flickerAnimation 1s infinite;
+   -moz-animation: flickerAnimation 1s infinite;
+   -o-animation: flickerAnimation 1s infinite;
+    animation: flickerAnimation 1s infinite;
+}
+
+a:hover {
+	text-decoration: none !important;
+	border-bottom: 1px dashed rgba(10 ,33, 236, 1);
+}
+
+@keyframes flickerAnimation {
+  0%   { border-bottom: 1px dashed rgba(10 ,33, 236, 1); }
+  50%  { border-bottom: 1px dashed rgba(10 ,33, 236, 0.1); }
+  100%   { border-bottom: 1px dashed rgba(10 ,33, 236, 1); }
+}
+@-o-keyframes flickerAnimation{
+  0%   { border-bottom: 1px dashed rgba(10 ,33, 236, 1); }
+  50%  { border-bottom: 1px dashed rgba(10 ,33, 236, 0.1); }
+  100%   { border-bottom: 1px dashed rgba(10 ,33, 236, 1); }
+}
+@-moz-keyframes flickerAnimation{
+  0%   { border-bottom: 1px dashed rgba(10 ,33, 236, 1); }
+  50%  { border-bottom: 1px dashed rgba(10 ,33, 236, 0.1); }
+  100%   { border-bottom: 1px dashed rgba(10 ,33, 236, 1); }
+}
+@-webkit-keyframes flickerAnimation{
+  0%   { border-bottom: 1px dashed rgba(10 ,33, 236, 1); }
+  50%  { border-bottom: 1px dashed rgba(10 ,33, 236, 0.1); }
+  100%   { border-bottom: 1px dashed rgba(10 ,33, 236, 1); }
+}

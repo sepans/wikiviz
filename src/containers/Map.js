@@ -221,7 +221,7 @@ export default class Map extends Component {
 				console.log('title', title)
 
 				this.props.dispatch(actions.checkRedirectAndFetch(title))
-				this.props.dispatch(actions.cameraMoving(true))
+				
 
 			}
 			else {
@@ -570,8 +570,9 @@ export default class Map extends Component {
 			const cameraZ = zOffset < (this.camera.position.z - NODES_Z) ? this.camera.z : (this.camera.position.z + zOffset) 
 
 			const midpoint = {x: this.x((location[0] + prevLocation[0])/2), y: this.y((location[1] + prevLocation[1])/2) - CAMERA_Y_OFFSET, z: cameraZ, fov: 50}
-			const time = 500 + 2 * (distance * 2000) / MAX_DISTANCE
+			const time = 200 + 2 * (distance * 1500) / MAX_DISTANCE
 			
+			this.props.dispatch(actions.cameraMoving(true))
 			this.tweenCamera(midpoint, {tween: TWEEN.Easing.Exponential.Out, time: time/2}, () => {
 				
 				const nextCameraProps = 
@@ -756,7 +757,7 @@ export default class Map extends Component {
 
 									this.props.dispatch(actions.hoveredOnMap({
 										//title: newObjectId > -1 ? newObjectId + ' '+ this.props.map.clusterNames[newObjectId] + ' ' + objectId + ' ' + this.props.map.clusterNames[objectId]: '',//objectId + ' ' + this.props.map.clusterNames[objectId] ,//'cluster ' + intersectedObject.object.id,//
-										title: newObjectId > -1 ?  this.props.map.clusterNames[newObjectId] : '',//+' '+newObjectId : '',
+										title: newObjectId > -1 ?  this.props.map.clusterNames[newObjectId] +' '+newObjectId : '',
 										mousex,
 										mousey,
 										cluster: true
