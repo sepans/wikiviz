@@ -8,8 +8,8 @@
 
 .ffl-logo {
 	display: inline-block;
-	width: 32px;
-	height: 32px;
+	width: 30px;
+	height: 30px;
 	margin-left: 2px;
 	text-indent: -9999px;
 	font-size: 35px;
@@ -28,10 +28,18 @@
 
 .subtitle {
 	font-size: 14px;
-	line-height: 1.5em;
+	line-height: 1.8em;
 	display: inline-block;
 	border: 0px;
 	padding: 0;
 	margin: 0;
 	color: rgba(0, 0, 0, 0.75);
+}
+
+.builtby {
+	float: right;
+	margin-right: 10px;
+	display: inline-block;
+	font-size: 12px;
+	display: none;
 }

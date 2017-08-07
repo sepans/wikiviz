@@ -13,19 +13,19 @@ const Modal = (props) => {
 					<p><b>{appName}</b> helps locating yourself, or to be more precise, 
 						locate the subject matter of your curiosity within the universe of Wikipedia articles.</p>
 					<p>
-						Inspired by <a href="http://wiki.polyfra.me/" target="_blank">Wikigalaxy</a>, {appName} 
-						makes the experience of reading Wikipedia articles the same, while adding a map and additional ways of navigation. 
+						Inspired by <a href="http://wiki.polyfra.me/" target="_blank">Wikigalaxy</a>, {appName} augments
+						additional semantical navigation possibilities while preserving the experience of reading Wikipedia articles.
 
 					</p>
 					<p>
-						The Wikipedia panel on the left works similar to wikipedia.org. 
-						You can also use the map to go to neighboring articles or see the history of your navigation.
+						The Wikipedia panel on the left works similar to Wikipedia.org. 
+						You can also use the map to go to neighboring articles, or see the history of your navigation.
 						Additionally, hovering on links of the Wikipedia panel show you 
 						the location of the target article.
 					</p>
 					<span className="moreContent">
 						<p>
-							about coordinates
+							
 						</p>
 						<p>
 							categorization

@@ -682,12 +682,14 @@ export default class Map extends Component {
 		TWEEN.update()
 		
 		if(this.props.map.raycast && !this.props.map.cameraMoving) {
+			//console.log('raycasting')
 			this.raycaster.params.Points.threshold = this.props.map.zoom > 8 ? 5 : 30
 			this.raycaster.setFromCamera( this.mouse, this.camera );
 			var intersects = this.raycaster.intersectObjects( this.scene.children, true );
 			if ( intersects.length > 0) {
 				let i = 0
 				let intersectedObject = intersects[i]
+				//console.log(intersectedObject)
 				while(i < intersects.length && intersectedObject.object.type==='Sprite') {
 					i++
 					intersectedObject = intersects[i]
@@ -754,7 +756,7 @@ export default class Map extends Component {
 
 									this.props.dispatch(actions.hoveredOnMap({
 										//title: newObjectId > -1 ? newObjectId + ' '+ this.props.map.clusterNames[newObjectId] + ' ' + objectId + ' ' + this.props.map.clusterNames[objectId]: '',//objectId + ' ' + this.props.map.clusterNames[objectId] ,//'cluster ' + intersectedObject.object.id,//
-										title: newObjectId > -1 ?  this.props.map.clusterNames[newObjectId] : '',
+										title: newObjectId > -1 ?  this.props.map.clusterNames[newObjectId] : '',//+' '+newObjectId : '',
 										mousex,
 										mousey,
 										cluster: true
@@ -1001,7 +1003,7 @@ export default class Map extends Component {
 		
 		return (
 				<div className="root">							
-					<div className="loading" style={{opacity: mapReady ? 0 : 1}}>loading<span>...</span></div>
+					<div className="loading" style={{opacity: mapReady ? 0 : 1}}>loading<span>....</span></div>
 					<div className="mapContainer" style={{opacity: this.props.map.mapReady ? 1 : 0 }}>
 						<div className="controls">
 							{/*
