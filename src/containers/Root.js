@@ -65,7 +65,7 @@ class Root extends Component {
       const expandModal = this.props.wikipage.expandModal
 
     	return (<div> 
-          <TopBanner dispatch={this.props.dispatch} results={this.props.wikipage.wikiSearchResults} appName={appName}/>
+          <TopBanner appName={appName}/>
           <div style={{padding: '10px 0 10px 25px',  width: '45%', display: 'inline-block'}}>
           	<WikiPage {...this.props}/>
           </div>

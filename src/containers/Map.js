@@ -7,6 +7,7 @@ import { polygonHull, polygonCentroid } from 'd3-polygon'
 import * as actions from '../actions/'
 import { debounce } from 'lodash'
 import ArrowLabel from '../components/ArrowLabel'
+import SearchBar from '../components/SearchBar'
 
 import THREE from 'three'
 //import OrbitControls  from 'three-orbitcontrols'
@@ -676,7 +677,7 @@ export default class Map extends Component {
 		
 		TWEEN.update()
 		
-		if(this.props.map.raycast) {
+		if(this.props.map.raycast && !this.props.map.cameraMoving) {
 			this.raycaster.params.Points.threshold = this.props.map.zoom > 8 ? 5 : 30
 			this.raycaster.setFromCamera( this.mouse, this.camera );
 			var intersects = this.raycaster.intersectObjects( this.scene.children, true );
@@ -1001,7 +1002,9 @@ export default class Map extends Component {
 							<button className={`zoomBtn ${zoomLevel===11 ? 'disabled' : ''}`} 
 									onClick={(e) => this.zoomInClicked()}>zoom to article</button>
 							<button className={`zoomBtn ${zoomLevel===1 ? 'disabled' : ''}`}  
-									onClick={(e) => this.zoomOutClicked()}>center the entire map</button>
+									onClick={(e) => this.zoomOutClicked()}>zoom out</button>
+							<SearchBar results={this.props.wikipage.wikiSearchResults} dispatch={this.props.dispatch} />
+
 						</div>
 						
 						<div ref="threejs" className="threeContainer"
