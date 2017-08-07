@@ -435,12 +435,14 @@ export default class Map extends Component {
 
 		}
 		else if(this.hoverLineObject) {
-			//console.log(this.hoverLineObject)
+			//console.log('has hover', this.hoverLineObject, this.prevCameraZ)
 			this.hoverLineObject.material.opacity = 0
 			if(this.prevCameraZ) {
-				this.tweenCamera({z: this.prevCameraZ, _x: this.prevCameraTilt}, {tween: TWEEN.Easing.Exponential.Out, time: 250})
+				this.tweenCamera({z: this.prevCameraZ, _x: this.prevCameraTilt}, {tween: TWEEN.Easing.Exponential.Out, time: 250}, () => {
+					this.prevCameraZ = null
+				})
 			}
-			this.prevCameraZ = null
+			
 		}
 
 	}
@@ -476,9 +478,9 @@ export default class Map extends Component {
 		)
 		  
 		historyTubeGeometry.dynamic = true
-		var material = new THREE.MeshLambertMaterial({
+		const material = new THREE.MeshLambertMaterial({
 	        color: 0x000000,
-	        transparent: true,
+	        //transparent: true,
 	        // linewidth: 100,
 	        opacity: 0.85,
 	        //fog: true
@@ -976,7 +978,7 @@ export default class Map extends Component {
 		let curLocation = [0, 0],
 			wikiHoverLocation = [0, 0],
 			curMousePos = [0, 0]
-		if(mapReady) {
+		if(mapReady && this.props.map.location) {
 
 	        curLocation = this.mapLocationToDomLocation(this.props.map.location)
 
