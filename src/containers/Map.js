@@ -915,7 +915,7 @@ export default class Map extends Component {
 	mousewheel(e) {
 		e.preventDefault()
 		e.stopPropagation()
-
+		/*
 		if(!this.props.map.cameraMoving) {
 	    	this.props.dispatch(actions.cameraMoving(true))
 	    }
@@ -940,6 +940,7 @@ export default class Map extends Component {
 	    this.debouncedSetZoom(zoomLevel)
 	    
 	    cPos.z = newZ
+	    */
 	}
 
 	mapLocationToDomLocation(location) {
