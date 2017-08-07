@@ -10,7 +10,7 @@ const NUMBER_OF_NEIGHBORS = 10
 export default class WikiPage extends Component {
     constructor(props) {
       super(props)
-      this.debouncedMouseOverLink = debounce(this.handleHover, 200)//debounce(this.mouseOverLink, 2000)
+      this.debouncedMouseOverLink = debounce(this.handleHover, 300)//debounce(this.mouseOverLink, 2000)
     }
 
     componentDidMount() {
@@ -41,7 +41,7 @@ export default class WikiPage extends Component {
 
     hoverOnLink(e) {
       const title = e.target.title
-      this.debouncedMouseOverLink(title)
+      this.activeDebounce = this.debouncedMouseOverLink(title)
     }
 
     handleHover(title) {
@@ -52,6 +52,8 @@ export default class WikiPage extends Component {
     }
 
     mouseOutLink() {
+      console.log('MOUSEOUTLINK')
+      this.debouncedMouseOverLink.cancel()
       this.props.dispatch(actions.hoveredWikiLink())
     }
   

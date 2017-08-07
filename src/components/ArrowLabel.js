@@ -37,12 +37,24 @@ const ArrowLabel = (props) => {
 					 			style={{opacity: arrow ? opacity : 0 , top: 0, left: -3}}>
 							  <g className="arrow" transform={`translate(4, ${direction ? 0 : 4})`}>
 							  	<path className="arrowShadow" 
-							  		d={pathD} />
+							  		d={pathD} 
+							  		markerEnd="url(#arrow-white)"/>
 							  	<path 
 							  		d={pathD}
 							  		markerEnd="url(#arrow)"/>
 							  </g>
 							  <defs>
+							    <marker
+							      id="arrow-white"
+							      markerUnits="userSpaceOnUse"
+							      markerWidth="12"
+							      markerHeight="12"
+							      viewBox="0 0 12 12"
+							      refX="6"
+							      refY="6"
+							      orient="auto">
+							      <path d="M2,2 L10,6 L2,10 L6,6 L2,2" stroke="#FFF" stroke-width="2px"></path>
+							    </marker>
 							    <marker
 							      id="arrow"
 							      markerUnits="strokeWidth"

@@ -446,13 +446,17 @@ export default class Map extends Component {
 	}
 
 	drawHistory() {
-		 const history = this.props.map.wikiHistory
-		 if(history.length < 2) {
-		 	return
-		 }
-		 let points = []
 
-		 for(let i=0 ; i< history.length -1 ; i++) {
+		const history = this.props.map.wikiHistory
+		if(history.length < 2) {
+		 	return
+		}
+
+		console.log('DRWAING HISTORY')
+		
+		let points = []
+
+		for(let i=0 ; i< history.length -1 ; i++) {
 		 	const distance = this.calculateDistance([history[i].x, history[i].y], [history[i + 1].x, history[i + 1].y])
 		 	const curve = new THREE.CubicBezierCurve3(
 				new THREE.Vector3( this.x(history[i].x), this.y(history[i].y), NODES_Z ),
@@ -462,7 +466,7 @@ export default class Map extends Component {
 			);
 		 	points = points.concat(curve.getSpacedPoints( 20 ))
 
-		 }
+		}
 
 		const path = new THREE.CatmullRomCurve3( points );
 		const historyTubeGeometry = new THREE.TubeGeometry(
