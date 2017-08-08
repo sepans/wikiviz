@@ -1,0 +1,51 @@
+.mobile {
+	font-family: open-sans, sans-serif, arial;
+}
+
+.ffl-logo {
+	display: inline-block;
+	width: 30px;
+	height: 30px;
+	margin: 0px;
+	text-indent: -9999px;
+	font-size: 35px;
+	background: url(/img/ff-logo.svg) 0 0 no-repeat;
+	padding-top: -2px;
+	vertical-align: middle;
+}
+
+.title {
+	display: inline-block;
+	font-family: robotomono, 'Courier New';
+	padding: 0;
+	margin: 0 25px;
+	border: none;
+	color: #0A21EC;
+	font-size: 1.4em;
+	margin-bottom: 20px;
+}
+
+.subtitle {
+	font-size: 14px;
+	line-height: 1.8em;
+	display: inline-block;
+	border: 0px;
+	padding: 0;
+	margin: 0;
+	color: rgba(0, 0, 0, 0.75);
+}
+
+.checkback {
+	margin: 30px auto;
+	width: 100%;
+	text-align: center;
+} 
+
+p {
+	margin: 20px 5px;
+}
+
+.screenshot {
+	width: 100%;
+	margin: 20px 0;
+}
