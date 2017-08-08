@@ -759,7 +759,7 @@ export default class Map extends Component {
 
 									this.props.dispatch(actions.hoveredOnMap({
 										//title: newObjectId > -1 ? newObjectId + ' '+ this.props.map.clusterNames[newObjectId] + ' ' + objectId + ' ' + this.props.map.clusterNames[objectId]: '',//objectId + ' ' + this.props.map.clusterNames[objectId] ,//'cluster ' + intersectedObject.object.id,//
-										title: newObjectId > -1 ?  this.props.map.clusterNames[newObjectId] +' '+newObjectId : '',
+										title: newObjectId > -1 ?  this.props.map.clusterNames[newObjectId] : '',// +' '+newObjectId : '',
 										mousex,
 										mousey,
 										cluster: true
@@ -972,6 +972,7 @@ export default class Map extends Component {
 		const cameraMoving = this.props.map.cameraMoving
 		const zoomLevel = this.props.map.zoom
 		const wikiHover = this.props.map.wikiHover
+		const fetchingLocation = this.props.map.fetchingLocation
 
 		// let curLocation = mapReady ? 
 		// 				[this.x(this.props.map.location[0]), this.y(this.props.map.location[1])] : [0,0]
@@ -994,7 +995,7 @@ export default class Map extends Component {
 			wikiHoverLocation = this.mapLocationToDomLocation(wikiHover.location)
 		}
 
-		const pageTitle = this.props.map.pageTitle
+		const pageTitle = this.props.wikipage.pageTitle
 		if(this.updateNeighbors) {
 			//this.addNeighbors(this.props.map.location, this.props.map.neighbors, this.props.wikipage.pageTitle)
 			this.updateNeighbors = false
@@ -1006,7 +1007,7 @@ export default class Map extends Component {
 		
 		return (
 				<div className="root">							
-					<div className="loading" style={{opacity: mapReady ? 0 : 1}}>loading<span>....</span></div>
+					<div className="loading" style={{opacity: mapReady && !fetchingLocation ? 0 : 1}}>loading<span>....</span></div>
 					<div className="mapContainer" style={{opacity: this.props.map.mapReady ? 1 : 0 }}>
 						<div className="controls">
 							{/*
@@ -1038,7 +1039,7 @@ export default class Map extends Component {
 									arrow={(wikiHoverLocation[0] && wikiHoverLocation[1]) ? false : true}
 									direction={zoomLevel > 7 ? 1 : 0}
 									arrowLenght={zoomLevel > 7 ? 20 : 25}
-									label={zoomLevel < 3 && !wikiHover ? 'You are here!' : pageTitle}/>
+									label={(zoomLevel < 3 && !wikiHover) || fetchingLocation ? 'You are here!' : pageTitle}/>
 
 						<ArrowLabel location={hoveredItem ? [hoveredItem.mousex, hoveredItem.mousey] : null}
 									color={hoveredItem && hoveredItem.cluster ? '#0000FF' : '#000000'}

@@ -3,7 +3,7 @@ import '../styles/Map.css'
 
 const ArrowLabel = (props) => {
 	const location = props.location || [0, 0]
-	const fontSize = props.fontSize || '12'
+	const fontSize = props.fontSize || 12
 	const opacity = props.opacity
 	const dotSize = props.dotSize
 	const label = props.label || ''
@@ -24,8 +24,8 @@ const ArrowLabel = (props) => {
 			<div className="marker"
 				style={{top: location[1],
 				 		 left: location[0] -2,
-				 		 fontSize: fontSize,
-				 		 lineHeight: fontSize,
+				 		 fontSize: fontSize+'px',
+				 		 lineHeight: fontSize+'px',
 				 		 backgroundColor: arrow ? 'background-color: rgba(0, 0, 0, 0.3)' : 'none',
 				 		 opacity: opacity,
 				 		 color: color
@@ -53,7 +53,7 @@ const ArrowLabel = (props) => {
 							      refX="6"
 							      refY="6"
 							      orient="auto">
-							      <path d="M2,2 L10,6 L2,10 L6,6 L2,2" stroke="#FFF" stroke-width="2px"></path>
+							      <path d="M2,2 L10,6 L2,10 L6,6 L2,2" stroke="#FFF" strokeWidth="2px"></path>
 							    </marker>
 							    <marker
 							      id="arrow"

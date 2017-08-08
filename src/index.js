@@ -21,4 +21,4 @@ ReactDOM.render(
                 <Route path="/:title?" component={Root}/>
               
             </Router>
-				</Provider>, app)
+		</Provider>, app)

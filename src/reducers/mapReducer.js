@@ -11,23 +11,25 @@ export default function reducer(state=defualtState, action) {
     case 'NAVIGATE_TO_PAGE':
       return {...state, pageTitle: action.payload}
     case 'FETCH_TSNE_PENDING':
-      return {...state, fetching: true}
+      return {...state, fetchingTsne: true}
     case 'FETCH_TSNE_FULFILLED':
       //TODO: move this somewhere better
       const content = Object.values(action.payload.data)//Object.values(action.payload.data.query.pages)[0].revisions[0]['*']
       return {...state, fetching: false, fetched: true, tsneData: content}
     case 'FETCH_TSNE_REJECTED':
-      return {...state, fetching: false, error: state.error.concat(action.payload)}
+      return {...state, fetchingTsne: false, error: state.error.concat(action.payload)}
 
     case 'FETCH_CENTROIDS_PENDING':
-      return {...state, fetching: true}
+      return {...state, fetchingCentroids: true}
     case 'FETCH_CENTROIDS_FULFILLED':
       //TODO: move this somewhere better
       const centroidsData = action.payload.data.map(d => d.c || d)
       const clusterNames = action.payload.data.map((d, i) => d.n || 'cluster '+i)
       return {...state, fetching: false, fetched: true, centroidsData, clusterNames}
     case 'FETCH_CENTROIDS_REJECTED':
-      return {...state, fetching: false, error: state.error.concat(action.payload)}
+      return {...state, fetchingCentroids: false, error: state.error.concat(action.payload)}
+    case 'FETCH_LOCATION_PENDING':
+      return {...state, fetchingLocation: true}
     case 'FETCH_LOCATION_FULFILLED':
       //TODO: move this somewhere better
       const location = action.payload.data.location//Object.values(action.payload.data.query.pages)[0].revisions[0]['*']
@@ -38,7 +40,7 @@ export default function reducer(state=defualtState, action) {
         y: location[1],
         title: state.pageTitle 
       })
-      return {...state, /*fetching: false, fetched: true,*/ location: location, neighbors: neighbors, wikiHistory: wikiHistory}
+      return {...state, fetchingLocation: false, location: location, neighbors: neighbors, wikiHistory: wikiHistory}
     case 'FETCH_LOCATION_REJECTED':
       return {...state, fetching: false, error: state.error.concat(action.payload)}
     case 'MAP_ZOOM_IN':

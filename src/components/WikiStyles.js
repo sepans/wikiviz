@@ -75,7 +75,7 @@ const WikiStyles = () => {
         .hatnote {
           display: none;
         }
-        .ambox {
+        .ambox, .metadata {
           display: none;
         }
         // .mw-body-content {

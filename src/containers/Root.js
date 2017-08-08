@@ -6,6 +6,7 @@ import WikiPage from './WikiPage'
 import Map from './Map'
 import TopBanner from '../components/TopBanner'
 import Modal from '../components/Modal'
+import HistoryPanel from '../components/HistoryPanel'
 
 const appName = 'Encartopedia'
 
@@ -36,11 +37,12 @@ class Root extends Component {
 
       this.props.history.listen((location) => {
         //TODO this is so hacky!
+        //TODO 2: needed?
         if(location) {
-          const title = location.pathname.replace('/', '')
-          this.props.dispatch(actions.navigateToPage(title))
-          this.props.dispatch(actions.fetchPageLocation(title))
-          this.props.dispatch(actions.fetchWikiPage())
+          // const title = location.pathname.replace('/', '')
+          // this.props.dispatch(actions.navigateToPage(title))
+          // this.props.dispatch(actions.fetchPageLocation(title))
+          // this.props.dispatch(actions.fetchWikiPage())
 
 
         }
@@ -50,8 +52,18 @@ class Root extends Component {
 
   	}
 
+    componentDidMount() {
+      setTimeout(() => {
+        this.props.dispatch(actions.closeModal())
+      }, 15000)
+    }
+
     closeModal() {
       this.props.dispatch(actions.closeModal())
+    }
+
+    openModal() {
+      this.props.dispatch(actions.openModal())
     }
 
     toggleExpand() {
@@ -65,13 +77,14 @@ class Root extends Component {
       const expandModal = this.props.wikipage.expandModal
 
     	return (<div> 
-          <TopBanner appName={appName}/>
+          <TopBanner appName={appName} aboutClicked={this.openModal.bind(this)}/>
           <div style={{padding: '10px 0 10px 25px',  width: '45%', display: 'inline-block'}}>
           	<WikiPage {...this.props}/>
           </div>
           <div style={{border: '1px solid #e5e55', float: 'right', margin: '10px 25px 0 0'}}>
           	<Map {...this.props}/>
           </div>
+          <HistoryPanel history={this.props.map.wikiHistory} />
           <Modal showModal={showModal} 
                 expandModal={expandModal}
                 closeModal={this.closeModal.bind(this)} 

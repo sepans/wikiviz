@@ -1,5 +1,5 @@
 .banner {
-	width: 100%;
+	width: 98%;/* why? */
 	margin: 5px 0 0 0;
 	padding: 5px;
 	border-bottom: 1px solid rgba(100, 100, 100, 0.2);
@@ -38,8 +38,16 @@
 
 .builtby {
 	float: right;
-	margin-right: 10px;
+	margin: 10px 25px;
 	display: inline-block;
 	font-size: 12px;
-	display: none;
+	
+}
+
+a {
+	color: #0645ad;
+}
+
+.builtby span {
+	margin-left: 30px;
 }

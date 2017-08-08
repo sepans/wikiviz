@@ -1,0 +1,49 @@
+.history {
+	width: 100%;
+	position: absolute;
+	bottom: 0;
+	border-top: 1px solid #E5E5E5;
+	padding: 12px 25px;
+	background: #FFF;
+	transition: transform 0.3s ease-out;
+	overflow-x: scroll;
+	
+}
+
+.history ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.history .label {
+	color: #AAA;
+	font-size: 0.7em;
+	margin-bottom: 5px;
+}
+
+.history li {
+	display: inline-block;
+	border: 1px solid #888;
+	padding: 3px 4px;
+	font-size: 0.75em;
+	color: #888;
+	margin-right: 30px;
+	position: relative;
+	
+}
+
+.history li:last-child {
+	color: #0000FF;
+	border-color: #0000FF;
+}
+
+.history li::after {
+	content: '. . .';
+	position: absolute;
+	right: -23px;
+}
+
+.history li:last-child::after {
+	content: ''
+}

@@ -41,7 +41,9 @@ export default class WikiPage extends Component {
 
     hoverOnLink(e) {
       const title = e.target.title
-      this.activeDebounce = this.debouncedMouseOverLink(title)
+      if(!this.props.map.fetchingLocation) {
+        this.activeDebounce = this.debouncedMouseOverLink(title)
+      }
     }
 
     handleHover(title) {
@@ -55,6 +57,14 @@ export default class WikiPage extends Component {
       console.log('MOUSEOUTLINK')
       this.debouncedMouseOverLink.cancel()
       this.props.dispatch(actions.hoveredWikiLink())
+    }
+
+    shouldComponentUpdate() {
+      //don't update wikipage while waiting for location api
+      if(this.props.map.fetchingLocation) {
+        return false;
+      }
+      return true;
     }
   
     render() {
@@ -83,10 +93,15 @@ export default class WikiPage extends Component {
             </ul>
           </div>) : <span/>
 
+      const wikipediaOrgLink = pageTitle ? `https://en.wikipedia.org/wiki/${pageTitle.replace(/ /g,"_")}` : '#'
+
       return (
         <div className={`wikipediaStyles ${hoverLoding ? 'hoverLoading' : ''}`} style={{maxHeight: window.innerHeight}} ref={(el) => { this.contentEl = el} } onWheel={e => { e.stopPropagation() }}>
           <WikiStyles />
-          <h2 className="wikiHeader">{pageTitle}</h2>
+          <div>
+            <h2 className="wikiHeader">{pageTitle}</h2>
+            <span><a className="openOrg" href={wikipediaOrgLink} target="_blank">open in wikipedia.org →</a></span>
+          </div>
           {neighborsBlock}
           <div className="mw-body-content"
               onClick={(e) => this.wikiLinkClickedNotParsed(e)}

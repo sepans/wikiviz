@@ -73,14 +73,12 @@ export function hoveredWikiLink(pageName) {
 			axios.get(`https://en.wikipedia.org/w/api.php?action=query&format=json&titles=${pageName}&redirects&origin=*`)
 			.then((response) => {
 				const json = response.data
-				console.log(json)
 				const pageTitle = (json.query.redirects && json.query.redirects.length) ?
 				 					json.query.redirects[0].to :
 				 					pageName
 
 				axios.get(`${API_ENDPOINT}similars?title=${pageTitle}`)
 				.then((response) => {
-					console.log('hover response', response.data.location)
 					dispatch(hoverMapLocation({title: pageTitle, location: response.data.location}))
 					dispatch(hoveredWikiLinkLoaded(true))
 				})
@@ -125,6 +123,7 @@ export function goToPageAllActions(pageName) {
 		dispatch(fetchPageLocation(pageName))
 		dispatch(fetchWikiPage(pageName))
 		dispatch(push(pageName))
+
 
 	}
 }
@@ -182,10 +181,10 @@ export function toggleExpand() {
 
 export function checkRedirectAndFetch(pageName) {
 	return (dispatch) => {
+		dispatch(closeModal())
 		axios.get(`https://en.wikipedia.org/w/api.php?action=query&format=json&titles=${pageName}&redirects&origin=*`)
 		.then((response) => {
 			const json = response.data
-			console.log(json)
 			if(json.query.redirects && json.query.redirects.length) {
 				const newPage = json.query.redirects[0].to
 				dispatch(goToPageAllActions(newPage))

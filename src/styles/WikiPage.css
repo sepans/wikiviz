@@ -10,6 +10,23 @@
 	font-weight: normal;
 	border: 0px;
   margin-bottom: 0;
+  display: inline-block;
+}
+
+.openOrg {
+    font-size: 0.75em;
+    /*border: 1px solid #0645ad;*/
+    padding: 2px;
+    vertical-align: top;
+    margin-top: 2.1em; /* why? */
+    margin-left: 2em;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.wikipediaStyles .openOrg:hover {
+  border: 0;
+  text-decoration: underline;
 }
 
 .neighborSection {
@@ -63,7 +80,7 @@
     animation: flickerAnimation 1s infinite;
 }
 
-a:hover {
+.wikipediaStyles a:hover, .neighborSection a:hover {
 	text-decoration: none !important;
 	border-bottom: 1px dashed rgba(10 ,33, 236, 1);
 }
