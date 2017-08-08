@@ -422,7 +422,7 @@ export default class Map extends Component {
 			const vFOV = this.camera.fov * Math.PI / 180
 			const zOffset = Math.tan( vFOV / 2) * maxDistance * 6
 			const cameraZ = this.camera.position.z + zOffset
-			this.prevCameraZ = this.camera.position.z
+			this.prevCameraPos = {x: this.camera.position.x, y: this.camera.position.y, z: this.camera.position.z }
 			this.prevCameraTilt = this.camera.rotation._x
 
 			// const midpoint = {x: this.x((location[0] + prevLocation[0])/2), y: this.y((location[1] + prevLocation[1])/2) - CAMERA_Y_OFFSET, z: cameraZ, fov: 50}
@@ -437,10 +437,21 @@ export default class Map extends Component {
 		else if(this.hoverLineObject) {
 			//console.log('has hover', this.hoverLineObject, this.prevCameraZ)
 			this.hoverLineObject.material.opacity = 0
-			if(this.prevCameraZ) {
-				this.tweenCamera({z: this.prevCameraZ, _x: this.prevCameraTilt}, {tween: TWEEN.Easing.Exponential.Out, time: 250}, () => {
-					this.prevCameraZ = null
-				})
+			if(this.prevCameraPos) {
+				//console.log('move camera back? ', this.prevCameraPos, this.camera.position)
+				//only move camera back when x,y are the same
+				if(this.prevCameraPos.x===this.camera.position.x && 
+				   this.prevCameraPos.y===this.camera.position.y && 
+				   this.prevCameraPos.z!==this.camera.position.z) {
+					this.tweenCamera({z: this.prevCameraPos.z, _x: this.prevCameraTilt}, {tween: TWEEN.Easing.Exponential.Out, time: 250}, () => {
+						this.prevCameraPos = null
+					})
+				}
+				else {
+					this.prevCameraPos = null
+				}
+
+			 
 			}
 			
 		}
