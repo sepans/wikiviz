@@ -35,27 +35,26 @@ class Root extends Component {
       this.props.dispatch(actions.fetchPageLocation(initialTitle))
 
 
-      this.props.history.listen((location) => {
-        //TODO this is so hacky!
-        //TODO 2: needed?
-        if(location) {
-          // const title = location.pathname.replace('/', '')
-          // this.props.dispatch(actions.navigateToPage(title))
-          // this.props.dispatch(actions.fetchPageLocation(title))
-          // this.props.dispatch(actions.fetchWikiPage())
-
-
-        }
-
-      })
-
-
   	}
 
     componentDidMount() {
       setTimeout(() => {
         this.props.dispatch(actions.closeModal())
       }, 15000)
+
+      //for handling back btn
+      window.onpopstate = this.onBackButtonEvent.bind(this)
+    }
+
+    onBackButtonEvent(e) {
+        //console.log('back' , e, e.currentTarget.location.hash)
+        const title = e.currentTarget.location.hash.replace('#/', '')
+        
+        this.props.dispatch(actions.navigateToPage(title))
+        this.props.dispatch(actions.fetchPageLocation(title))
+        this.props.dispatch(actions.fetchWikiPage())
+
+
     }
 
     closeModal() {

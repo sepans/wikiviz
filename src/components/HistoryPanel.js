@@ -2,8 +2,8 @@ import React from 'react'
 import '../styles/HistoryPanel.css'
 
 const HistoryPanel = (props) => {
-	const historyList = props.history.map(d => (
-			<li key={d.title}>{d.title}</li>
+	const historyList = props.history.map((d, i) => (
+			<li key={i}>{d.title}</li>
 		))
 	return (
 			<div  className="history" style={{opacity: props.history.length> 1 ? 1 : 0}}>
