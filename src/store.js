@@ -11,7 +11,7 @@ import rootReducer from './reducers/'
 const dev = process.env.NODE_ENV === 'development'
 
 const logger = createLogger({
-  predicate: (getState, action) => action.type !== 'HOVERED_ON_MAP'
+  predicate: (getState, action) => action.type !== 'HOVERED_ON_MAP' && action.type !== 'HOVER_MAP_LOCATION_OUT'
 })
 
 const middleware = dev ? 

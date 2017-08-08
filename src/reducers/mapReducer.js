@@ -53,6 +53,8 @@ export default function reducer(state=defualtState, action) {
       return {...state, hoveredItem: action.payload}
     case 'HOVER_MAP_LOCATION':
       return {...state, wikiHover: action.payload}
+    case 'HOVER_MAP_LOCATION_OUT':
+      return {...state, wikiHover: null}
     case 'MAP_READY':
       return {...state, mapReady: true}
     case 'CAMERA_MOVING':

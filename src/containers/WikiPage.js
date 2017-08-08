@@ -41,7 +41,7 @@ export default class WikiPage extends Component {
 
     hoverOnLink(e) {
       const title = e.target.title
-      if(!this.props.map.fetchingLocation) {
+      if(!this.props.map.fetchingLocation && title && title.length) {
         this.activeDebounce = this.debouncedMouseOverLink(title)
       }
     }
@@ -54,9 +54,9 @@ export default class WikiPage extends Component {
     }
 
     mouseOutLink() {
-      console.log('MOUSEOUTLINK')
       this.debouncedMouseOverLink.cancel()
-      this.props.dispatch(actions.hoveredWikiLink())
+      this.props.dispatch(actions.hoverMapLocationOut())
+        
     }
 
     shouldComponentUpdate() {
@@ -76,7 +76,7 @@ export default class WikiPage extends Component {
           .slice(0, NUMBER_OF_NEIGHBORS)
           .filter(d => d.toLowerCase()!==pageTitle.toLowerCase())
           .map(d => (
-            <li>
+            <li key={d}>
               <a title={d} 
                 onClick={(e) => this.wikiLinkClickedNotParsed(e)}
                 onMouseOver={(e) => this.hoverOnLink(e)}

@@ -66,7 +66,7 @@ export function fetchWikiPage() {
 export function hoveredWikiLink(pageName) {
 	return (dispatch) => {
 		if(!pageName) {
-			dispatch(hoverMapLocation())
+			dispatch(hoverMapLocationOut())
 		}
 		else {
 			dispatch(hoveredWikiLinkLoading())
@@ -134,6 +134,13 @@ export function hoverMapLocation(location) {
 		payload: location
 	}
 }
+
+export function hoverMapLocationOut() {
+	return {
+		type: 'HOVER_MAP_LOCATION_OUT'
+	}
+}
+
 
 export function zoomIn() {
 	return {
