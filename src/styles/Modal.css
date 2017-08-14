@@ -55,6 +55,10 @@
 	display: none;
 
 }
+
+.readmore {
+	margin: 0 10px;
+}
 .expanded {
 	max-height: 550px;
 }

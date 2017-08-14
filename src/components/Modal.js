@@ -21,25 +21,11 @@ const Modal = (props) => {
 						The Wikipedia panel on the left works similar to Wikipedia.org. 
 						You can also use the map to go to neighboring articles, or see the history of your navigation.
 						Additionally, hovering on links of the Wikipedia panel show you 
-						the location of the target article.
+						the location of the target article. 
+						<a className="readmore" href="http://blog.fastforwardlabs.com/2017/08/08/encartopedia.html" target="_blank" rel="noopener noreferrer">Read More →</a>
 					</p>
-					<span className="moreContent">
-						<p>
-							
-						</p>
-						<p>
-							categorization
-						</p>
-						<p>
-							front end tech
-						</p>
-						<p>
-							Built at <a href="http://fastforwardlabs.com" target="_blank" rel="noopener noreferrer">Fast Forward Labs</a>
-						</p>
-					</span>
-					<span onClick={() => {props.toggleExpand()}} className="more">
-						{props.expandModal ? 'less' : 'more'}
-					</span>
+					
+					
 				</div>
 			</div>
 		</div>
