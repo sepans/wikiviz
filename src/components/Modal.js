@@ -13,7 +13,7 @@ const Modal = (props) => {
 					<p><b>{appName}</b> helps locating yourself, or to be more precise, 
 						locate the subject matter of your curiosity within the universe of Wikipedia articles.</p>
 					<p>
-						Inspired by <a href="http://wiki.polyfra.me/" target="_blank">Wikigalaxy</a>, {appName} augments
+						Inspired by <a href="http://wiki.polyfra.me/" target="_blank" rel="noopener noreferrer">Wikigalaxy</a>, {appName} augments
 						additional semantical navigation possibilities while preserving the experience of reading Wikipedia articles.
 
 					</p>
@@ -34,7 +34,7 @@ const Modal = (props) => {
 							front end tech
 						</p>
 						<p>
-							Built at <a href="http://fastforwardlabs.com" target="_blank">Fast Forward Labs</a>
+							Built at <a href="http://fastforwardlabs.com" target="_blank" rel="noopener noreferrer">Fast Forward Labs</a>
 						</p>
 					</span>
 					<span onClick={() => {props.toggleExpand()}} className="more">

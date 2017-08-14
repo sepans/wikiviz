@@ -5,7 +5,7 @@ const ArrowLabel = (props) => {
 	const location = props.location || [0, 0]
 	const fontSize = props.fontSize || 12
 	const opacity = props.opacity
-	const dotSize = props.dotSize
+	//const dotSize = props.dotSize
 	const label = props.label || ''
 	const color = props.color || '#000'
 	const arrow = props.arrow || false
@@ -14,7 +14,7 @@ const ArrowLabel = (props) => {
 	const arrowEnd = props.arrowEnd ? [props.arrowEnd[0] - location[0], props.arrowEnd[1] - location[1]] : [arrowLenght, arrowLenght]
 	// if(label.indexOf('You ')<0)
 	// 	console.log('',  props.arrowLenght, arrowLenght, props)
-	const rand =  Math.random()* 0.3 - 0.15
+	//const rand =  Math.random()* 0.3 - 0.15
 	const pathD = direction===0  ?
 					 //`M${arrowEnd[0]},${arrowEnd[1]}L0,0` :
 					 //`M${arrowEnd[0]},${arrowEnd[1]}L0,${arrowEnd[1]*2}`

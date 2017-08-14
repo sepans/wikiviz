@@ -21,6 +21,16 @@ const mobileCheck  = () => {
   return check;
 }
 
+const originWarn = console.warn
+console.warn = (msg) => {
+	if(msg.indexOf('THREE.Shape: Duplicate point') < 0 &&
+	   msg.indexOf('THREE.ShapeUtils: Unable to triangulate polygon') < 0) {
+	
+		originWarn(msg)
+
+	}
+}
+
 ReactDOM.render(
         <Provider store={store}>
         	{mobileCheck() ? 

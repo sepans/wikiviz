@@ -100,7 +100,7 @@ export default class WikiPage extends Component {
           <WikiStyles />
           <div>
             <h2 className="wikiHeader">{pageTitle}</h2>
-            <span><a className="openOrg" href={wikipediaOrgLink} target="_blank">open in wikipedia.org →</a></span>
+            <span><a className="openOrg" href={wikipediaOrgLink} target="_blank" rel="noopener noreferrer">open in wikipedia.org →</a></span>
           </div>
           {neighborsBlock}
           <div className="mw-body-content"

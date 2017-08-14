@@ -194,9 +194,7 @@ export default class Map extends Component {
 		this.camera = camera
 		this.geometry = geometry
 
-		console.log(this.props)
 		if(this.props.map.location && this.props.map.neighbors) {
-			console.log('what is this??!?!?!?!?!?!?!?!?!?!?!')
 			this.updateNeighbors = true //? needed
 
 		}
@@ -207,7 +205,6 @@ export default class Map extends Component {
 	}
 
 	mouseClicked(e) {
-		console.log('mouse clicked', this.mouseDown)
 		if(this.intersected) {
 			if (this.props.map.zoom > 7) {
 				const id = this.intersected.index
@@ -218,7 +215,6 @@ export default class Map extends Component {
 					return
 				}
 				const title = this.props.map.tsneData[tsneIndex].title
-				console.log('title', title)
 
 				this.props.dispatch(actions.checkRedirectAndFetch(title))
 				
@@ -235,7 +231,6 @@ export default class Map extends Component {
 				const distance = - this.camera.position.z / dir.z;
 
 				const pos = this.camera.position.clone().add( dir.multiplyScalar( distance ) );
-				console.log(pos)	
 				const clusterZ = -500
 				this.tweenCamera({x: pos.x, y: pos.y, z: -500}, {}, () => {
 					const zoomLevel = 10 -  Math.round((clusterZ /  (ZOOM_MAX_Z - ZOOM_MIN_Z) * 10) * 10) / 10
@@ -323,9 +318,7 @@ export default class Map extends Component {
 			this.scene.add( mesh );
 			if(indx===0) {
 				this.firstVoronoiId = mesh.id
-				//console.log('vorous', mesh.id, polygon)
 			}
-			//this.meshIdToCentroidId[mesh.id] = polyData.i
 
 
 		})
@@ -435,10 +428,8 @@ export default class Map extends Component {
 
 		}
 		else if(this.hoverLineObject) {
-			//console.log('has hover', this.hoverLineObject, this.prevCameraZ)
 			this.hoverLineObject.material.opacity = 0
 			if(this.prevCameraPos) {
-				//console.log('move camera back? ', this.prevCameraPos, this.camera.position)
 				//only move camera back when x,y are the same
 				if(this.prevCameraPos.x===this.camera.position.x && 
 				   this.prevCameraPos.y===this.camera.position.y && 
@@ -465,8 +456,6 @@ export default class Map extends Component {
 		 	return
 		}
 
-		console.log('DRWAING HISTORY')
-		
 		let points = []
 
 		for(let i=0 ; i< history.length -1 ; i++) {
@@ -545,7 +534,6 @@ export default class Map extends Component {
 		const prevLocation = this.props.map.location
 		const CAMERA_Y_OFFSET = 50
 		if(this.locationChanged(this.props.map.location, nextProps.map.location)) {
-			console.log('UPDATING neighbors')
 			//this.addNeighbors(nextProps.map.location, nextProps.map.neighbors, nextProps.wikipage.pageTitle)
 			this.updateNeighbors = true;
 			this.drawHistory()
@@ -643,7 +631,6 @@ export default class Map extends Component {
 
 	        })
 	        .onComplete(() => {
-	        	console.log('zoom out completed')
 	        	setTimeout(() => {
 	        		this.props.dispatch(actions.cameraMoving(false))
 	        	}, 100)
@@ -687,8 +674,6 @@ export default class Map extends Component {
 	}
 	
 	renderThree() {
-	 	//console.log('.')
-		//this.controls.update(  );
 		const width = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
 		const height =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio// width
 	
@@ -696,14 +681,12 @@ export default class Map extends Component {
 		TWEEN.update()
 		
 		if(this.props.map.raycast && !this.props.map.cameraMoving) {
-			//console.log('raycasting')
 			this.raycaster.params.Points.threshold = this.props.map.zoom > 8 ? 5 : 30
 			this.raycaster.setFromCamera( this.mouse, this.camera );
 			var intersects = this.raycaster.intersectObjects( this.scene.children, true );
 			if ( intersects.length > 0) {
 				let i = 0
 				let intersectedObject = intersects[i]
-				//console.log(intersectedObject)
 				while(i < intersects.length && intersectedObject.object.type==='Sprite') {
 					i++
 					intersectedObject = intersects[i]
@@ -722,7 +705,6 @@ export default class Map extends Component {
 							if(materialColor) {
 								//materialColor.setRGB(0, 0, 1)
 								intersectedObject.object.geometry.colorsNeedUpdate = true
-								//console.log(tsneIndex, hoveredItem.title, )
 								hoveredItem.mousex = (this.mouse.x + 1)/2 * width + 8
 								hoveredItem.mousey = - (this.mouse.y - 1)/2 * height - 5
 								const prevHoveredItem = this.props.map.hoveredItem
@@ -737,7 +719,7 @@ export default class Map extends Component {
 							}
 						}
 						else if(intersectedObject.index > this.props.map.tsneData.length) {
-							console.log('what object is this? ', intersectedObject.index)
+							//console.log('what object is this? ', intersectedObject.index)
 						}
 
 
@@ -875,7 +857,6 @@ export default class Map extends Component {
 	}
 
 	mouseup(e) {
-	    console.log('mouseup ', this.props.map.cameraMoving)
 	    this.mouseDown = false;
     	if(this.props.map.cameraMoving) {
     		this.props.dispatch(actions.cameraMoving(false))
@@ -898,7 +879,7 @@ export default class Map extends Component {
 	mousemove(e) {
 		e.preventDefault();
 
-	    const camera = this.camera
+	    //const camera = this.camera
 	          //scatterPlot = threejsObjects.scatterPlot
 
 	    //disable drag since mouseup is not working
@@ -923,10 +904,6 @@ export default class Map extends Component {
 
 		this.mouse.x = ( e.nativeEvent.offsetX / w ) * 2 - 1;
 		this.mouse.y = - ( e.nativeEvent.offsetY / h ) * 2 + 1;
-		// const mouse2 = new THREE.Vector2()
-		//  mouse2.x = ( e.nativeEvent.offsetX / this.width ) * 2 - 1;
-		// mouse2.y = - ( e.nativeEvent.offsetY / this.height ) * 2 + 1;
-		// console.log('react', mouse2)
 
 
 	}
@@ -988,17 +965,17 @@ export default class Map extends Component {
 		// let curLocation = mapReady ? 
 		// 				[this.x(this.props.map.location[0]), this.y(this.props.map.location[1])] : [0,0]
 		let curLocation = [0, 0],
-			wikiHoverLocation = [0, 0],
-			curMousePos = [0, 0]
+			wikiHoverLocation = [0, 0]
+			//curMousePos = [0, 0]
 		if(mapReady && this.props.map.location) {
 
 	        curLocation = this.mapLocationToDomLocation(this.props.map.location)
 
-			const w = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio
-			const h =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio
+			// const w = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio
+			// const h =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio
 
-			curMousePos = [ (this.mouse.x + 1)/2 * w ,
-							 -(this.mouse.y - 1)/2 * h]
+			// curMousePos = [ (this.mouse.x + 1)/2 * w ,
+			// 				 -(this.mouse.y - 1)/2 * h]
 
 
 		}
@@ -1012,9 +989,7 @@ export default class Map extends Component {
 			this.updateNeighbors = false
 		}
 
-		const dotSize = zoomLevel > 7 ? '8px' : '4px'
-
-
+		// const dotSize = zoomLevel > 7 ? '8px' : '4px'
 		
 		return (
 				<div className="root">							

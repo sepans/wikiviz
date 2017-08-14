@@ -13,7 +13,6 @@ export default function reducer(state=defualtState, action) {
     case 'NAVIGATE_TO_PAGE':
       return {...state, pageTitle: action.payload}
     case 'FETCH_WIKIPAGE_PENDING':
-        console.log('fetch', state)
       return {...state, fetching: true}
     case 'FETCH_WIKIPAGE_FULFILLED':
       const content = action.payload.data.parse.text['*']
