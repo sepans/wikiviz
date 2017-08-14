@@ -14,6 +14,9 @@
 	list-style: none;
 	padding: 0;
 	margin: 0;
+    overflow: scroll;
+    white-space: nowrap;
+    width: 95%;	
 }
 
 .history .label {
@@ -39,9 +42,10 @@
 }
 
 .history li::after {
-	content: '. . .';
+	content: '...';
 	position: absolute;
-	right: -23px;
+	right: -25px;
+	letter-spacing: 2px;
 }
 
 .history li:last-child::after {

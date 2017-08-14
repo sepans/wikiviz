@@ -50,9 +50,13 @@ class Root extends Component {
         //console.log('back' , e, e.currentTarget.location.hash)
         const title = e.currentTarget.location.hash.replace('#/', '')
         
-        this.props.dispatch(actions.navigateToPage(title))
-        this.props.dispatch(actions.fetchPageLocation(title))
-        this.props.dispatch(actions.fetchWikiPage())
+        console.log('EVENT!!!! onpopstate ', e, title, this.props.map.pageTitle)
+
+        if(title !== this.props.map.pageTitle) {
+          this.props.dispatch(actions.navigateToPage(title))
+          this.props.dispatch(actions.fetchPageLocation(title))
+          this.props.dispatch(actions.fetchWikiPage())
+        }
 
 
     }
