@@ -526,6 +526,12 @@ export default class Map extends Component {
 			this.props.map.tsneData) {
 			this.init()
 		}
+		if(this.locationChanged(this.props.map.location, prevProps.map.location)) {
+			//this.addNeighbors(nextProps.map.location, nextProps.map.neighbors, nextProps.wikipage.pageTitle)
+			this.updateNeighbors = true;
+			this.drawHistory()
+		}
+
 
 	}
 
@@ -533,11 +539,6 @@ export default class Map extends Component {
 		const location = nextProps.map.location
 		const prevLocation = this.props.map.location
 		const CAMERA_Y_OFFSET = 50
-		if(this.locationChanged(this.props.map.location, nextProps.map.location)) {
-			//this.addNeighbors(nextProps.map.location, nextProps.map.neighbors, nextProps.wikipage.pageTitle)
-			this.updateNeighbors = true;
-			this.drawHistory()
-		}
 		if(this.props.map.zoom !== nextProps.map.zoom && (nextProps.map.zoom===11 || nextProps.map.zoom===1)) {
 			//zoom btns clicked
 			const nextCameraProps = nextProps.map.zoom===11 ? 
