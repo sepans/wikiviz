@@ -32,7 +32,7 @@ class Root extends Component {
 
   		this.props.dispatch(actions.fetchTsneData())
       this.props.dispatch(actions.fetchCentroidData())
-      this.props.dispatch(actions.fetchPageLocation(initialTitle))
+       //this.props.dispatch(actions.fetchPageLocation(initialTitle))
 
 
   	}
@@ -54,7 +54,7 @@ class Root extends Component {
 
         if(title !== this.props.map.pageTitle) {
           this.props.dispatch(actions.navigateToPage(title))
-          this.props.dispatch(actions.fetchPageLocation(title))
+          // this.props.dispatch(actions.fetchPageLocation(title))
           this.props.dispatch(actions.fetchWikiPage())
         }
 
@@ -81,11 +81,14 @@ class Root extends Component {
 
     	return (<div> 
           <TopBanner appName={appName} aboutClicked={this.openModal.bind(this)}/>
-          <div style={{padding: '10px 0 10px 25px',  width: '45%', display: 'inline-block'}}>
-          	<WikiPage {...this.props}/>
-          </div>
-          <div style={{border: '1px solid #e5e55', float: 'right', margin: '10px 25px 0 0'}}>
-          	<Map {...this.props}/>
+          <div className='content-container'>
+
+            <div className='wiki-panel'>
+              <WikiPage {...this.props}/>
+            </div>
+            <div className='map-panel'>
+              <Map {...this.props}/>
+            </div>
           </div>
           <HistoryPanel history={this.props.map.wikiHistory} />
           <Modal showModal={showModal} 

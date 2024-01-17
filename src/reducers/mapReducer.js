@@ -32,6 +32,7 @@ export default function reducer(state=defualtState, action) {
       return {...state, fetchingLocation: true}
     case 'FETCH_LOCATION_FULFILLED':
       //TODO: move this somewhere better
+      console.log('fulfilled')
       const location = action.payload.data.location//Object.values(action.payload.data.query.pages)[0].revisions[0]['*']
       const neighbors = action.payload.data.nn
       const wikiHistory = state.wikiHistory || []
@@ -42,7 +43,16 @@ export default function reducer(state=defualtState, action) {
       })
       return {...state, fetchingLocation: false, location: location, neighbors: neighbors, wikiHistory: wikiHistory}
     case 'FETCH_LOCATION_REJECTED':
-      return {...state, fetching: false, error: state.error.concat(action.payload)}
+      console.log('rejected')
+      const loc = [0, 0]// action.payload.data.location//Object.values(action.payload.data.query.pages)[0].revisions[0]['*']
+      const neigh = ['aa', 'bb'] // action.payload.data.nn
+      const wikiH = state.wikiHistory || []
+      wikiHistory.push({
+        x: loc[0],
+        y: loc[1],
+        title: state.pageTitle 
+      })
+      return {...state, fetchingLocation: false, location: location, neighbors: neigh, wikiHistory: wikiH}
     case 'MAP_ZOOM_IN':
       return {...state, zoom: 11/*Math.min(state.zoom + 10, 30)*/, raycast: true}
     case 'MAP_ZOOM_OUT':

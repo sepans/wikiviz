@@ -28,7 +28,7 @@ const ZOOM_MIN_Z = -1200,
       ZOOM_CAMERA_TILT_X = 0.25
 const PARTICLE_SIZE = 10
 
-const pageToCanvasWidthRatio = 0.48,
+const pageToCanvasWidthRatio = 1,
 	  pageToCanvasHeightRatio = 0.9
 	
 
@@ -81,7 +81,8 @@ export default class Map extends Component {
 		this.mouse = new THREE.Vector2()
 		this.mouseStart = new THREE.Vector2()
 
-		const width = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
+		const width = this.refs.threejs.getBoundingClientRect().width // this.props.wikipage.windowSize.width * pageToCanvasWidthRatio// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
+		console.log(width)
 		const height =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio// width
 
 		//TODO move to redux store
@@ -675,7 +676,8 @@ export default class Map extends Component {
 	}
 	
 	renderThree() {
-		const width = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
+		// console.log(this.refs.threejs, this.refs.threejs.getBoundingClientRect())
+		const width = this.refs.threejs.getBoundingClientRect().width //this.props.wikipage.windowSize.width * pageToCanvasWidthRatio// window.innerWidth * 0.48//Math.min(window.innerWidth * 0.45, window.innerHeight)
 		const height =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio// width
 	
 		
@@ -848,7 +850,7 @@ export default class Map extends Component {
 	    this.sy = e.clientY;
 	    this.ssx = e.clientX;
 	    this.ssy = e.clientY;
-		const w = this.props.wikipage.windowSize.width * pageToCanvasWidthRatio
+		const w = this.refs.threejs.getBoundingClientRect().width // this.props.wikipage.windowSize.width * pageToCanvasWidthRatio
 		const h =  this.props.wikipage.windowSize.height * pageToCanvasHeightRatio
 
 	    this.mouseStart.x = ( e.clientX / w ) * 2 - 1;

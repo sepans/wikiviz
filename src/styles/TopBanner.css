@@ -6,6 +6,43 @@
 	padding: 5px 20px;
 }
 
+/* TODO: move> */
+.content-container {
+	display: flex;
+	flex-direction: row;
+}
+
+.wiki-panel {
+	padding: 10px;
+}
+
+.map-panel {
+
+}
+
+@media (max-width: 800px) {
+
+	.content-container {
+
+		flex-direction: column;
+		width: 100%;
+
+	}
+	
+	.wiki-panel {
+		height: 50vh;
+		overflow-y: scroll;
+		width: 100%;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.7);
+	}
+	
+	.map-panel {
+		width: 100%;
+	}
+}
+
+
+
 .ffl-logo {
 	display: inline-block;
 	width: 30px;
