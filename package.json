@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "axios": "^0.16.2",
+    "axios": "^1.6.6",
     "d3-polygon": "^1.0.3",
     "d3-scale": "^1.0.6",
     "d3-voronoi": "^1.1.2",
