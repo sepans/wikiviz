@@ -42,7 +42,8 @@ export default function reducer(state=defualtState, action) {
       })
       return {...state, fetchingLocation: false, location: location, neighbors: neighbors, wikiHistory: wikiHistory}
     case 'FETCH_LOCATION_REJECTED':
-      return {...state, fetching: false, error: state.error.concat(action.payload)}
+      // FIXME: changing fetchingLocation: false for now that similars endpoint is not working to make the page render
+      return {...state, fetchingLocation: false, error: state.error.concat(action.payload) }
     case 'MAP_ZOOM_IN':
       return {...state, zoom: 11/*Math.min(state.zoom + 10, 30)*/, raycast: true}
     case 'MAP_ZOOM_OUT':

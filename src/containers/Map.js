@@ -541,7 +541,7 @@ export default class Map extends Component {
 		const CAMERA_Y_OFFSET = 50
 		if(this.props.map.zoom !== nextProps.map.zoom && (nextProps.map.zoom===11 || nextProps.map.zoom===1)) {
 			//zoom btns clicked
-			const nextCameraProps = nextProps.map.zoom===11 ? 
+			const nextCameraProps = nextProps.map.zoom===11 && location ? 
 			{
 				x: this.x(location[0]),
 				y: this.y(location[1]) - CAMERA_Y_OFFSET,
